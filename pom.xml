@@ -173,7 +173,7 @@
 		<dependency>
 			<groupId>org.jbibtex</groupId>
 			<artifactId>jbibtex</artifactId>
-			<version>1.0.15</version>
+			<version>1.0.17</version>
 		</dependency>
 
 		<dependency>

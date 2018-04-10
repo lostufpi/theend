@@ -17,6 +17,14 @@ public class BibtexToArticleUtils {
 	
 	private static final Logger logger = LoggerFactory.getLogger(BibtexToArticleUtils.class);
 	
+	/**
+	 * <p>Existem sistuações que um campo possui mais de uma { e }.</p>
+	 * <p>Exemplo:</p>
+	 * <p>  title = {{Título do artigo.}}</p>
+	 * <p>Esse método verifica a existência de {, caso existe à remove da string retornada.</p>
+	 * @param field string com o valor do campo do bibtex
+	 * @return string sem { e } caso exista.
+	 */
 	static public String remove(String field){
 		if (field.length() > 2 && field.charAt(0) == '{'){
 			field = field.substring(1, (field.length()-1));
@@ -105,6 +113,10 @@ public class BibtexToArticleUtils {
 		language = remove(language);
 		article.setLanguage(language);
 		
+		String url = getAttr(fields,BibTeXEntry.KEY_URL);
+		url = remove(url);
+		article.setLanguage(url);
+		
 		if(sourceEnum.equals(ArticleSourceEnum.SCOPUS)){
 			String docType = getAttr(fields, new Key("document_type"));
 			docType = remove(docType);
@@ -124,6 +136,14 @@ public class BibtexToArticleUtils {
 			article.setDocType(docType);
 			
 //			System.out.println("DocType: " + docType);
+		}else if(sourceEnum.equals(ArticleSourceEnum.SCIELO)){
+			String doi2 = getAttr(fields, new Key("crossref"));
+			doi2 = remove(doi2);
+			article.setDoi(doi2);
+			
+			String docType = getAttr(fields, new Key("type"));
+			docType = remove(docType);
+			article.setDocType(docType);
 		}
 		
 		return article;
