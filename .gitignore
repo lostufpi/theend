@@ -26,3 +26,4 @@ backups/systematicmap_2015_06_08.sql
 backups/systematicmap_fixed_2015_06_04.sql
 000-default.conf
 /target/
+/.tern-project
