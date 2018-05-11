@@ -25,6 +25,8 @@ import org.jbibtex.BibTeXDatabase;
 import org.jbibtex.BibTeXEntry;
 import org.jbibtex.Key;
 import org.jbibtex.ParseException;
+import org.jbibtex.TokenMgrException;
+import org.slf4j.Logger;
 
 import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Get;
@@ -90,11 +92,13 @@ public class MapStudyController {
 	
 	private MailUtils mailUtils;
 	
+	private final Logger logger;
+	
 	/**
 	 * @deprecated CDI eyes only
 	 */
 	protected MapStudyController() {
-		this(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 	}
 
 
@@ -104,7 +108,7 @@ public class MapStudyController {
 				UserDao userDao, ArticleDao articleDao, 
 				InclusionCriteriaDao inclusionDao,
 				ExclusionCriteriaDao exclusionDao,
-				EvaluationDao evaluationDao, MailUtils mailUtils, Linker linker, ResearchQuestionDao questionDao, SearchStringDao stringDao) {
+				EvaluationDao evaluationDao, MailUtils mailUtils, Linker linker, ResearchQuestionDao questionDao, SearchStringDao stringDao, Logger logger) {
 		this.mapStudyDao = musicDao;
 		this.result = result;
         this.validator = validator;
@@ -119,6 +123,7 @@ public class MapStudyController {
 		this.linker = linker;
 		this.questionDao = questionDao;
 		this.stringDao = stringDao;
+		this.logger = logger;
 	}
 	
 	
@@ -356,45 +361,56 @@ public class MapStudyController {
 	}
 	
 	@Post("/maps/addarticles")
-	public void addarticles(Long id, UploadedFile upFile, ArticleSourceEnum source){
+	public void addarticles(Long id, UploadedFile upFile, ArticleSourceEnum source) {
 		validator.onErrorForwardTo(this).identification(id);
-		
+
 		BibtexUtils bibtexUtils = new BibtexUtils();
-		
+
 		MapStudy mapStudy = mapStudyDao.find(id);
-		
-		validator.check(mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser()), new SimpleMessage("user", "user.is.not.creator"));
+
+		validator.check(mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser()),
+				new SimpleMessage("user", "user.is.not.creator"));
 		validator.onErrorRedirectTo(this).identification(id);
-		
+
 		BibTeXDatabase database = null;
-		
-		if (upFile != null){
+
+		if (upFile != null) {
 			validator.check(files.save(upFile, mapStudy), new SimpleMessage("user", "error.generating.file"));
 			validator.onErrorRedirectTo(this).identification(id);
 			
 			try {
 				database = bibtexUtils.parseBibTeX(files.getFile(mapStudy));
-			} catch (IOException | ParseException e) {
-//				e.getMessage();
+			} catch (TokenMgrException | ParseException e) {
+				System.out.println(e.getMessage());
+				logger.info(e.getMessage());
+				validator.check(false, new SimpleMessage("bibtex", "bibtex.format.error"));
+				validator.onErrorRedirectTo(this).identification(id);
+				return;
+			} catch (IOException e2){
+				System.out.println(e2.getMessage());
+				logger.info(e2.getMessage());
+				validator.check(false, new SimpleMessage("bibtex", "bibtex.file.error"));
+				validator.onErrorRedirectTo(this).identification(id);
+				return;
 			}
 		}
-		
-		validator.check(database!=null, new SimpleMessage("path", "no.select.path"));
+
+		validator.check(database != null, new SimpleMessage("path", "no.select.path"));
 		validator.onErrorRedirectTo(this).identification(id);
-		
-	    Map<Key, BibTeXEntry> entryMap = database.getEntries();
-	    Collection<BibTeXEntry> entries = entryMap.values();
-	    
-		for(BibTeXEntry entry : entries){
+
+		Map<Key, BibTeXEntry> entryMap = database.getEntries();
+		Collection<BibTeXEntry> entries = entryMap.values();
+
+		for (BibTeXEntry entry : entries) {
 			Article a = BibtexToArticleUtils.bibtexToArticle(entry, source);
 			mapStudy.addArticle(a);
 			articleDao.insert(a);
 		}
-		
+
 		mapStudyDao.update(mapStudy);
-		
+
 		result.include("notice", new SimpleMessage("mapstudy.articles", "articles.add.sucess"));
-	    result.redirectTo(this).identification(id);
+		result.redirectTo(this).identification(id);
 	}
 	
 	//TODO teste de inserir trabalhos manualmente @Get e @Post
