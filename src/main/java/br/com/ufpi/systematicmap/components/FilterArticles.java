@@ -32,6 +32,7 @@ public class FilterArticles {
 	private boolean filterAuthor;
 	private boolean filterAbstract;
 	private boolean filterLevenshtein;
+	private boolean filterStatus = true;
 	
 	@Inject
 	private UserInfo userInfo;
@@ -120,10 +121,19 @@ public class FilterArticles {
 				if(termos.size() < limiartotal){
 					p.setClassification(ClassificationEnum.WORDS_DONT_MATCH);
 				}
+				filterStatus = false;
 			}			
 		}		
 	}
 	
+	public boolean isFilterStatus() {
+		return filterStatus;
+	}
+
+	public void setFilterStatus(boolean filterStatus) {
+		this.filterStatus = filterStatus;
+	}
+
 	public void filterTitleEquals(){
 //		double count = 0, size = papers.size();
 		for(Article p : papers){
@@ -158,6 +168,7 @@ public class FilterArticles {
 	
 	public boolean filter(){
 		try{
+			
 			filterAll();
 			
 			if(filterLevenshtein){
@@ -328,4 +339,7 @@ public class FilterArticles {
 		return count;
 	}
 	
+	public int getPappersSize() {
+		return papers.size();
+	}
 }

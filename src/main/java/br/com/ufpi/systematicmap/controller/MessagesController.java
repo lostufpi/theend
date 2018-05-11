@@ -9,7 +9,7 @@ import javax.inject.Named;
 import br.com.ufpi.systematicmap.model.Mensagem;
 
 @Named("msg") @SessionScoped
-public class Messages implements Serializable {
+public class MessagesController implements Serializable {
 
 	/**
 	 * 
