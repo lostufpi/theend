@@ -15,35 +15,34 @@ import org.jbibtex.BibTeXParser;
 import org.jbibtex.BibTeXString;
 import org.jbibtex.Key;
 import org.jbibtex.ParseException;
+import org.jbibtex.TokenMgrException;
 
 public class BibtexUtils {
-	
-	public BibTeXDatabase parseBibTeX(File file) throws IOException, ParseException {
-		Reader reader = new FileReader(file);
-//		InputStream is = new FileInputStream(file);
-//		InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
 
+	public BibTeXDatabase parseBibTeX(File file) throws IOException, TokenMgrException, ParseException {
+		Reader reader = null;
 		try {
-			BibTeXParser parser = new BibTeXParser(){
-
+			reader = new FileReader(file);
+			// InputStream is = new FileInputStream(file);
+			// InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
+			BibTeXParser parser = new BibTeXParser() {
 				@Override
-				public void checkStringResolution(Key key, BibTeXString string){
-
-					if(string == null){
+				public void checkStringResolution(Key key, BibTeXString string) {
+					if (string == null) {
 						System.err.println("Unresolved string: \"" + key.getValue() + "\"");
 					}
 				}
 
 				@Override
-				public void checkCrossReferenceResolution(Key key, BibTeXEntry entry){
-
-					if(entry == null){
+				public void checkCrossReferenceResolution(Key key, BibTeXEntry entry) {
+					if (entry == null) {
 						System.err.println("Unresolved cross-reference: \"" + key.getValue() + "\"");
 					}
 				}
 			};
 
 			return parser.parse(reader);
+
 		} finally {
 			reader.close();
 		}
@@ -60,5 +59,5 @@ public class BibtexUtils {
 			writer.close();
 		}
 	}
-	
+
 }

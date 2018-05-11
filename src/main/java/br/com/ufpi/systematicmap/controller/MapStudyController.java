@@ -25,6 +25,7 @@ import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.jbibtex.BibTeXDatabase;
 import org.jbibtex.BibTeXEntry;
 import org.jbibtex.Key;
+import org.jbibtex.ParseException;
 import org.jbibtex.TokenMgrException;
 import org.slf4j.Logger;
 
@@ -99,7 +100,7 @@ public class MapStudyController {
 	private MailUtils mailUtils;
 
 	private final Logger logger;
-	
+
 	/**
 	 * @deprecated CDI eyes only
 	 */
@@ -111,7 +112,8 @@ public class MapStudyController {
 	public MapStudyController(MapStudyDao musicDao, UserInfo userInfo, Result result, Validator validator,
 			FilesUtils files, UserDao userDao, ArticleDao articleDao, InclusionCriteriaDao inclusionDao,
 			ExclusionCriteriaDao exclusionDao, EvaluationDao evaluationDao, MailUtils mailUtils, Linker linker,
-			ResearchQuestionDao questionDao, SearchStringDao stringDao, MapStudyFilterArticleThread threadController, Logger logger) {
+			ResearchQuestionDao questionDao, SearchStringDao stringDao, MapStudyFilterArticleThread threadController,
+			Logger logger) {
 		this.mapStudyDao = musicDao;
 		this.result = result;
 		this.validator = validator;
@@ -127,7 +129,7 @@ public class MapStudyController {
 		this.questionDao = questionDao;
 		this.stringDao = stringDao;
 		this.threadController = threadController;
-		this.logger=logger;
+		this.logger = logger;
 	}
 
 	@Get("/maps")
@@ -392,7 +394,21 @@ public class MapStudyController {
 				result.redirectTo(this).identification(id);
 				return;
 			} else {
-				database = bibtexUtils.parseBibTeX(files.getFile(mapStudy));
+				try {
+					database = bibtexUtils.parseBibTeX(files.getFile(mapStudy));
+				} catch (TokenMgrException | ParseException e) {
+					System.out.println(e.getMessage());
+					logger.info(e.getMessage());
+					MessagesController.addMessage(new Mensagem("bibtex", "bibtex.format.error", TipoMensagem.ERRO));
+					result.redirectTo(this).identification(id);
+					return;
+				} catch (IOException e2) {
+					System.out.println(e2.getMessage());
+					logger.info(e2.getMessage());
+					MessagesController.addMessage(new Mensagem("bibtex", "bibtex.file.error", TipoMensagem.ERRO));
+					result.redirectTo(this).identification(id);
+					return;
+				}
 			}
 		}
 
@@ -414,7 +430,6 @@ public class MapStudyController {
 		mapStudyDao.update(mapStudy);
 
 		MessagesController.addMessage(new Mensagem("mapstudy.articles", "articles.add.sucess", TipoMensagem.SUCESSO));
-
 		result.redirectTo(this).identification(id);
 	}
 
@@ -426,10 +441,10 @@ public class MapStudyController {
 		MapStudy mapStudy = mapStudyDao.find(mapId);
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist",TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
-		}		
+		}
 
 		if (!(mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser()))) {
 			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TipoMensagem.ERRO));

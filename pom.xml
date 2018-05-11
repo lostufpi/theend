@@ -207,7 +207,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>SystematicMap-${project.version}</finalName>
+		<finalName>theend</finalName>
 		<outputDirectory>${basedir}/src/main/webapp/WEB-INF/classes</outputDirectory>
 		<plugins>
 			<plugin>
