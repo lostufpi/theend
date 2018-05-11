@@ -5,7 +5,7 @@ import java.io.Serializable;
 import javax.enterprise.context.Dependent;
 
 import br.com.ufpi.systematicmap.components.FilterArticles;
-import br.com.ufpi.systematicmap.controller.Messages;
+import br.com.ufpi.systematicmap.controller.MessagesController;
 import br.com.ufpi.systematicmap.model.Mensagem;
 import br.com.ufpi.systematicmap.model.enums.TipoMensagem;
 
@@ -22,7 +22,7 @@ public class MapStudyFilterArticleThread extends Thread implements Serializable 
 	public void run() {
 		filter.filter();
 		System.out.println("Thread Concluida!!!!");
-		Messages.addMessage(new Mensagem("filter.end.tittle","filter.end.message", TipoMensagem.SUCESSO));
+		MessagesController.addMessage(new Mensagem("filter.end.tittle","filter.end.message", TipoMensagem.SUCESSO));
 	}
 	public FilterArticles getFilter() {
 		return filter;

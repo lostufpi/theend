@@ -25,6 +25,8 @@ import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.jbibtex.BibTeXDatabase;
 import org.jbibtex.BibTeXEntry;
 import org.jbibtex.Key;
+import org.jbibtex.TokenMgrException;
+import org.slf4j.Logger;
 
 import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Get;
@@ -96,18 +98,20 @@ public class MapStudyController {
 
 	private MailUtils mailUtils;
 
+	private final Logger logger;
+	
 	/**
 	 * @deprecated CDI eyes only
 	 */
 	protected MapStudyController() {
-		this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 	}
 
 	@Inject
 	public MapStudyController(MapStudyDao musicDao, UserInfo userInfo, Result result, Validator validator,
 			FilesUtils files, UserDao userDao, ArticleDao articleDao, InclusionCriteriaDao inclusionDao,
 			ExclusionCriteriaDao exclusionDao, EvaluationDao evaluationDao, MailUtils mailUtils, Linker linker,
-			ResearchQuestionDao questionDao, SearchStringDao stringDao, MapStudyFilterArticleThread threadController) {
+			ResearchQuestionDao questionDao, SearchStringDao stringDao, MapStudyFilterArticleThread threadController, Logger logger) {
 		this.mapStudyDao = musicDao;
 		this.result = result;
 		this.validator = validator;
@@ -123,6 +127,7 @@ public class MapStudyController {
 		this.questionDao = questionDao;
 		this.stringDao = stringDao;
 		this.threadController = threadController;
+		this.logger=logger;
 	}
 
 	@Get("/maps")
