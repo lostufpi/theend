@@ -169,7 +169,7 @@
 	<div id="preloader"></div>
 	<div id="wrapper">
 		<nav class="navbar navbar-default navbar-static-top" role="navigation"
-			style="margin-bottom: 0"> 
+			style="margin-bottom: 0">
 
 		<div class="container">
 			<div class="navbar-header">
@@ -244,12 +244,6 @@
 						</div>
 					</div>
 
-					<div id="messagesController">
-						<script type="text/javascript">
-							funcion()
-						</script>
-					</div>
-
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<h4 class="panel-title">
@@ -287,54 +281,16 @@
 						<div class="${mensagem.getClasse()}" role="alert">
 							<!-- <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> -->
 							<!-- <span class="sr-only">Error:</span> -->
-							<button type="button" class="close" data-dismiss="alert"aria-label="Close">
+							<button type="button" class="close" data-dismiss="alert"
+								aria-label="Close">
 								<span aria-hidden="true">&times;</span>
 							</button>
-							<strong> <fmt:message key="${mensagem.category}" /></strong> <fmt:message key="${mensagem.value}" />
+							<strong> <fmt:message key="${mensagem.category}" /></strong>
+							<fmt:message key="${mensagem.value}" />
 						</div>
 					</c:forEach>
-					${msg.clean()}
-			</c:if>
-
-				<!--     			<div id="messages"></div> -->
-<%-- 				<c:if test="${not empty errors}"> --%>
-<!-- 					<div class="alert alert-danger alert-dismissible" role="alert"> -->
-<!-- 						<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> -->
-<!-- 						<span class="sr-only">Error:</span> -->
-<!-- 						<button type="button" class="close" data-dismiss="alert" -->
-<!-- 							aria-label="Close"> -->
-<!-- 							<span aria-hidden="true">&times;</span> -->
-<!-- 						</button> -->
-<%-- 						<c:forEach items="${errors}" var="error"> --%>
-<%-- 							<b><fmt:message key="${error.category}" /></b> - <fmt:message --%>
-<%-- 								key="${error.message}" /> --%>
-<!-- 							<br /> -->
-<%-- 						</c:forEach> --%>
-<!-- 					</div> -->
-<%-- 				</c:if> --%>
-<%-- 				<c:if test="${not empty notice}"> --%>
-<!-- 					<div class="alert alert-info alert-dismissible" role="alert" -->
-<!-- 						id="notices"> -->
-<!-- 						<button type="button" class="close" data-dismiss="alert" -->
-<!-- 							aria-label="Close"> -->
-<!-- 							<span aria-hidden="true">&times;</span> -->
-<!-- 						</button> -->
-<%-- 						<b><fmt:message key="${notice.category}" /></b> - --%>
-<%-- 						<fmt:message key="${notice.message}" /> --%>
-<!-- 						<br /> -->
-<!-- 					</div> -->
-<%-- 				</c:if> --%>
-
-<%-- 				<c:if test="${not empty warning}"> --%>
-<!-- 					<div class="alert alert-warning alert-dismissible" role="alert" -->
-<!-- 						id="warning"> -->
-<!-- 						<button type="button" class="close" data-dismiss="alert" -->
-<!-- 							data-hide="alert">&times;</button> -->
-<%-- 						<b><fmt:message key="${warning.category}" /></b> - --%>
-<%-- 						<fmt:message key="${warning.message}" /> --%>
-<!-- 						<br /> -->
-<!-- 					</div> -->
-<%-- 				</c:if> --%>
+				</c:if>
+				${msg.clean()}
 				<decorator:body />
 			</div>
 		</div>
