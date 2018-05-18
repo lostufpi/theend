@@ -6,19 +6,18 @@ import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
-import br.com.caelum.vraptor.validator.SimpleMessage;
-import br.com.caelum.vraptor.validator.Validator;
 import br.com.ufpi.systematicmap.dao.UserDao;
 import br.com.ufpi.systematicmap.interceptor.Public;
 import br.com.ufpi.systematicmap.interceptor.UserInfo;
+import br.com.ufpi.systematicmap.model.Mensagem;
 import br.com.ufpi.systematicmap.model.User;
+import br.com.ufpi.systematicmap.model.enums.TipoMensagem;
 import br.com.ufpi.systematicmap.utils.GenerateHashPasswordUtil;
 
 @Controller
 public class HomeController {
 
 	private final Result result;
-	private final Validator validator;
 	private final UserInfo userInfo;
 	private final UserDao dao;
 	
@@ -26,15 +25,14 @@ public class HomeController {
 	 * @deprecated CDI eyes only
 	 */
 	protected HomeController() {
-		this(null, null, null, null);
+		this(null, null, null);
 	}
 
 	@Inject
-	public HomeController(UserDao dao, UserInfo userInfo, Result result, Validator validator) {
+	public HomeController(UserDao dao, UserInfo userInfo, Result result) {
 	    this.dao = dao;
 		this.result = result;
-	    this.validator = validator;
-        this.userInfo = userInfo;
+	    this.userInfo = userInfo;
 	}
 	
 	@Public
@@ -53,12 +51,15 @@ public class HomeController {
 	public void login(String login, String password) {
 		GenerateHashPasswordUtil generateHashPasswordUtil = new GenerateHashPasswordUtil();
 		final User currentUser = dao.find(login, generateHashPasswordUtil.generateHash(password));
-		validator.check(currentUser != null, new SimpleMessage("login", "invalid_login_or_password"));
-		validator.onErrorUsePageOf(this).login();
-
+		if (currentUser == null) {
+			MessagesController.addMessage(new Mensagem("login", "invalid_login_or_password", TipoMensagem.ERRO));
+			result.redirectTo(this).login();
+			return;
+		}
+		
 		userInfo.login(currentUser);
 		
-		result.include("notice", new SimpleMessage("user.login", "mapstudy.login.success"));		
+		MessagesController.addMessage(new Mensagem("user.login", "mapstudy.login.success", TipoMensagem.SUCESSO));
 		result.redirectTo(MapStudyController.class).home();
 	}
 

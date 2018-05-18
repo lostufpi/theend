@@ -12,7 +12,6 @@ import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
-import br.com.caelum.vraptor.validator.SimpleMessage;
 import br.com.caelum.vraptor.validator.Validator;
 import br.com.ufpi.systematicmap.dao.ArticleDao;
 import br.com.ufpi.systematicmap.dao.EvaluationDao;
@@ -26,7 +25,9 @@ import br.com.ufpi.systematicmap.model.Evaluation;
 import br.com.ufpi.systematicmap.model.ExclusionCriteria;
 import br.com.ufpi.systematicmap.model.InclusionCriteria;
 import br.com.ufpi.systematicmap.model.MapStudy;
+import br.com.ufpi.systematicmap.model.Mensagem;
 import br.com.ufpi.systematicmap.model.User;
+import br.com.ufpi.systematicmap.model.enums.TipoMensagem;
 import br.com.ufpi.systematicmap.utils.GenerateHashPasswordUtil;
 import br.com.ufpi.systematicmap.utils.Linker;
 import br.com.ufpi.systematicmap.utils.MailUtils;
@@ -77,14 +78,18 @@ public class UsersController {
         result.include("users", userDao.findAll());
     }
 
+	//TODO - Rever envio de emails.
 	@Path("/users")
 	@Post
 	@Public
 	public void add(@Valid @LoginAvailable @EmailAvailable User user, String repassword) {
         validator.onErrorUsePageOf(HomeController.class).create();
         
-        validator.check(user.getPassword().equals(repassword), new SimpleMessage("user.password", "password_different"));
-        validator.onErrorUsePageOf(HomeController.class).create();
+        if (!user.getPassword().equals(repassword)) {
+        	MessagesController.addMessage(new Mensagem("user.password", "password_different", TipoMensagem.ERRO));
+        	result.redirectTo(HomeController.class).create();
+        	return;
+        }
         
         GenerateHashPasswordUtil generateHashPasswordUtil = new GenerateHashPasswordUtil();
         user.setPassword(generateHashPasswordUtil.generateHash(user.getPassword()));        
@@ -111,7 +116,7 @@ public class UsersController {
 
 		// you can add objects to result even in redirects. Added objects will
 		// survive one more request when redirecting.
-		result.include("notice", new SimpleMessage("create", "create.user.sucess"));
+		MessagesController.addMessage(new Mensagem("create", "create.user.sucess", TipoMensagem.SUCESSO));
 		result.redirectTo(HomeController.class).login();
 	}
 	
@@ -129,32 +134,14 @@ public class UsersController {
 	@Public
 	public void profile(Long id) {
 		User user = userDao.find(id);
-		
-		validator.check(user != null, new SimpleMessage("user", "user.non-existent"));
-        validator.onErrorRedirectTo(HomeController.class).home();
-		
-		result.include("user", user);
-		result.include("notice", new SimpleMessage("user.profile", "user.profile.sucess"));		
+		if (user==null) {
+			MessagesController.addMessage(new Mensagem("user", "user.non-existent", TipoMensagem.ERRO));
+			result.redirectTo(HomeController.class).home();
+		} else {
+			result.include("user", user);
+			MessagesController.addMessage(new Mensagem("user.profile", "user.profile.sucess", TipoMensagem.SUCESSO));
+		}		
 	}
-	
-	/*
-    @Path("/users/{user.login}/musics/{id}")
-    @Put
-	public void addToMyList(User user, Long mapId) {
-    	User currentUser = userInfo.getUser();
-	    userDao.refresh(currentUser);
-	    
-	    validator.check(user.getLogin().equals(currentUser.getLogin()), 
-	            new SimpleMessage("user", "you_cant_add_to_others_list"));
-
-		validator.onErrorUsePageOf(UsersController.class).home();
-
-		MapStudy map = musicDao.find(mapId);
-		currentUser.add(map);
-		
-		result.redirectTo(UsersController.class).home();
-	}
-    */
 	
 	@Get("/map/{mapid}/transfer/")
 	public void transfer(Long mapid){
