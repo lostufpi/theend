@@ -339,7 +339,7 @@ public class FilterArticles {
 		return count;
 	}
 	
-	public int getPappersSize() {
-		return papers.size();
+	public Set<Article> getPappers() {
+		return papers;
 	}
 }
