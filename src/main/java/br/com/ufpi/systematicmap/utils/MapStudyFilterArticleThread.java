@@ -17,18 +17,17 @@ public class MapStudyFilterArticleThread extends Thread implements Serializable 
 	private static final long serialVersionUID = 1L;
 	
 	private FilterArticles filter;
-
 	@Override
 	public void run() {
+		
 		filter.filter();
-		System.out.println("Thread Concluida!!!!");
-		MessagesController.addMessage(new Mensagem("filter.end.tittle","filter.end.message", TipoMensagem.SUCESSO));
+		MessagesController.addMessage(new Mensagem("mapstudy.filter.end.tittle","mapstudy.filter.end.message", TipoMensagem.SUCESSO));
 	}
 	public FilterArticles getFilter() {
 		return filter;
 	}
 
-	public void setFilter(FilterArticles filter) {
+	public void setFilterArticles (FilterArticles filter) {
 		this.filter = filter;
 	}
 	
