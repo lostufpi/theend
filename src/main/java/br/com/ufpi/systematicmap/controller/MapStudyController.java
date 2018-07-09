@@ -1190,22 +1190,16 @@ public class MapStudyController {
 		}
 
 		Double percentEvaluatedDouble = mapStudy.percentEvaluatedDouble(articleDao, user);
-		List<User> members = userDao.mapStudyUsers(mapStudy);
+		List<User> members = removeSupervisor(mapStudy);
 
-		for (int i = 0; i < members.size(); i++) {
-			if (mapStudy.isSupervisor(members.get(i))) {
-				members.remove(i);
-			}
-		}
-
-		if (!mapStudy.isSupervisor(user)) {
-			if (percentEvaluatedDouble < 100) {
-				MessagesController
-						.addMessage(new Mensagem("mapstudy", "mapstudy.evaluations.compare.undone", TipoMensagem.ERRO));
-				result.redirectTo(this).list();
-				return;
-			}
-		}
+//		if (!mapStudy.isSupervisor(user)) {
+//			if (percentEvaluatedDouble < 100) {
+//				MessagesController
+//						.addMessage(new Mensagem("mapstudy", "mapstudy.evaluations.compare.undone", TipoMensagem.ERRO));
+//				result.redirectTo(this).list();
+//				return;
+//			}
+//		}
 
 		List<Article> articles = articleDao.getArticlesToEvaluate(mapStudy);
 
@@ -1219,42 +1213,41 @@ public class MapStudyController {
 		List<ArticleCompareVO> articlesCompare = new ArrayList<ArticleCompareVO>();
 		List<ArticleCompareVO> articlesAcceptedCompare = new ArrayList<ArticleCompareVO>();
 
-		for (Article a : articles) {
+		for(Article a : articles){
 			HashMap<User, Evaluation> evaluations = new HashMap<User, Evaluation>();
-			boolean hasAccepted = false, all = true, allEvaluated = true;
-			for (User u : members) {
+			boolean hasAccepted = false, allEvaluateIsAccepted = true, allEvaluated = true;
+			for(User u : members){
 				Evaluation evaluation = a.getEvaluation(u);
 				evaluations.put(u, evaluation);
-				if (evaluation != null) {
-					if (evaluation.getEvaluationStatus().equals(EvaluationStatusEnum.ACCEPTED)) {
+				if(evaluation != null) {
+					if (evaluation.getEvaluationStatus().equals(EvaluationStatusEnum.ACCEPTED)){
 						hasAccepted = true;
-					} else {
-						all = false;
+					}else{
+						allEvaluateIsAccepted = false;
 					}
-				} else {
+				}else{
 					allEvaluated = false;
 				}
 			}
-			// TODO Seta se aceito ou recusado se todas as avaliações forem iguais
-			if (equalSelections && (a.getFinalEvaluation() == null
-					|| a.getFinalEvaluation().equals(EvaluationStatusEnum.NOT_EVALUATED)) && allEvaluated) {
-				if (!hasAccepted) {
+
+			if (equalSelections && (a.getFinalEvaluation() == null || a.getFinalEvaluation().equals(EvaluationStatusEnum.NOT_EVALUATED))){	// && allEvaluated
+				if (!hasAccepted){ //Se pelo menos um aceitou
 					a.setFinalEvaluation(EvaluationStatusEnum.REJECTED);
-				} else if (all) {
+				}else if (allEvaluateIsAccepted){ //Se todos aceitaram
 					a.setFinalEvaluation(EvaluationStatusEnum.ACCEPTED);
-				} else {
+				}else{ // discordância
 					a.setFinalEvaluation(EvaluationStatusEnum.NOT_EVALUATED);
 				}
 			}
-
-			if (a.getFinalEvaluation() == null) {
+			
+			if (a.getFinalEvaluation() == null){
 				a.setFinalEvaluation(EvaluationStatusEnum.NOT_EVALUATED);
 			}
-
+			
 			ArticleCompareVO acvo = new ArticleCompareVO(a, members, evaluations);
 			articlesCompare.add(acvo);
-
-			if (hasAccepted) {
+			
+			if(hasAccepted){
 				articlesAcceptedCompare.add(acvo);
 			}
 		}
@@ -1270,6 +1263,17 @@ public class MapStudyController {
 		} else {
 			result.include("kappa", 100.0f);
 		}
+	}
+	
+	private List<User> removeSupervisor(MapStudy mapStudy) {
+		List<User> members = userDao.mapStudyUsers(mapStudy);
+		
+		for (int i = 0; i < members.size(); i++){
+			if (mapStudy.isSupervisor(members.get(i))){
+				members.remove(i);
+			}
+		}
+		return members;
 	}
 
 	@Path("/maps/finalEvaluate")

@@ -33,10 +33,10 @@
 				<dl class="dl-horizontal">
 					<dt class="mydt"><strong><fmt:message key="mapstudy.evaluations.compare"/>:</strong></dt>
 					<dd class="mydd" style="margin-bottom: 10px;">
-						<c:if test="${percentEvaluatedDouble >= 100 || mapStudy.isSupervisor(userInfo.user)}">
+<%-- 						<c:if test="${percentEvaluatedDouble >= 100 || mapStudy.isSupervisor(userInfo.user)}"> --%>
 							<a class="btn btn-primary btn-xs" style="width: 170px;" href="${linkTo[MapStudyController].compareEvaluations(mapStudy.id, false)}"><fmt:message key="mapstudy.evaluations.compare"/></a>
-						</c:if>
-						<c:if test="${percentEvaluatedDouble < 100 && !mapStudy.isSupervisor(userInfo.user)}"><fmt:message key="mapstudy.evaluations.compare.undone"/></c:if>
+<%-- 						</c:if> --%>
+<%-- 						<c:if test="${percentEvaluatedDouble < 100 && !mapStudy.isSupervisor(userInfo.user)}"><fmt:message key="mapstudy.evaluations.compare.undone"/></c:if> --%>
 					</dd>
 				  	<dt class="mydt"><strong><fmt:message key="mapstudy.evaluations.export"/>:</strong></dt>
 				  	<dd class="mydd">
