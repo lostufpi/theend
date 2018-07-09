@@ -34,7 +34,7 @@ public class User implements Serializable {
 	
 	@NotNull(message = "required")
 	@Length(min = 3, max = 20, message = "login_min_max")
-	@Pattern(regexp = "[a-zA-Z0-9_]+", message = "invalid_login")
+	@Pattern(regexp = "[a-z0-9_]+", message = "invalid_login")
 	private String login;
 
 	@NotNull(message = "required")
@@ -51,6 +51,7 @@ public class User implements Serializable {
 
 	@NotNull(message = "required")
 	@Length(min = 3, max = 100)
+	@Pattern(regexp = "[a-zA-Z]+", message = "invalid_name")
 	private String name;
 	
 	private boolean removed;
