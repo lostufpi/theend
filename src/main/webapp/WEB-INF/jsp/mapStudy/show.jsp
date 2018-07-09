@@ -3,6 +3,7 @@
 
 <script type="text/javascript">
 	$(document).ready(function() {
+		$('[data-toggle="tooltip"]').tooltip();
 		$('.progress-bar').each(function(idx) {
 			var percent = $(this).attr("style");
 			$(this).attr('style', percent.replace(",", "."));
@@ -54,69 +55,123 @@
 				<hr />
 				<div class="row btn-group-toggle" role="group">
 					<div class="col-md-12">
-						<div class="row">
-							<!-- 						Primeiro Botão  -->
-							<button type="button" class="btn btn-default"
-								style="margin-bottom: 1%;"
-								onclick="location.href='${linkTo[MapStudyController].planning(map.id)}'">
-								<span class="glyphicon glyphicon-pencil"></span>
-								<fmt:message key="mapstudy.planning" />
-							</button>
-							<span class="glyphicon glyphicon-arrow-right"></span>
-							<!-- 						Segundo Botão -->
-							<button type="button" class="btn btn-default"
-								style="margin-bottom: 1%;"
-								onclick="location.href='${linkTo[MapStudyController].identification(map.id)}'">
-								<span class="glyphicon glyphicon-search"></span>
-								<fmt:message key="mapstudy.searching" />
-							</button>
-							<span class="glyphicon glyphicon-arrow-right"></span>
+						<!-- 						Primeiro Botão  -->
+						<button type="button" class="btn btn-default"
+							style="margin-bottom: 1%;"
+							onclick="location.href='${linkTo[MapStudyController].planning(map.id)}'">
+							<span class="glyphicon glyphicon-pencil"></span>
+							<fmt:message key="mapstudy.planning" />
+						</button>
+						<span class="glyphicon glyphicon-arrow-right"></span>
+						<!-- 						Segundo Botão -->
+						<button type="button" class="btn btn-default"
+							style="margin-bottom: 1%;"
+							onclick="location.href='${linkTo[MapStudyController].identification(map.id)}'">
+							<span class="glyphicon glyphicon-search"></span>
+							<fmt:message key="mapstudy.searching" />
+						</button>
+						<span class="glyphicon glyphicon-arrow-right"></span>
 
-							<!-- 						Terceiro Botão -->
-							<button type="button" class="btn btn-default"
-								style="margin-bottom: 1%;"
-								onclick="location.href='${linkTo[MapStudyController].evaluate(map.id)}'">
-								<span class="glyphicon glyphicon-ok"></span>
-								<fmt:message key="mapstudy.screening" />
-							</button>
-							<span class="glyphicon glyphicon-arrow-right"></span>
-						</div>
-						<div class="row">
-							<!-- 						Quarto Botão -->
-							<button type="button" class="btn btn-default"
-								style="margin-bottom: 1%;"
-								onclick="location.href='${linkTo[MapStudyController].showEvaluates(map.id)}'">
-								<span class="glyphicon glyphicon-list-alt"></span>
-								<fmt:message key="mapstudy.viewarticles" />
-							</button>
-							<!-- 						<span class="glyphicon glyphicon-arrow-right"></span> -->
-							<!-- 						QUINTO Botão -->
-							<button type="button" class="btn btn-default"
-								style="margin-bottom: 1%;"
-								onclick="location.href='${linkTo[ExtractionController].extraction(map.id)}'">
-								<span class="glyphicon glyphicon-cog"></span>
-								<fmt:message key="mapstudy.extraction" />
-							</button>
-							<span class="glyphicon glyphicon-arrow-right"></span>
+						<c:choose>
+							<c:when test="${not msg.isRunner()}">
 
-							<!-- 						Sexto Botão -->
-							<button type="button" class="btn btn-default"
-								style="margin-bottom: 1%;"
-								onclick="location.href='${linkTo[ExtractionController].showExtractionEvaluates(map.id)}'">
-								<span class="glyphicon glyphicon-th-list"></span>
-								<fmt:message key="mapstudy.viewextractions" />
-							</button>
-							<span class="glyphicon glyphicon-arrow-right"></span>
+								<!-- 						Terceiro Botão -->
+								<button type="button" class="btn btn-default"
+									style="margin-bottom: 1%;"
+									onclick="location.href='${linkTo[MapStudyController].evaluate(map.id)}'">
+									<span class="glyphicon glyphicon-ok"></span>
+									<fmt:message key="mapstudy.screening" />
+								</button>
+								<span class="glyphicon glyphicon-arrow-right"></span>
 
-							<!-- 						Setimo Botão -->
-							<button type="button" class="btn btn-default"
-								style="margin-bottom: 1%;"
-								onclick="location.href='${linkTo[MapStudyController].report(map.id)}'">
-								<span class="fa fa-pie-chart"></span>
-								<fmt:message key="mapstudy.report" />
-							</button>
-						</div>
+								<!-- 						Quarto Botão -->
+								<button type="button" class="btn btn-default"
+									style="margin-bottom: 1%;"
+									onclick="location.href='${linkTo[MapStudyController].showEvaluates(map.id)}'">
+									<span class="glyphicon glyphicon-list-alt"></span>
+									<fmt:message key="mapstudy.viewarticles" />
+								</button>
+								<span class="glyphicon glyphicon-arrow-right"></span>
 
+								<!-- 						QUINTO Botão -->
+								<button type="button" class="btn btn-default"
+									style="margin-bottom: 1%;"
+									onclick="location.href='${linkTo[ExtractionController].extraction(map.id)}'">
+									<span class="glyphicon glyphicon-cog"></span>
+									<fmt:message key="mapstudy.extraction" />
+								</button>
+								<span class="glyphicon glyphicon-arrow-right"></span>
+
+								<!-- 						Sexto Botão -->
+								<button type="button" class="btn btn-default"
+									style="margin-bottom: 1%;"
+									onclick="location.href='${linkTo[ExtractionController].showExtractionEvaluates(map.id)}'">
+									<span class="glyphicon glyphicon-th-list"></span>
+									<fmt:message key="mapstudy.viewextractions" />
+								</button>
+								<span class="glyphicon glyphicon-arrow-right"></span>
+
+								<!-- 						Setimo Botão -->
+								<button type="button" class="btn btn-default"
+									style="margin-bottom: 1%;"
+									onclick="location.href='${linkTo[MapStudyController].report(map.id)}'">
+									<span class="fa fa-pie-chart"></span>
+									<fmt:message key="mapstudy.report" />
+								</button>
+							</c:when>
+							<c:when test="${msg.isRunner()}">
+								<span class="d-inline-block" tabindex="0" data-toggle="tooltip"
+									title="<fmt:message key="wait.refine.articles" />">
+									<button type="button" class="btn btn-default" id="botao3"
+										style="margin-bottom: 1%;"
+										onclick="location.href='${linkTo[MapStudyController].evaluate(map.id)}'"
+										disabled>
+										<span class="glyphicon glyphicon-ok"></span>
+										<fmt:message key="mapstudy.screening" />
+									</button> <span class="glyphicon glyphicon-arrow-right"></span>
+								</span>
+								<span class="d-inline-block" tabindex="0" data-toggle="tooltip"
+									title="<fmt:message key="wait.refine.articles" />">
+									<button type="button" class="btn btn-default"
+										style="margin-bottom: 1%;"
+										onclick="location.href='${linkTo[MapStudyController].showEvaluates(map.id)}'"
+										disabled>
+										<span class="glyphicon glyphicon-list-alt"></span>
+										<fmt:message key="mapstudy.viewarticles" />
+									</button> <span class="glyphicon glyphicon-arrow-right"></span>
+								</span>
+								<span class="d-inline-block" tabindex="0" data-toggle="tooltip"
+									title="<fmt:message key="wait.refine.articles" />">
+									<button type="button" class="btn btn-default"
+										style="margin-bottom: 1%;"
+										onclick="location.href='${linkTo[ExtractionController].extraction(map.id)}'"
+										disabled>
+										<span class="glyphicon glyphicon-cog"></span>
+										<fmt:message key="mapstudy.extraction" />
+									</button> <span class="glyphicon glyphicon-arrow-right"></span>
+								</span>
+								<span class="d-inline-block" tabindex="0" data-toggle="tooltip"
+									title="<fmt:message key="wait.refine.articles" />">
+									<button type="button" class="btn btn-default"
+										style="margin-bottom: 1%;"
+										onclick="location.href='${linkTo[ExtractionController].showExtractionEvaluates(map.id)}'"
+										disabled>
+										<span class="glyphicon glyphicon-th-list"></span>
+										<fmt:message key="mapstudy.viewextractions" />
+									</button> <span class="glyphicon glyphicon-arrow-right"></span>
+								</span>
+								<span class="d-inline-block" tabindex="0" data-toggle="tooltip"
+									title="<fmt:message key="wait.refine.articles" />">
+									<button type="button" class="btn btn-default"
+										style="margin-bottom: 1%;"
+										onclick="location.href='${linkTo[MapStudyController].report(map.id)}'"
+										disabled>
+										<span class="fa fa-pie-chart"></span>
+										<fmt:message key="mapstudy.report" />
+									</button>
+								</span>
+							</c:when>
+						</c:choose>
 					</div>
 				</div>
 

@@ -568,7 +568,7 @@ public class MapStudyController {
 					TipoMensagem.INFORMACAO));
 		threadController.setFilterArticles(filter);
 		threadController.start();
-		result.redirectTo(this).identification(id);
+		result.redirectTo(this).show(id);
 	}
 
 	@Get("/maps/{id}/unrefinearticles")
@@ -1419,7 +1419,6 @@ public class MapStudyController {
 		validator.onErrorRedirectTo(this).list();
 
 		List<ArticleSourceEnum> sources = asList(ArticleSourceEnum.values());
-		// sources.remove(ArticleSourceEnum.MANUALLY);
 
 		result.include("map", mapStudy);
 		result.include("sources", sources);
@@ -1429,11 +1428,10 @@ public class MapStudyController {
 	@Path("/maps/goals")
 	public void addgoals(Long id, String goals) {
 
-		
 		MapStudy mapStudy = mapStudyDao.find(id);
 		User user = userInfo.getUser();
 
-		if (mapStudy==null) {
+		if (mapStudy == null) {
 			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
@@ -1470,17 +1468,19 @@ public class MapStudyController {
 			return;
 		}
 		if (researchQuestion.getDescription() == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy.research.question.no.description", "error.not.null", TipoMensagem.ERRO));
+			MessagesController.addMessage(
+					new Mensagem("mapstudy.research.question.no.description", "error.not.null", TipoMensagem.ERRO));
 			result.redirectTo(this).planning(id, "divquestion");
 			return;
 		}
-		
+
 		questionDao.insert(researchQuestion);
 
 		mapStudy.getResearchQuestions().add(researchQuestion);
 		mapStudyDao.update(mapStudy);
 
-		MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.research.question.add.success", TipoMensagem.SUCESSO));
+		MessagesController
+				.addMessage(new Mensagem("mapstudy", "mapstudy.research.question.add.success", TipoMensagem.SUCESSO));
 		result.redirectTo(this).planning(id, "divquestion");
 	}
 
@@ -1494,17 +1494,19 @@ public class MapStudyController {
 		searchString.setMapStudy(mapStudy);
 
 		if (searchString.getDescription() == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy.search.string.no.description", "error.not.null", TipoMensagem.ERRO));
+			MessagesController.addMessage(
+					new Mensagem("mapstudy.search.string.no.description", "error.not.null", TipoMensagem.ERRO));
 			result.redirectTo(this).planning(id, "divstring");
 			return;
 		}
-		
+
 		stringDao.insert(searchString);
 
 		mapStudy.getSearchString().add(searchString);
 		mapStudyDao.update(mapStudy);
 
-		MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.search.string.add.success", TipoMensagem.SUCESSO));
+		MessagesController
+				.addMessage(new Mensagem("mapstudy", "mapstudy.search.string.add.success", TipoMensagem.SUCESSO));
 		result.redirectTo(this).planning(id, "divstring");
 
 	}
@@ -1525,7 +1527,8 @@ public class MapStudyController {
 
 		mapStudyDao.update(mapStudy);
 
-		MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.research.question.remove.success", TipoMensagem.SUCESSO));
+		MessagesController.addMessage(
+				new Mensagem("mapstudy", "mapstudy.research.question.remove.success", TipoMensagem.SUCESSO));
 		result.redirectTo(this).planning(mapid, "divquestion");
 	}
 
