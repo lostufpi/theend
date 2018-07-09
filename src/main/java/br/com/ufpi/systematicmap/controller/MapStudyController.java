@@ -79,6 +79,8 @@ import br.com.ufpi.systematicmap.utils.MapStudyFilterArticleThread;
 @Controller
 public class MapStudyController {
 
+	private static final String MAPSTUDY_IS_NOT_EXIST = "mapstudy.is.not.exist";
+	private static final String USER_DOES_NOT_HAVE_ACCESS = "user.does.not.have.access";
 	@ApplicationScoped
 	private MapStudyFilterArticleThread threadController;
 	private Result result;
@@ -157,7 +159,7 @@ public class MapStudyController {
 		MapStudy mapStudy = mapStudyDao.find(mapId);
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", MAPSTUDY_IS_NOT_EXIST, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -180,7 +182,7 @@ public class MapStudyController {
 		validator.onErrorForwardTo(this).list();
 		MapStudy mapStudy = mapStudyDao.find(mapId);
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", MAPSTUDY_IS_NOT_EXIST, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -207,13 +209,13 @@ public class MapStudyController {
 		User user = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", MAPSTUDY_IS_NOT_EXIST, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		}
 
 		if (!(mapStudy.members().contains(user))) {
-			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", USER_DOES_NOT_HAVE_ACCESS, TipoMensagem.ERRO));
 			validator.onErrorRedirectTo(this).list();
 			return;
 		}
@@ -224,7 +226,7 @@ public class MapStudyController {
 		Double totalPercentEvaluated = 0.0, totalPercentExtracted = 0.0;
 		int countSuper = 0;
 
-		HashMap<User, Percent> mapStudyUsers = new HashMap<User, Percent>();
+		HashMap<User, Percent> mapStudyUsers = new HashMap<>();
 
 		for (User u : mapStudyUsersList) {
 			if (mapStudy.isSupervisor(u)) {
@@ -287,7 +289,7 @@ public class MapStudyController {
 		MapStudy mapStudy = mapStudyDao.find(id);
 		User user = userDao.find(userId);
 
-		validator.check(mapStudy != null, new SimpleMessage("mapstudy", "mapstudy.is.not.exist"));
+		validator.check(mapStudy != null, new SimpleMessage("mapstudy", MAPSTUDY_IS_NOT_EXIST));
 		validator.onErrorRedirectTo(this).list();
 
 		// Um usuario esta associado a avaliações e outras coisas caso o mesmo seja
@@ -310,7 +312,7 @@ public class MapStudyController {
 		User currentUser = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", MAPSTUDY_IS_NOT_EXIST, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		} else if (!(mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser()))) {
@@ -440,7 +442,7 @@ public class MapStudyController {
 		MapStudy mapStudy = mapStudyDao.find(mapId);
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", MAPSTUDY_IS_NOT_EXIST, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -478,7 +480,7 @@ public class MapStudyController {
 		MapStudy mapStudy = mapStudyDao.find(mapId);
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.SUCESSO));
+			MessagesController.addMessage(new Mensagem("mapstudy", MAPSTUDY_IS_NOT_EXIST, TipoMensagem.SUCESSO));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -598,13 +600,13 @@ public class MapStudyController {
 		User user = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.SUCESSO));
+			MessagesController.addMessage(new Mensagem("mapstudy", MAPSTUDY_IS_NOT_EXIST, TipoMensagem.SUCESSO));
 			result.redirectTo(this).list();
 			return;
 		}
 
 		if (!mapStudy.members().contains(user)) {
-			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", USER_DOES_NOT_HAVE_ACCESS, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -628,7 +630,7 @@ public class MapStudyController {
 	public void evaluateArticle(Long mapid, Long articleid) {
 		MapStudy mapStudy = mapStudyDao.find(mapid);
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", MAPSTUDY_IS_NOT_EXIST, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -831,7 +833,7 @@ public class MapStudyController {
 		User user = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", MAPSTUDY_IS_NOT_EXIST, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -891,7 +893,7 @@ public class MapStudyController {
 		User user = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", MAPSTUDY_IS_NOT_EXIST, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -949,13 +951,13 @@ public class MapStudyController {
 		User user = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", MAPSTUDY_IS_NOT_EXIST, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		}
 
 		if (!(mapStudy.members().contains(user))) {
-			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", USER_DOES_NOT_HAVE_ACCESS, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -1178,13 +1180,13 @@ public class MapStudyController {
 		User user = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", MAPSTUDY_IS_NOT_EXIST, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		}
 
 		if (!mapStudy.members().contains(user)) {
-			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", USER_DOES_NOT_HAVE_ACCESS, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -1379,12 +1381,12 @@ public class MapStudyController {
 		User user = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", MAPSTUDY_IS_NOT_EXIST, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		}
 		if (!mapStudy.members().contains(user)) {
-			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", USER_DOES_NOT_HAVE_ACCESS, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -1416,10 +1418,10 @@ public class MapStudyController {
 		MapStudy mapStudy = mapStudyDao.find(id);
 		User user = userInfo.getUser();
 
-		validator.check(mapStudy != null, new SimpleMessage("mapstudy", "mapstudy.is.not.exist"));
+		validator.check(mapStudy != null, new SimpleMessage("mapstudy", MAPSTUDY_IS_NOT_EXIST));
 		validator.onErrorRedirectTo(this).list();
 
-		validator.check(mapStudy.members().contains(user), new SimpleMessage("user", "user.does.not.have.access"));
+		validator.check(mapStudy.members().contains(user), new SimpleMessage("user", USER_DOES_NOT_HAVE_ACCESS));
 		validator.onErrorRedirectTo(this).list();
 
 		List<ArticleSourceEnum> sources = asList(ArticleSourceEnum.values());
@@ -1438,12 +1440,12 @@ public class MapStudyController {
 		User user = userInfo.getUser();
 
 		if (mapStudy==null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", MAPSTUDY_IS_NOT_EXIST, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		}
 		if (!mapStudy.members().contains(user)) {
-			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", USER_DOES_NOT_HAVE_ACCESS, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		}

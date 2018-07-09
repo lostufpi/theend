@@ -69,7 +69,7 @@
 							$.validator.addMethod("user_name", function(value,
 									element) {
 								return this.optional(element)
-										|| /^[a-zA-Z]+$/.test(value);
+										|| /^[a-zA-Z ]+$/.test(value);
 							}, '<fmt:message key="invalid_name" />');
 							$.validator
 									.setDefaults({

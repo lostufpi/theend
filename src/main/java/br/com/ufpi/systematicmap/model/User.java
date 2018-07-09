@@ -51,7 +51,7 @@ public class User implements Serializable {
 
 	@NotNull(message = "required")
 	@Length(min = 3, max = 100)
-	@Pattern(regexp = "[a-zA-Z]+", message = "invalid_name")
+	@Pattern(regexp = "[a-zA-Z ]+", message = "invalid_name")
 	private String name;
 	
 	private boolean removed;

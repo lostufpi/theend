@@ -64,8 +64,13 @@
 							$.validator.addMethod("login", function(value,
 									element) {
 								return this.optional(element)
-										|| /^[a-zA-Z0-9_]+$/.test(value);
+										|| /^[a-z0-9_]+$/.test(value);
 							}, '<fmt:message key="invalid_login" />');
+							$.validator.addMethod("user_name", function(value,
+									element) {
+								return this.optional(element)
+										|| /^[a-zA-Z ]+$/.test(value);
+							}, '<fmt:message key="invalid_name" />');
 							$.validator
 									.setDefaults({
 										errorClass : "control-label control-label-block",

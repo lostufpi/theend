@@ -14,10 +14,12 @@ import br.com.caelum.vraptor.validator.SimpleMessage;
 import br.com.caelum.vraptor.validator.Validator;
 import br.com.ufpi.systematicmap.dao.UserDao;
 import br.com.ufpi.systematicmap.interceptor.Public;
+import br.com.ufpi.systematicmap.model.Mensagem;
 import br.com.ufpi.systematicmap.model.User;
+import br.com.ufpi.systematicmap.model.enums.TipoMensagem;
+import br.com.ufpi.systematicmap.utils.GenerateHashPasswordUtil;
 import br.com.ufpi.systematicmap.utils.Linker;
 import br.com.ufpi.systematicmap.utils.MailUtils;
-import br.com.ufpi.systematicmap.utils.GenerateHashPasswordUtil;
 
 /**
  * @author Gleison
@@ -53,7 +55,6 @@ public class EmailController {
 	@Post
 	@Path("/mail/recovery")
 	public void recoveryPassword(String email){
-		boolean sucess = false;
 		GenerateHashPasswordUtil generateHashPasswordUtil = new GenerateHashPasswordUtil();
 		User user = userDao.findEmail(email);
 		
@@ -66,7 +67,7 @@ public class EmailController {
 		String code = generateHashPasswordUtil.generateCodeRecovery(user.getLogin() + random.nextLong() + user.getEmail() + System.currentTimeMillis());
 		
 		user.setRecoveryCode(code);
-		userDao.update(user);
+		user = userDao.update(user);
 		
 		linker.buildLinkTo(this).validateCode(code);
 		String url = "<a href=\""+linker.getURL()+"\" target=\"_blank\">Clique aqui</a> para criar uma nova senha";		
@@ -80,22 +81,14 @@ public class EmailController {
 		//Send mail
 		try {
 			mailUtils.send("[TheEND] - Solicitação de alteração de senha", message, user.getEmail());
-			sucess = true;
 		} catch (Exception e) {
-			sucess = false;
-//			e.printStackTrace();
-		}
-		
-		validator.check(sucess, new SimpleMessage("user.email", "error_email"));
-		
-		if (!sucess){
 			user.setRecoveryCode(null);
 			userDao.update(user);
-		}
+			MessagesController.addMessage(new Mensagem("user.email", "error_email", TipoMensagem.ERRO));
+			result.redirectTo(HomeController.class).recovery();
+		}		
 		
-		validator.onErrorUsePageOf(HomeController.class).recovery();
-		
-		result.include("notice", new SimpleMessage("user.email", "email.recovery.success"));
+		MessagesController.addMessage(new Mensagem("user.email","email.recovery.success", TipoMensagem.SUCESSO));
 		result.redirectTo(HomeController.class).recovery();
 	}
 	
@@ -104,8 +97,10 @@ public class EmailController {
 	public void validateCode(String code){
 		final User user = userDao.findCodeRecovery(code);
 		
-		validator.check(user != null, new SimpleMessage("user.email", "invalid_code_recovery"));
-		validator.onErrorUsePageOf(HomeController.class).login();
+		if(user == null) {
+			MessagesController.addMessage(new Mensagem("user.email", "invalid_code_recovery", TipoMensagem.ERRO));
+			result.redirectTo(HomeController.class).login();
+		}
 		
 		result.include("code", code);
 	}
@@ -115,8 +110,10 @@ public class EmailController {
 	public void newPassword(String code, String password, String repassword){
 		final User user = userDao.findCodeRecovery(code);
 		
-		validator.check(password.equals(repassword), new SimpleMessage("user.password", "password_different"));
-		validator.onErrorRedirectTo(this).validateCode(code);
+		if(!password.equals(repassword)) {
+			MessagesController.addMessage(new Mensagem("user.password", "password_different", TipoMensagem.ERRO));
+			result.redirectTo(this).validateCode(code);
+		}
 		
 		user.setRecoveryCode(null);
 		
@@ -125,9 +122,7 @@ public class EmailController {
 		
 		userDao.update(user);		
 		
-		result.include("notice", new SimpleMessage("user.password", "password.changed.sucess"));
+		MessagesController.addMessage(new Mensagem("user.password", "password.changed.sucess", TipoMensagem.SUCESSO));
 		result.redirectTo(HomeController.class).login();	
 	}
-	
-	
 }
