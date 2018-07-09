@@ -279,8 +279,9 @@
 					</div>
 				</div>
 			</div>
-
 			<div class="col-md-9" style="padding-top: 22px;">
+				<div id="messages"></div>
+
 				<c:if test="${msg.getMessage().size() > 0}">
 					<c:forEach var="mensagem" items="${msg.getMessage()}">
 						<div class="${mensagem.getClasse()}" role="alert">
