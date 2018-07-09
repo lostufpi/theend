@@ -11,7 +11,8 @@
                 	 'user.name': { 
                     	 required : true,
                     	 minlength : 3,
-                    	 maxlength : 100
+                    	 maxlength : 100,
+                    	 user_name: true
                      },
                      'user.login': {
                          required: true,
@@ -36,7 +37,8 @@
 	                	  'user.name': { 
 	                		 required: '<fmt:message key="required" />',
 	                     	 minlength : '<fmt:message key="name_min" />',
-	                     	 maxlength : '<fmt:message key="name_max" />'
+	                     	 maxlength : '<fmt:message key="name_max" />',
+	                     	 user_name: '<fmt:message key="invalid_name" />'
 	                      },
 	                      'user.login': {
 	                    	 required: '<fmt:message key="required" />',

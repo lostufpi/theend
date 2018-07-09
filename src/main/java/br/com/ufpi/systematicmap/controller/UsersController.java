@@ -1,7 +1,5 @@
 package br.com.ufpi.systematicmap.controller;
 
-import static br.com.caelum.vraptor.view.Results.json;
-
 import java.util.List;
 
 import javax.inject.Inject;
@@ -20,6 +18,7 @@ import br.com.ufpi.systematicmap.dao.InclusionCriteriaDao;
 import br.com.ufpi.systematicmap.dao.MapStudyDao;
 import br.com.ufpi.systematicmap.dao.UserDao;
 import br.com.ufpi.systematicmap.interceptor.Public;
+import br.com.ufpi.systematicmap.interceptor.UserInfo;
 import br.com.ufpi.systematicmap.model.Article;
 import br.com.ufpi.systematicmap.model.Evaluation;
 import br.com.ufpi.systematicmap.model.ExclusionCriteria;
@@ -51,16 +50,17 @@ public class UsersController {
 	private MapStudyDao mapStudyDao;
 	private InclusionCriteriaDao inclusionDao;
 	private ExclusionCriteriaDao exclusionDao;
+	private UserInfo userInfo;
 
 	/**
 	 * @deprecated CDI eyes only
 	 */
 	protected UsersController() {
-		this(null, null, null, null, null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null, null, null, null, null);
 	}
 
 	@Inject
-	public UsersController(UserDao dao, Result result, Validator validator, MailUtils mailUtils, Linker linker, ArticleDao articleDao, EvaluationDao evaluationDao, MapStudyDao mapStudyDao, InclusionCriteriaDao inclusionDao, ExclusionCriteriaDao exclusionDao) {
+	public UsersController(UserDao dao, Result result, Validator validator, MailUtils mailUtils, Linker linker, ArticleDao articleDao, EvaluationDao evaluationDao, MapStudyDao mapStudyDao, InclusionCriteriaDao inclusionDao, ExclusionCriteriaDao exclusionDao, UserInfo userInfo) {
 		this.userDao = dao;
 		this.result = result;
 		this.validator = validator;
@@ -71,6 +71,7 @@ public class UsersController {
 		this.mapStudyDao = mapStudyDao;
 		this.inclusionDao = inclusionDao;
 		this.exclusionDao = exclusionDao;
+		this.userInfo = userInfo;
 	}
 
 	@Get("/users")
@@ -120,20 +121,20 @@ public class UsersController {
 		result.redirectTo(HomeController.class).login();
 	}
 	
-	@Path("/users/seek.json")
-	@Get
-	@Public
-	public void seekJson(String query) {
-		List<User> users = userDao.findUserName(query);
-		result.use(json()).withoutRoot().from(users)
-				.exclude("email", "login", "password").serialize();
-	}
+//	@Path("/users/seek.json")
+//	@Get
+//	@Public
+//	public void seekJson(String query) {
+//		List<User> users = userDao.findUserName(query);
+//		result.use(json()).withoutRoot().from(users)
+//				.exclude("email", "login", "password").serialize();
+//	}
 	
 	@Path("/user/profile/{id}")
 	@Get
 	@Public
 	public void profile(Long id) {
-		User user = userDao.find(id);
+		User user = userInfo.getUser();
 		if (user==null) {
 			MessagesController.addMessage(new Mensagem("user", "user.non-existent", TipoMensagem.ERRO));
 			result.redirectTo(HomeController.class).home();
@@ -146,6 +147,18 @@ public class UsersController {
 	@Get("/map/{mapid}/transfer/")
 	public void transfer(Long mapid){
 		MapStudy mapStudy = mapStudyDao.find(mapid);
+		
+		if (mapStudy == null) {
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			result.redirectTo(this).list();
+			return;
+		}
+
+		if (!(mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser()))) {
+			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TipoMensagem.INFORMACAO));
+			result.redirectTo(this).list();
+			return;
+		}
 		
 		List<User> users = userDao.mapStudyUsersNotSuper(mapStudy);
 		

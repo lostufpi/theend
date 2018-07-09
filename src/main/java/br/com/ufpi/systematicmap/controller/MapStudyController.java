@@ -79,6 +79,8 @@ import br.com.ufpi.systematicmap.utils.MapStudyFilterArticleThread;
 @Controller
 public class MapStudyController {
 
+	private static final String MAPSTUDY_IS_NOT_EXIST = "mapstudy.is.not.exist";
+	private static final String USER_DOES_NOT_HAVE_ACCESS = "user.does.not.have.access";
 	@ApplicationScoped
 	private MapStudyFilterArticleThread threadController;
 	private Result result;
@@ -1432,12 +1434,12 @@ public class MapStudyController {
 		User user = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", MAPSTUDY_IS_NOT_EXIST, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		}
 		if (!mapStudy.members().contains(user)) {
-			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", USER_DOES_NOT_HAVE_ACCESS, TipoMensagem.ERRO));
 			result.redirectTo(this).list();
 			return;
 		}
