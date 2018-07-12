@@ -247,7 +247,7 @@ public class GraphicsController {
 		}
 		
 		for (Article article : articles) {
-			String evaluation = article.getFinalEvaluation().toString(); // revisar 
+			String evaluation = article.getFinalEvaluation() != null ? article.getFinalEvaluation().toString() : EvaluationStatusEnum.NOT_EVALUATED.toString(); //TODO: revisar 
 			Double value = sources.get(evaluation);
 			++value;
 			sources.put(evaluation, value);
