@@ -20,8 +20,6 @@ import javax.inject.Inject;
 
 import org.apache.commons.io.output.FileWriterWithEncoding;
 
-import com.google.gson.Gson;
-
 import br.com.caelum.vraptor.Consumes;
 import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Get;
@@ -767,46 +765,44 @@ public class ExtractionController {
 	
 	@Post
 	public void finalExtraction(Long mapid, Long articleid, List<ExtractionFinalVO> questions){
-//	public void finalExtraction(Long mapid, Long articleid, List<Long> questions, List<Long> alternatives){
-//	public void finalExtraction(Long mapid, Long articleid, List<Long> questions, List<Long[]> alternatives){
-//		System.out.println("mapid: " + mapid + " articleid: " + articleid + " questions: " + questions + " alternatives: " + alternatives);
 		EvaluationExtractionFinal eef = null;
-		
-//		System.out.println(questions);
 		
 		MapStudy mapStudy = mapStudyDao.find(mapid);
 		Article article = articleDao.find(articleid);
 		
-		int count = questions.size();
-		
-		for (int i = 0; i < count; i++) {
+		if(questions != null) {
+			int count = questions.size();
 			
-			Question question = questionDao.find(questions.get(i).getQuestionId());
-			boolean enter = true;
-			
-			for (Long alternative_id : questions.get(i).getAlternatives()) { 
-//				Long alternative_id = alt;
-				if(!alternative_id.equals(0)){
-					if (question.getType().equals(QuestionType.MULT)){
-						if (enter){
-							article.removeEvaluationExtractionFinal(question, evaluationExtractionFinalDao);
-							enter = false;	
+			for (int i = 0; i < count; i++) {
+				Long questionId = questions.get(i).getQuestionId();
+				if(questionId == null) continue;
+				
+				Question question = questionDao.find(questionId);
+				boolean enter = true;
+				List<Long> alternatives = questions.get(i).getAlternatives();
+				
+				for (Long alternative_id : alternatives) { 
+					if(!alternative_id.equals(0)){
+						if (question.getType().equals(QuestionType.MULT)){
+							if (enter){
+								article.removeEvaluationExtractionFinal(question, evaluationExtractionFinalDao);
+								enter = false;	
+							}
+						}else{
+							article.removeEvaluationExtractionFinal(question, alternative_id, evaluationExtractionFinalDao);
 						}
-					}else{
-						article.removeEvaluationExtractionFinal(question, alternative_id, evaluationExtractionFinalDao);
-//   					articleDao.removeEvaluationExtractionFinal(question);
+						
+						eef = new EvaluationExtractionFinal();
+						eef.setMapStudy(mapStudy);
+						eef.setArticle(article);
+						
+						Alternative alternative = alternativeDao.find(alternative_id);
+						
+						eef.setQuestion(question);
+						eef.setAlternative(alternative);
+						
+						article.getEvaluationExtractionsFinal().add(eef);					
 					}
-					
-					eef = new EvaluationExtractionFinal();
-					eef.setMapStudy(mapStudy);
-					eef.setArticle(article);
-					
-					Alternative alternative = alternativeDao.find(alternative_id);
-					
-					eef.setQuestion(question);
-					eef.setAlternative(alternative);
-					
-					article.getEvaluationExtractionsFinal().add(eef);					
 				}
 			}
 		}
