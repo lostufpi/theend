@@ -10,8 +10,6 @@ import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
-import br.com.caelum.vraptor.validator.SimpleMessage;
-import br.com.caelum.vraptor.validator.Validator;
 import br.com.ufpi.systematicmap.dao.UserDao;
 import br.com.ufpi.systematicmap.interceptor.Public;
 import br.com.ufpi.systematicmap.model.Mensagem;
@@ -30,19 +28,17 @@ import br.com.ufpi.systematicmap.utils.MailUtils;
 public class EmailController {
 	private final UserDao userDao;
 	private final Result result;
-	private final Validator validator;
 	private final MailUtils mailUtils;
 	private final Linker linker;
 
 	protected EmailController() {
-		this(null, null, null, null, null);
+		this(null, null, null, null);
 	}
 
 	@Inject
-	public EmailController(UserDao userDao, Result result,Validator validator, MailUtils mailUtils, Linker linker) {
+	public EmailController(UserDao userDao, Result result, MailUtils mailUtils, Linker linker) {
 		this.userDao = userDao;
 		this.result = result;
-		this.validator = validator;
 		this.mailUtils = mailUtils;
 		this.linker = linker;
 	}
@@ -58,8 +54,10 @@ public class EmailController {
 		GenerateHashPasswordUtil generateHashPasswordUtil = new GenerateHashPasswordUtil();
 		User user = userDao.findEmail(email);
 		
-		validator.check(user != null, new SimpleMessage("user.email", "user.email.invalid"));
-		validator.onErrorUsePageOf(HomeController.class).recovery();
+		if (user == null) {
+			MessagesController.addMessage(new Mensagem("user.email", "user.email.invalid", TipoMensagem.INFORMACAO));
+			result.redirectTo(HomeController.class).recovery();
+		}
 		
 		Random random = new Random();
 		
