@@ -89,6 +89,11 @@ public class MapStudy implements Serializable{
     @JoinColumn(name="form_id")
     private Form form;
     
+    @OneToOne(cascade = {CascadeType.ALL})
+    @JoinColumn(name="refinement_id")
+    private RefinementParameters refinementParameters = new RefinementParameters();;
+
+
 	public Long getId() {
 		return id;
 	}
@@ -449,6 +454,34 @@ public class MapStudy implements Serializable{
 			this.form = form;
 			form.setMapStudy(this);
 		}
+	}
+
+	/**
+	 * @return the refinementParameters
+	 */
+	public RefinementParameters getRefinementParameters() {
+		return refinementParameters;
+	}
+
+	/**
+	 * @param refinementParameters the refinementParameters to set
+	 */
+	public void setRefinementParameters(RefinementParameters refinementParameters) {
+		this.refinementParameters = refinementParameters;
+	}
+
+	public void setRefinementParameters(Integer levenshtein, String regex, Integer limiartitulo, Integer limiarabstract,
+			Integer limiarkeywords, Integer limiartotal, boolean filterAuthor, boolean filterAbstract,
+			boolean filterLevenshtein) {
+		this.getRefinementParameters().setLevenshtein(levenshtein);
+		this.getRefinementParameters().setRegex(regex);
+		this.getRefinementParameters().setLimiarTitle(limiartitulo);
+		this.getRefinementParameters().setLimiarAbstract(limiarabstract);
+		this.getRefinementParameters().setLimiarKeywords(limiarkeywords);
+		this.getRefinementParameters().setLimiarTotal(limiartotal);
+		this.getRefinementParameters().setFilterAbstract(filterAbstract);
+		this.getRefinementParameters().setFilterAuthor(filterAuthor);
+		this.getRefinementParameters().setFilterLevenshtein(filterLevenshtein);
 	}
 
 	

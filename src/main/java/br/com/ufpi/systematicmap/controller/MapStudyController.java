@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -58,6 +59,7 @@ import br.com.ufpi.systematicmap.model.InclusionCriteria;
 import br.com.ufpi.systematicmap.model.MapStudy;
 import br.com.ufpi.systematicmap.model.Mensagem;
 import br.com.ufpi.systematicmap.model.Question;
+import br.com.ufpi.systematicmap.model.RefinementParameters;
 import br.com.ufpi.systematicmap.model.ResearchQuestion;
 import br.com.ufpi.systematicmap.model.SearchString;
 import br.com.ufpi.systematicmap.model.User;
@@ -81,7 +83,7 @@ public class MapStudyController {
 
 	private static final String MAPSTUDY_IS_NOT_EXIST = "mapstudy.is.not.exist";
 	private static final String USER_DOES_NOT_HAVE_ACCESS = "user.does.not.have.access";
-	@ApplicationScoped
+	@SessionScoped
 	private MapStudyFilterArticleThread threadController;
 	private Result result;
 
@@ -563,12 +565,14 @@ public class MapStudyController {
 			Integer limiarkeywords, Integer limiartotal, boolean filterAuthor, boolean filterAbstract,
 			boolean filterLevenshtein) {
 		MapStudy mapStudy = mapStudyDao.find(id);
-		FilterArticles filter = new FilterArticles(mapStudy.getArticles(), levenshtein, regex.trim(), limiartitulo,
+//		FilterArticles filter = new FilterArticles(mapStudy.getArticles(), levenshtein, regex.trim(), limiartitulo,
+//				limiarabstract, limiarkeywords, limiartotal, filterAuthor, filterAbstract, filterLevenshtein, userInfo.getUser(), articleDao);
+		mapStudy.setRefinementParameters(levenshtein, regex.trim(), limiartitulo,
 				limiarabstract, limiarkeywords, limiartotal, filterAuthor, filterAbstract, filterLevenshtein);
-		if (filter.getPappers().size() > 100)
+		if (mapStudy.getArticles().size() > 100)
 			MessagesController.addMessage(new Mensagem("mapstudy.filter.start.tittle", "mapstudy.filter.start.message",
 					TipoMensagem.INFORMACAO));
-		threadController.setFilterArticles(filter);
+		threadController.filterParams(mapStudy);
 		threadController.start();
 		result.redirectTo(this).show(id);
 	}
@@ -1412,6 +1416,11 @@ public class MapStudyController {
 	@Path("/maps/{id}/identification")
 	public void identification(Long id) {
 		MapStudy mapStudy = mapStudyDao.find(id);
+		
+		if(mapStudy.getRefinementParameters() == null) {
+			mapStudy.setRefinementParameters(new RefinementParameters());
+		}
+		
 		User user = userInfo.getUser();
 
 		validator.check(mapStudy != null, new SimpleMessage("mapstudy", "mapstudy.is.not.exist"));

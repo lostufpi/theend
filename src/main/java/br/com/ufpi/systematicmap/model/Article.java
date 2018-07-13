@@ -691,7 +691,6 @@ public class Article implements Serializable {
 		com.setValue(comment);
 		
 		comments.add(com);
-		
 	}
 
 //	public String getComments(User user) {
