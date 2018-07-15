@@ -32,7 +32,7 @@ public class FilesUtils {
 		}
 	}
 	
-	public boolean save(UploadedFile file, MapStudy map) {
+	public boolean save(UploadedFile file, MapStudy map) throws IOException {
 		if(file != null) {
     		Path path = DEFAULT_FOLDER.resolve(map.getId().toString());
     		InputStream is = file.getFile();

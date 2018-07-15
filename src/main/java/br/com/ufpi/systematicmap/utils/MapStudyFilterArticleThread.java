@@ -39,11 +39,11 @@ public class MapStudyFilterArticleThread extends Thread implements Serializable 
 	
 	@Override
 	public void run() {
-		MessagesController.changeRunner(true);
-		(new FilterArticles()).filter(mapStudy, articleDao);
-		MessagesController.addMessage(
-				new Mensagem("mapstudy.filter.end.tittle", "mapstudy.filter.end.message", TipoMensagem.SUCESSO));
-		MessagesController.changeRunner(false);
+//		MessagesController.changeRunner(true);
+//		(new FilterArticles()).filter(mapStudy, articleDao);
+//		MessagesController.addMessage(
+//				new Mensagem("mapstudy.filter.end.tittle", "mapstudy.filter.end.message", TipoMensagem.SUCESSO));
+//		MessagesController.changeRunner(false);
 	}
 
 	public void filterParams(MapStudy mapStudy) {

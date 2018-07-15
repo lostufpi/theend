@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 import br.com.ufpi.systematicmap.dao.ArticleDao;
 import br.com.ufpi.systematicmap.model.Article;
 import br.com.ufpi.systematicmap.model.MapStudy;
-import br.com.ufpi.systematicmap.model.User;
 import br.com.ufpi.systematicmap.model.enums.ClassificationEnum;
 import br.com.ufpi.systematicmap.model.enums.FieldEnum;
 import br.com.ufpi.systematicmap.utils.Utils;
@@ -20,10 +19,16 @@ import br.com.ufpi.systematicmap.utils.Utils;
 public class FilterArticles {
 
 	private Map<String, String> regexList = new HashMap<>();
-	private Set<Article> papers = new LinkedHashSet<>();
+	private Set<Article> papers;// = new LinkedHashSet<>();
 	private boolean filterStatus = true;
 	private MapStudy mapStudy;
 //	private ArticleDao articleDao;
+	
+	public FilterArticles(MapStudy mapStudy, Set<Article> papers) {
+		super();
+		this.mapStudy = mapStudy;
+		this.papers = papers;
+	}
 
 	private void generateListRegex() {
 		String[] termos = mapStudy.getRefinementParameters().getRegex().split(";");
@@ -35,10 +40,9 @@ public class FilterArticles {
 		}
 	}
 
-	public boolean filter(MapStudy mapStudy, ArticleDao articleDao) {
-		this.mapStudy = mapStudy;
+	public boolean filter() {
 //		this.articleDao = articleDao;
-		this.papers = mapStudy.getArticles();
+//		this.papers = mapStudy.getArticles();
 		
 		try {
 			int sumLimiar = mapStudy.getRefinementParameters().getLimiarTitle() + mapStudy.getRefinementParameters().getLimiarAbstract() + mapStudy.getRefinementParameters().getLimiarKeywords() + mapStudy.getRefinementParameters().getLimiarTotal();
@@ -134,7 +138,7 @@ public class FilterArticles {
 				for (Article p2 : papers) {
 					if (p.getId() != p2.getId() && p2.getClassification() == null) {
 
-						if (p.getTitle().equalsIgnoreCase(p2.getTitle())) {
+						if (p.getTitle().replaceAll(" ", "").equalsIgnoreCase(p2.getTitle().replaceAll(" ", ""))) {
 
 							p2.setClassification(ClassificationEnum.REPEAT);
 							String comment = p.getComment() != null ? p.getComment() : "";
@@ -365,4 +369,18 @@ public class FilterArticles {
 	public void setFilterStatus(boolean filterStatus) {
 		this.filterStatus = filterStatus;
 	}
+
+	/**
+	 * @return the articleDao
+	 */
+//	public ArticleDao getArticleDao() {
+//		return articleDao;
+//	}
+
+	/**
+	 * @param articleDao the articleDao to set
+	 */
+//	public void setArticleDao(ArticleDao articleDao) {
+//		this.articleDao = articleDao;
+//	}
 }

@@ -16,8 +16,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -76,15 +74,14 @@ import br.com.ufpi.systematicmap.utils.BibtexUtils;
 import br.com.ufpi.systematicmap.utils.FleissKappa;
 import br.com.ufpi.systematicmap.utils.Linker;
 import br.com.ufpi.systematicmap.utils.MailUtils;
-import br.com.ufpi.systematicmap.utils.MapStudyFilterArticleThread;
+import br.com.ufpi.systematicmap.utils.service.TaskService;
 
 @Controller
 public class MapStudyController {
 
 	private static final String MAPSTUDY_IS_NOT_EXIST = "mapstudy.is.not.exist";
 	private static final String USER_DOES_NOT_HAVE_ACCESS = "user.does.not.have.access";
-	@SessionScoped
-	private MapStudyFilterArticleThread threadController;
+	private TaskService taskService;
 	private Result result;
 
 	private Validator validator;
@@ -116,7 +113,7 @@ public class MapStudyController {
 	public MapStudyController(MapStudyDao musicDao, UserInfo userInfo, Result result, Validator validator,
 			FilesUtils files, UserDao userDao, ArticleDao articleDao, InclusionCriteriaDao inclusionDao,
 			ExclusionCriteriaDao exclusionDao, EvaluationDao evaluationDao, MailUtils mailUtils, Linker linker,
-			ResearchQuestionDao questionDao, SearchStringDao stringDao, MapStudyFilterArticleThread threadController,
+			ResearchQuestionDao questionDao, SearchStringDao stringDao, TaskService taskService,
 			Logger logger) {
 		this.mapStudyDao = musicDao;
 		this.result = result;
@@ -132,7 +129,7 @@ public class MapStudyController {
 		this.linker = linker;
 		this.questionDao = questionDao;
 		this.stringDao = stringDao;
-		this.threadController = threadController;
+		this.taskService = taskService;
 		this.logger = logger;
 	}
 
@@ -393,26 +390,31 @@ public class MapStudyController {
 		BibTeXDatabase database = null;
 
 		if (upFile != null) {
-			if (!files.save(upFile, mapStudy)) {
-				MessagesController.addMessage(new Mensagem("user", "error.generating.file", TipoMensagem.ERRO));
-				result.redirectTo(this).identification(id);
-				return;
-			} else {
-				try {
-					database = bibtexUtils.parseBibTeX(files.getFile(mapStudy));
-				} catch (TokenMgrException | ParseException e) {
-					System.out.println(e.getMessage());
-					logger.info(e.getMessage());
-					MessagesController.addMessage(new Mensagem("bibtex", "bibtex.format.error", TipoMensagem.ERRO));
+			try {
+				if (!files.save(upFile, mapStudy)) {
+					MessagesController.addMessage(new Mensagem("user", "error.generating.file", TipoMensagem.ERRO));
 					result.redirectTo(this).identification(id);
 					return;
-				} catch (IOException e2) {
-					System.out.println(e2.getMessage());
-					logger.info(e2.getMessage());
-					MessagesController.addMessage(new Mensagem("bibtex", "bibtex.file.error", TipoMensagem.ERRO));
-					result.redirectTo(this).identification(id);
-					return;
+				} else {
+					try {
+						database = bibtexUtils.parseBibTeX(files.getFile(mapStudy));
+					} catch (TokenMgrException | ParseException e) {
+						System.out.println(e.getMessage());
+						logger.info(e.getMessage());
+						MessagesController.addMessage(new Mensagem("bibtex", "bibtex.format.error", TipoMensagem.ERRO));
+						result.redirectTo(this).identification(id);
+						return;
+					} catch (IOException e2) {
+						System.out.println(e2.getMessage());
+						logger.info(e2.getMessage());
+						MessagesController.addMessage(new Mensagem("bibtex", "bibtex.file.error", TipoMensagem.ERRO));
+						result.redirectTo(this).identification(id);
+						return;
+					}
 				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 
@@ -565,16 +567,26 @@ public class MapStudyController {
 			Integer limiarkeywords, Integer limiartotal, boolean filterAuthor, boolean filterAbstract,
 			boolean filterLevenshtein) {
 		MapStudy mapStudy = mapStudyDao.find(id);
-//		FilterArticles filter = new FilterArticles(mapStudy.getArticles(), levenshtein, regex.trim(), limiartitulo,
-//				limiarabstract, limiarkeywords, limiartotal, filterAuthor, filterAbstract, filterLevenshtein, userInfo.getUser(), articleDao);
 		mapStudy.setRefinementParameters(levenshtein, regex.trim(), limiartitulo,
 				limiarabstract, limiarkeywords, limiartotal, filterAuthor, filterAbstract, filterLevenshtein);
-		if (mapStudy.getArticles().size() > 100)
-			MessagesController.addMessage(new Mensagem("mapstudy.filter.start.tittle", "mapstudy.filter.start.message",
+//		taskService.addTask(new FilterArticles(mapStudy, mapStudy.getArticles()));
+//		if (mapStudy.getArticles().size() > 100)
+//			MessagesController.addMessage(new Mensagem("mapstudy.filter.start.tittle", "mapstudy.filter.start.message",
+//					TipoMensagem.INFORMACAO));
+//		result.redirectTo(this).show(id);
+		
+		FilterArticles filter = new FilterArticles(mapStudy, mapStudy.getArticles());
+		boolean filterStatus = filter.filter();
+		
+		if(filterStatus) {
+			MessagesController.addMessage(new Mensagem("mapstudy.filter", "refine.articles.sucess",
 					TipoMensagem.INFORMACAO));
-		threadController.filterParams(mapStudy);
-		threadController.start();
-		result.redirectTo(this).show(id);
+		}else {
+			MessagesController.addMessage(new Mensagem("mapstudy.filter", "error.filter",
+					TipoMensagem.ERRO));
+		}
+		
+		result.redirectTo(this).identification(id);
 	}
 
 	@Get("/maps/{id}/unrefinearticles")
