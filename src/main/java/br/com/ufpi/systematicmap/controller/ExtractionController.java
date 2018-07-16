@@ -373,18 +373,13 @@ public class ExtractionController {
 			}
 		}
 
-		if (article == null) {
-			article = extractions.get(0);
+		if (article == null && extractions == null) {
 			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.extraction.articles.none", TipoMensagem.INFORMACAO));
+			result.redirectTo(MapStudyController.class).show(mapid);
+			return;
 		}
 
-		Double percentExtractedDouble = mapStudy.percentExtractedDouble(articleDao, userInfo.getUser()); // TODO da um
-																											// update
-																											// nele
-																											// depois,
-																											// verificar
-																											// se falta
-																											// questão
+		Double percentExtractedDouble = mapStudy.percentExtractedDouble(articleDao, userInfo.getUser()); 
 
 		result.include("map", mapStudy);
 		result.include("article", article);
