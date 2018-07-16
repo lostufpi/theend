@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -14,15 +15,28 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<weld.version>2.1.2.Final</weld.version>
 	</properties>
+	
+		<repositories>
+		<repository>
+			<id>sonatype-oss-public</id>
+			<url>https://oss.sonatype.org/content/groups/public/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
 
 	<dependencies>
 		<dependency>
-            <groupId>hu.paalgyula</groupId>
-            <artifactId>gravatar-taglib</artifactId>
-            <version>0.1.4</version>
-            <type>jar</type>
-        </dependency>
-        
+			<groupId>hu.paalgyula</groupId>
+			<artifactId>gravatar-taglib</artifactId>
+			<version>0.1.4</version>
+			<type>jar</type>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-core</artifactId>
@@ -32,15 +46,24 @@
 		<dependency>
 			<groupId>br.com.caelum</groupId>
 			<artifactId>vraptor</artifactId>
-			<version>4.1.0.Final</version>
+<!-- 			<version>4.1.0.Final</version> -->
+			<version>4.1.4</version>
+<!-- 			<version>4.2.2</version> -->
 		</dependency>
-		
+
 		<dependency>
-		    <groupId>br.com.caelum.vraptor</groupId>
-		    <artifactId>vraptor-simple-validator</artifactId>
-		    <version>4.1.0-RC2</version>
+			<groupId>br.com.prixma</groupId>
+			<artifactId>vraptor-tasks</artifactId>
+			<version>4.1.0</version>
+<!-- 			<version>4.2.0</version> -->
 		</dependency>
-		
+
+		<dependency>
+			<groupId>br.com.caelum.vraptor</groupId>
+			<artifactId>vraptor-simple-validator</artifactId>
+			<version>4.1.0-RC2</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
@@ -56,16 +79,16 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-entitymanager</artifactId>
-<!-- 			<version>4.3.0.Final</version> -->
-				<version>5.0.5.Final</version>
+			<!-- <version>4.3.0.Final</version> -->
+			<version>5.0.5.Final</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-c3p0</artifactId>
-<!-- 			<version>4.3.8.Final</version> -->
-				<version>5.0.5.Final</version>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.hibernate</groupId> -->
+<!-- 			<artifactId>hibernate-c3p0</artifactId> -->
+			<!-- <version>4.3.8.Final</version> -->
+<!-- 			<version>5.0.5.Final</version> -->
+<!-- 		</dependency> -->
 
 		<dependency>
 			<groupId>org.jboss.weld.servlet</groupId>
@@ -90,12 +113,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<!-- http://mvnrepository.com/artifact/org.json/json -->
 		<dependency>
-		    <groupId>org.json</groupId>
-		    <artifactId>json</artifactId>
-		    <version>20160212</version>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20160212</version>
 		</dependency>
 
 		<dependency>
@@ -203,7 +226,6 @@
 			<artifactId>commons-email</artifactId>
 			<version>1.4</version>
 		</dependency>
-
 	</dependencies>
 
 	<build>

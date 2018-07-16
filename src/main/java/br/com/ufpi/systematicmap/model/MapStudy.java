@@ -53,10 +53,10 @@ public class MapStudy implements Serializable{
     @SkipSerialization
     private Set<UsersMapStudys> usersMapStudys = new HashSet<>();
     
-    @OneToMany(mappedBy="mapStudy")
-    @SkipSerialization
-    @OrderBy("id ASC")
-	private Set<Article> articles = new HashSet<>();
+//    @OneToMany(mappedBy="mapStudy")
+//    @SkipSerialization
+//    @OrderBy("id ASC")
+//	private Set<Article> articles = new HashSet<>();
     
     @OneToMany(mappedBy="mapStudy")
     @SkipSerialization
@@ -89,6 +89,11 @@ public class MapStudy implements Serializable{
     @JoinColumn(name="form_id")
     private Form form;
     
+    @OneToOne(cascade = {CascadeType.ALL})
+    @JoinColumn(name="refinement_id")
+    private RefinementParameters refinementParameters = new RefinementParameters();;
+
+
 	public Long getId() {
 		return id;
 	}
@@ -113,13 +118,13 @@ public class MapStudy implements Serializable{
 		this.description = description;
 	}
 
-	public Set<Article> getArticles() {
-		return articles;
-	}
-
-	public void setArticles(Set<Article> articles) {
-		this.articles = articles;
-	}
+//	public Set<Article> getArticles() {
+//		return articles;
+//	}
+//
+//	public void setArticles(Set<Article> articles) {
+//		this.articles = articles;
+//	}
 
 	public Set<InclusionCriteria> getInclusionCriterias() {
 		return inclusionCriterias;
@@ -145,10 +150,10 @@ public class MapStudy implements Serializable{
 		this.evaluations = evaluations;
 	}
 	
-	public void addArticle(Article article) {
-		getArticles().add(article);
-		article.setMapStudy(this);
-	}
+//	public void addArticle(Article article) {
+//		getArticles().add(article);
+//		article.setMapStudy(this);
+//	}
 	
 	public void addInclusionCriteria(InclusionCriteria criteria) {
 		getInclusionCriterias().add(criteria);
@@ -449,6 +454,34 @@ public class MapStudy implements Serializable{
 			this.form = form;
 			form.setMapStudy(this);
 		}
+	}
+
+	/**
+	 * @return the refinementParameters
+	 */
+	public RefinementParameters getRefinementParameters() {
+		return refinementParameters;
+	}
+
+	/**
+	 * @param refinementParameters the refinementParameters to set
+	 */
+	public void setRefinementParameters(RefinementParameters refinementParameters) {
+		this.refinementParameters = refinementParameters;
+	}
+
+	public void setRefinementParameters(Integer levenshtein, String regex, Integer limiartitulo, Integer limiarabstract,
+			Integer limiarkeywords, Integer limiartotal, boolean filterAuthor, boolean filterAbstract,
+			boolean filterLevenshtein) {
+		this.getRefinementParameters().setLevenshtein(levenshtein);
+		this.getRefinementParameters().setRegex(regex);
+		this.getRefinementParameters().setLimiarTitle(limiartitulo);
+		this.getRefinementParameters().setLimiarAbstract(limiarabstract);
+		this.getRefinementParameters().setLimiarKeywords(limiarkeywords);
+		this.getRefinementParameters().setLimiarTotal(limiartotal);
+		this.getRefinementParameters().setFilterAbstract(filterAbstract);
+		this.getRefinementParameters().setFilterAuthor(filterAuthor);
+		this.getRefinementParameters().setFilterLevenshtein(filterLevenshtein);
 	}
 
 	
