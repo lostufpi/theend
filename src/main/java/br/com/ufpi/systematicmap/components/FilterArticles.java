@@ -2,7 +2,7 @@ package br.com.ufpi.systematicmap.components;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -19,15 +19,15 @@ import br.com.ufpi.systematicmap.utils.Utils;
 public class FilterArticles {
 
 	private Map<String, String> regexList = new HashMap<>();
-	private Set<Article> papers;// = new LinkedHashSet<>();
+	private List<Article> papers;// = new LinkedHashSet<>();
 	private boolean filterStatus = true;
 	private MapStudy mapStudy;
-//	private ArticleDao articleDao;
+	private ArticleDao articleDao;
 	
-	public FilterArticles(MapStudy mapStudy, Set<Article> papers) {
+	public FilterArticles(MapStudy mapStudy, List<Article> articles) {
 		super();
 		this.mapStudy = mapStudy;
-		this.papers = papers;
+		this.papers = articles;
 	}
 
 	private void generateListRegex() {
@@ -69,18 +69,19 @@ public class FilterArticles {
 		generateListRegex();
 		int sumLimiar = mapStudy.getRefinementParameters().getLimiarTitle() + mapStudy.getRefinementParameters().getLimiarAbstract() + mapStudy.getRefinementParameters().getLimiarKeywords() + mapStudy.getRefinementParameters().getLimiarTotal();
 
-		for (Article article : papers) {
+		for (Article a : papers) {
+			Article article = articleDao.find(a.getId());
 			if (mapStudy.getRefinementParameters().getFilterAuthor() && article.getAuthor().equals("")) {
 				article.setClassification(ClassificationEnum.WITHOUT_AUTHORS);
 				article.setComment(article.getComment() + ClassificationEnum.WITHOUT_AUTHORS.toString());
-//				article = articleDao.update(article);
+				article = articleDao.update(article);
 				continue;
 			}
 
 			if (mapStudy.getRefinementParameters().getFilterAbstract() && article.getAbstrct().equals("")) {
 				article.setClassification(ClassificationEnum.WITHOUT_ABSTRACT);
 				article.setComment(article.getComment() + ClassificationEnum.WITHOUT_ABSTRACT.toString());
-//				article = articleDao.update(article);
+				article = articleDao.update(article);
 				continue;
 			}
 
@@ -107,21 +108,21 @@ public class FilterArticles {
 				if (mapStudy.getRefinementParameters().getLimiarTotal() > 0) {
 					if (article.getScore() < mapStudy.getRefinementParameters().getLimiarTotal()) {
 						article.setClassification(ClassificationEnum.WORDS_DONT_MATCH);
-//						article = articleDao.update(article);
+						article = articleDao.update(article);
 						contaRefinados++;
 					}
 				} else {
 					if (article.getRegexTitle() < mapStudy.getRefinementParameters().getLimiarTitle()) {
 						article.setClassification(ClassificationEnum.WORDS_DONT_MATCH);
-//						article = articleDao.update(article);						
+						article = articleDao.update(article);						
 					}
 					if (article.getRegexAbs() < mapStudy.getRefinementParameters().getLimiarAbstract()) {
 						article.setClassification(ClassificationEnum.WORDS_DONT_MATCH);
-//						article = articleDao.update(article);						
+						article = articleDao.update(article);						
 					}
 					if (article.getRegexKeys() < mapStudy.getRefinementParameters().getLimiarKeywords()) {
 						article.setClassification(ClassificationEnum.WORDS_DONT_MATCH);
-//						article = articleDao.update(article);						
+						article = articleDao.update(article);						
 					}
 				}
 
@@ -134,20 +135,25 @@ public class FilterArticles {
 
 	public void filterTitleEquals() {
 		for (Article p : papers) {
-			if (p.getClassification() == null) {
+			Article article1 = articleDao.find(p.getId());
+			if (article1.getClassification() == null) {
 				for (Article p2 : papers) {
-					if (p.getId() != p2.getId() && p2.getClassification() == null) {
+					Article article2 = articleDao.find(p2.getId());
+					if (article1.getId() != article2.getId() && article2.getClassification() == null) {
 
-						if (p.getTitle().replaceAll(" ", "").equalsIgnoreCase(p2.getTitle().replaceAll(" ", ""))) {
+						if (article1.getTitle().replaceAll(" ", "").equalsIgnoreCase(article2.getTitle().replaceAll(" ", ""))) {
 
-							p2.setClassification(ClassificationEnum.REPEAT);
-							String comment = p.getComment() != null ? p.getComment() : "";
-							p2.setComment(comment + " " + ClassificationEnum.REPEAT.toString());
-							p2.setMinLevenshteinDistance(0);
-							p2.setPaperMinLevenshteinDistance(p);
+							article2.setClassification(ClassificationEnum.REPEAT);
+							String comment = article1.getComment() != null ? article1.getComment() : "";
+							article2.setComment(comment + " " + ClassificationEnum.REPEAT.toString());
+							article2.setMinLevenshteinDistance(0);
+							article2.setPaperMinLevenshteinDistance(article1);
 							//
-							p.setMinLevenshteinDistance(0);
-							p.setPaperMinLevenshteinDistance(p2);
+							article1.setMinLevenshteinDistance(0);
+							article1.setPaperMinLevenshteinDistance(article2);
+							
+							article1 = articleDao.update(article1);
+							article2 = articleDao.update(article2);
 						}
 
 					}
@@ -262,24 +268,29 @@ public class FilterArticles {
 
 	private void calcTitleLevenshteinDistance(int limiar) {
 		for (Article p : papers) {
-			if (p.getClassification() == null) {
+			Article article = articleDao.find(p.getId());
+			if (article.getClassification() == null) {
 				for (Article p2 : papers) {
-					if (p.getId() != p2.getId() && p2.getClassification() == null) {
+					Article article2 = articleDao.find(p2.getId());
+					if (article.getId() != article2.getId() && article2.getClassification() == null) {
 
-						String titleArticleOne = p.getTitle().toLowerCase().replaceAll(" ", "");
-						String titleArticleTwo = p2.getTitle().toLowerCase().replaceAll(" ", "");
+						String titleArticleOne = article.getTitle().toLowerCase().replaceAll(" ", "");
+						String titleArticleTwo = article2.getTitle().toLowerCase().replaceAll(" ", "");
 						int dist = Utils.getLevenshteinDistance(titleArticleOne, titleArticleTwo);
 
 						if (dist <= limiar) {
 
-							p2.setClassification(ClassificationEnum.REPEAT);
-							String comment = p.getComment() != null ? p.getComment() : "";
-							p2.setComment(comment + " " + ClassificationEnum.REPEAT.toString());
-							p2.setMinLevenshteinDistance(dist);
-							p2.setPaperMinLevenshteinDistance(p);
+							article2.setClassification(ClassificationEnum.REPEAT);
+							String comment = article.getComment() != null ? article.getComment() : "";
+							article2.setComment(comment + " " + ClassificationEnum.REPEAT.toString());
+							article2.setMinLevenshteinDistance(dist);
+							article2.setPaperMinLevenshteinDistance(article);
 
-							p.setMinLevenshteinDistance(dist);
-							p.setPaperMinLevenshteinDistance(p2);
+							article.setMinLevenshteinDistance(dist);
+							article.setPaperMinLevenshteinDistance(article2);
+							
+							article = articleDao.update(article);
+							article2 = articleDao.update(article2);
 						}
 					}
 				}
@@ -358,7 +369,7 @@ public class FilterArticles {
 		return count;
 	}
 
-	public Set<Article> getPappers() {
+	public List<Article> getPappers() {
 		return papers;
 	}
 
@@ -373,14 +384,14 @@ public class FilterArticles {
 	/**
 	 * @return the articleDao
 	 */
-//	public ArticleDao getArticleDao() {
-//		return articleDao;
-//	}
+	public ArticleDao getArticleDao() {
+		return articleDao;
+	}
 
 	/**
 	 * @param articleDao the articleDao to set
 	 */
-//	public void setArticleDao(ArticleDao articleDao) {
-//		this.articleDao = articleDao;
-//	}
+	public void setArticleDao(ArticleDao articleDao) {
+		this.articleDao = articleDao;
+	}
 }

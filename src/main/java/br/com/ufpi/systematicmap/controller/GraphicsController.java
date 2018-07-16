@@ -89,7 +89,7 @@ public class GraphicsController {
 		MapStudy mapStudy = mapStudyDao.find(mapid);
 		mapStudyDao.refresh(mapStudy);
 		
-		Set<Article> articles = mapStudy.getArticles();
+		List<Article> articles = articleDao.getArticles(mapStudy);
 		
 		HashMap<String, Double> sources = new HashMap<>();
 		List<ArticleSourceEnum> listSources = asList(ArticleSourceEnum.values());
@@ -281,7 +281,7 @@ public class GraphicsController {
 		MapStudy mapStudy = mapStudyDao.find(mapid);
 		mapStudyDao.refresh(mapStudy);
 		
-		Set<Article> articles = mapStudy.getArticles();
+		List<Article> articles = articleDao.getArticles(mapStudy);
 		
 		HashMap<String, Double> sources = new HashMap<>();
 		List<ClassificationEnum> listRefines = asList(ClassificationEnum.values());

@@ -53,10 +53,10 @@ public class MapStudy implements Serializable{
     @SkipSerialization
     private Set<UsersMapStudys> usersMapStudys = new HashSet<>();
     
-    @OneToMany(mappedBy="mapStudy")
-    @SkipSerialization
-    @OrderBy("id ASC")
-	private Set<Article> articles = new HashSet<>();
+//    @OneToMany(mappedBy="mapStudy")
+//    @SkipSerialization
+//    @OrderBy("id ASC")
+//	private Set<Article> articles = new HashSet<>();
     
     @OneToMany(mappedBy="mapStudy")
     @SkipSerialization
@@ -118,13 +118,13 @@ public class MapStudy implements Serializable{
 		this.description = description;
 	}
 
-	public Set<Article> getArticles() {
-		return articles;
-	}
-
-	public void setArticles(Set<Article> articles) {
-		this.articles = articles;
-	}
+//	public Set<Article> getArticles() {
+//		return articles;
+//	}
+//
+//	public void setArticles(Set<Article> articles) {
+//		this.articles = articles;
+//	}
 
 	public Set<InclusionCriteria> getInclusionCriterias() {
 		return inclusionCriterias;
@@ -150,10 +150,10 @@ public class MapStudy implements Serializable{
 		this.evaluations = evaluations;
 	}
 	
-	public void addArticle(Article article) {
-		getArticles().add(article);
-		article.setMapStudy(this);
-	}
+//	public void addArticle(Article article) {
+//		getArticles().add(article);
+//		article.setMapStudy(this);
+//	}
 	
 	public void addInclusionCriteria(InclusionCriteria criteria) {
 		getInclusionCriterias().add(criteria);

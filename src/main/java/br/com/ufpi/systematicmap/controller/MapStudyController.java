@@ -429,7 +429,8 @@ public class MapStudyController {
 
 		for (BibTeXEntry entry : entries) {
 			Article a = BibtexToArticleUtils.bibtexToArticle(entry, source);
-			mapStudy.addArticle(a);
+//			mapStudy.addArticle(a);
+			a.setMapStudy(mapStudy);
 			articleDao.insert(a);
 		}
 
@@ -465,12 +466,10 @@ public class MapStudyController {
 		MapStudy mapStudy = mapStudyDao.find(mapId);
 
 		article.setSource(ArticleSourceEnum.MANUALLY.toString());
-
-		mapStudy.addArticle(article);
+//		mapStudy.addArticle(article);
 		article.setMapStudy(mapStudy);
-
 		articleDao.insert(article);
-		mapStudyDao.update(mapStudy);
+//		mapStudyDao.update(mapStudy);
 
 		MessagesController.addMessage(new Mensagem("mapstudy.articles", "article.add.sucess", TipoMensagem.SUCESSO));
 		result.redirectTo(this).identification(mapStudy.getId());
@@ -567,33 +566,35 @@ public class MapStudyController {
 			Integer limiarkeywords, Integer limiartotal, boolean filterAuthor, boolean filterAbstract,
 			boolean filterLevenshtein) {
 		MapStudy mapStudy = mapStudyDao.find(id);
+		List<Article> articles = articleDao.getArticles(mapStudy);
+		
 		mapStudy.setRefinementParameters(levenshtein, regex.trim(), limiartitulo,
 				limiarabstract, limiarkeywords, limiartotal, filterAuthor, filterAbstract, filterLevenshtein);
-//		taskService.addTask(new FilterArticles(mapStudy, mapStudy.getArticles()));
-//		if (mapStudy.getArticles().size() > 100)
-//			MessagesController.addMessage(new Mensagem("mapstudy.filter.start.tittle", "mapstudy.filter.start.message",
-//					TipoMensagem.INFORMACAO));
-//		result.redirectTo(this).show(id);
-		
-		FilterArticles filter = new FilterArticles(mapStudy, mapStudy.getArticles());
-		boolean filterStatus = filter.filter();
-		
-		if(filterStatus) {
-			MessagesController.addMessage(new Mensagem("mapstudy.filter", "refine.articles.sucess",
+		taskService.addTask(new FilterArticles(mapStudy, articles));
+		if (articles.size() > 100)
+			MessagesController.addMessage(new Mensagem("mapstudy.filter.start.tittle", "mapstudy.filter.start.message",
 					TipoMensagem.INFORMACAO));
-		}else {
-			MessagesController.addMessage(new Mensagem("mapstudy.filter", "error.filter",
-					TipoMensagem.ERRO));
-		}
+		result.redirectTo(this).show(id);
 		
-		result.redirectTo(this).identification(id);
+//		FilterArticles filter = new FilterArticles(mapStudy, mapStudy.getArticles());
+//		boolean filterStatus = filter.filter();
+//		
+//		if(filterStatus) {
+//			MessagesController.addMessage(new Mensagem("mapstudy.filter", "refine.articles.sucess",
+//					TipoMensagem.INFORMACAO));
+//		}else {
+//			MessagesController.addMessage(new Mensagem("mapstudy.filter", "error.filter",
+//					TipoMensagem.ERRO));
+//		}
+		
+//		result.redirectTo(this).identification(id);
 	}
 
 	@Get("/maps/{id}/unrefinearticles")
 	public void unrefinearticles(Long id) {
 		MapStudy mapStudy = mapStudyDao.find(id);
 
-		Set<Article> articles = mapStudy.getArticles();
+		List<Article> articles = articleDao.getArticles(mapStudy);
 
 		for (Article article : articles) {
 			article.setMinLevenshteinDistance(0);
@@ -632,8 +633,10 @@ public class MapStudyController {
 			result.redirectTo(this).show(mapid);
 			return;
 		}
+		
+		List<Article> articles = articleDao.getArticles(mapStudy);
 
-		if (mapStudy.getArticles().size() <= 0) {
+		if (articles == null || articles.size() <= 0) {
 			MessagesController.addMessage(new Mensagem("mapstudy", "articles.without.mapping", TipoMensagem.ERRO));
 			result.redirectTo(this).show(mapid);
 			return;
@@ -1441,9 +1444,11 @@ public class MapStudyController {
 		validator.check(mapStudy.members().contains(user), new SimpleMessage("user", "user.does.not.have.access"));
 		validator.onErrorRedirectTo(this).list();
 
+		List<Article> articles = articleDao.getArticles(mapStudy);
 		List<ArticleSourceEnum> sources = asList(ArticleSourceEnum.values());
 
 		result.include("map", mapStudy);
+		result.include("articles", articles);
 		result.include("sources", sources);
 	}
 

@@ -32,14 +32,14 @@ public class TaskRunner implements Task {
 		if (task != null) {
 			log.info("TaskRunner.execute()");
 
-//			EntityManager em = factory.createEntityManager();
-//			EntityTransaction transaction = em.getTransaction();
-//			transaction.begin();
-//			articleDao = new ArticleDao(em);
+			EntityManager em = factory.createEntityManager();
+			EntityTransaction transaction = em.getTransaction();
+			transaction.begin();
+			articleDao = new ArticleDao(em);
 			
 			MessagesController.changeRunner(true);
 			
-//			task.setArticleDao(articleDao);
+			task.setArticleDao(articleDao);
 			task.filter();
 			
 			MessagesController.addMessage(new Mensagem("mapstudy.filter.end.tittle", "mapstudy.filter.end.message", TipoMensagem.SUCESSO));
@@ -47,8 +47,8 @@ public class TaskRunner implements Task {
 
 			log.info("TaskRunner.finalizado()");
 			
-//			transaction.commit();
-//			em.close();
+			transaction.commit();
+			em.close();
 		}
 	}
 }

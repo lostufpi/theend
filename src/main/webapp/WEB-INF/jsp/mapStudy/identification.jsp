@@ -75,7 +75,7 @@ $(document).ready(function(){
 								</tr>
 							</thead>
 							<tbody>
-								<c:forEach var="article" items="${map.articles}" varStatus="s">
+								<c:forEach var="article" items="${articles}" varStatus="s">
 									<tr class="${s.index % 2 == 0 ? 'even' : 'odd'} gradeA">
 										<td>${article.id}</td>
 										<td>${article.score}</td>
