@@ -79,8 +79,10 @@ import br.com.ufpi.systematicmap.utils.service.TaskService;
 @Controller
 public class MapStudyController {
 
+	private static final int MINIMUM_REFINED_ARTICLES_TASK = 1000;
 	private static final String MAPSTUDY_IS_NOT_EXIST = "mapstudy.is.not.exist";
 	private static final String USER_DOES_NOT_HAVE_ACCESS = "user.does.not.have.access";
+	
 	private TaskService taskService;
 	private Result result;
 
@@ -568,26 +570,28 @@ public class MapStudyController {
 		MapStudy mapStudy = mapStudyDao.find(id);
 		List<Article> articles = articleDao.getArticles(mapStudy);
 		
-		mapStudy.setRefinementParameters(levenshtein, regex.trim(), limiartitulo,
-				limiarabstract, limiarkeywords, limiartotal, filterAuthor, filterAbstract, filterLevenshtein);
-		taskService.addTask(new FilterArticles(mapStudy, articles));
-		if (articles.size() > 100)
+		mapStudy.setRefinementParameters(levenshtein, regex.trim(), limiartitulo, limiarabstract, limiarkeywords, limiartotal, filterAuthor, filterAbstract, filterLevenshtein);
+		
+		if (articles.size() > MINIMUM_REFINED_ARTICLES_TASK) {
+			taskService.addTask(new FilterArticles(mapStudy, articles));
 			MessagesController.addMessage(new Mensagem("mapstudy.filter.start.tittle", "mapstudy.filter.start.message",
 					TipoMensagem.INFORMACAO));
-		result.redirectTo(this).show(id);
+			result.redirectTo(this).show(id);
+		}else {
+			FilterArticles filter = new FilterArticles(mapStudy, articles);
+			boolean filterStatus = filter.filter();
+			
+			if(filterStatus) {
+				MessagesController.addMessage(new Mensagem("mapstudy.filter", "refine.articles.sucess",
+						TipoMensagem.INFORMACAO));
+			}else {
+				MessagesController.addMessage(new Mensagem("mapstudy.filter", "error.filter",
+						TipoMensagem.ERRO));
+			}
+			
+			result.redirectTo(this).identification(id);
+		}
 		
-//		FilterArticles filter = new FilterArticles(mapStudy, mapStudy.getArticles());
-//		boolean filterStatus = filter.filter();
-//		
-//		if(filterStatus) {
-//			MessagesController.addMessage(new Mensagem("mapstudy.filter", "refine.articles.sucess",
-//					TipoMensagem.INFORMACAO));
-//		}else {
-//			MessagesController.addMessage(new Mensagem("mapstudy.filter", "error.filter",
-//					TipoMensagem.ERRO));
-//		}
-		
-//		result.redirectTo(this).identification(id);
 	}
 
 	@Get("/maps/{id}/unrefinearticles")
