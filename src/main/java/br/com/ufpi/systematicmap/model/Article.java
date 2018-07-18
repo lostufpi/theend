@@ -73,13 +73,14 @@ public class Article implements Serializable {
 	@SkipSerialization
 	private Integer year;
 	@SkipSerialization
-	private Integer volume;
+	private String volume;
 	@SkipSerialization
 	@Size(max=500)
 	private String pages;
 	@SkipSerialization
 	private String doi;
 	@SkipSerialization
+	@Lob
 	private String note;
 	@SkipSerialization
 	private String url;
@@ -134,7 +135,7 @@ public class Article implements Serializable {
 	
 	@OneToMany(mappedBy="article", cascade=CascadeType.ALL)
 	@SkipSerialization
-	private List<Comment> comments = new ArrayList<Comment>();
+	private List<Comment> comments = new ArrayList<>();
 	
 	public void addExtractionFinal(EvaluationExtraction evaluationExtraction){
 		EvaluationExtractionFinal evaluationExtractionFinal = new EvaluationExtractionFinal();
@@ -329,11 +330,11 @@ public class Article implements Serializable {
 		this.year = year;
 	}
 
-	public Integer getVolume() {
+	public String getVolume() {
 		return volume;
 	}
 
-	public void setVolume(Integer volume) {
+	public void setVolume(String volume) {
 		this.volume = volume;
 	}
 
