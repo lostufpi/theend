@@ -7,6 +7,7 @@ import org.jbibtex.BibTeXDatabase;
 import org.jbibtex.BibTeXEntry;
 import org.jbibtex.Key;
 import org.jbibtex.Value;
+import org.jbibtex.policies.BibTeXEntryKeyConflictResolutionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,6 @@ public class BibtexToArticleUtils {
 		Map<Key, Value> fields = entry.getFields();
 		
 		article.setSource(sourceEnum.toString());
-//		article.setNumber(number);
 		
 		String author = getAttr(fields, BibTeXEntry.KEY_AUTHOR);
 		
@@ -46,8 +46,6 @@ public class BibtexToArticleUtils {
 		if (author.length() > 2000){
 			author = author.substring(0, 1994) + "(...)";
 		}
-		
-//		System.out.println("Author: " + author);
 		
 		article.setAuthor(author);
 		
@@ -58,7 +56,6 @@ public class BibtexToArticleUtils {
 			title = title.substring(0, 1994) + "(...)";
 		}
 		
-//		System.out.println("Title: " + title);
 		article.setTitle(title);
 		
 		String journal = getAttr(fields, BibTeXEntry.KEY_JOURNAL);
@@ -66,47 +63,33 @@ public class BibtexToArticleUtils {
 		
 		article.setJournal(journal);
 		
-//		System.out.println("Journal: " + journal);
-		
-		String volume = getAttrInt(fields, BibTeXEntry.KEY_VOLUME).toString();
+		String volume = getAttr(fields, BibTeXEntry.KEY_VOLUME);
 		volume = remove(volume);
-		article.setVolume(Integer.parseInt(volume));
-		
-//		System.out.println("Volume: " + volume);
-		
+		article.setVolume(volume);
+		                        
 		String pages = getAttr(fields, BibTeXEntry.KEY_PAGES);
 		pages= remove(pages);
 		article.setPages(pages);
-		
-//		System.out.println("Pages: " + pages);
 		
 		String doi = getAttr(fields, BibTeXEntry.KEY_DOI);
 		doi = remove(doi);
 		article.setDoi(doi);
 		
-//		System.out.println("Doi: " + doi);
-		
 		String year = getAttr(fields, BibTeXEntry.KEY_YEAR);
 		year = remove(year);
 		article.setYear(Integer.parseInt(year));
-		
-//		System.out.println("Year: " + year);
 		
 		String abstrct =  getAttr(fields, new Key("abstract"));
 		abstrct = remove(abstrct);
 		article.setAbstrct(abstrct);
 		
-//		System.out.println("Abstract: " + abstrct);
-		
 		String keywords = getAttr(fields, new Key("keywords"));
 		keywords = remove(keywords);
-		//System.out.println("Key: " + keywords.length());
+
 		if (keywords.length() > 2000){
 			keywords = keywords.substring(0, 1994) + "(...)";
-			//System.out.println(keywords);
 		}
 		
-//		System.out.println("Key: " + keywords);
 		article.setKeywords(keywords);
 		
 		String language = getAttr(fields, new Key("language"));
@@ -122,20 +105,19 @@ public class BibtexToArticleUtils {
 			docType = remove(docType);
 			article.setDocType(docType);
 			
-//			System.out.println("DocType: " + docType);
+			String author_keywords = getAttr(fields, new Key("author_keywords"));
+			author_keywords = remove(author_keywords);
+			article.setKeywords(author_keywords);
 			
-			String note = getAttr(fields, new Key("authos_keywords"));
-			note = remove(note);
-			article.setNote("author keywords: " + note);
-			
-//			System.out.println("Note: " + note);
+			String affiliation = getAttr(fields, new Key("affiliation"));
+			affiliation = remove(affiliation);
+			article.setNote(article.getNote() + affiliation);
 			
 		}else if(sourceEnum.equals(ArticleSourceEnum.WEB_OF_SCIENCE)){
 			String docType = getAttr(fields, new Key("type"));
 			docType = remove(docType);
 			article.setDocType(docType);
 			
-//			System.out.println("DocType: " + docType);
 		}else if(sourceEnum.equals(ArticleSourceEnum.SCIELO)){
 			String doi2 = getAttr(fields, new Key("crossref"));
 			doi2 = remove(doi2);
@@ -144,6 +126,10 @@ public class BibtexToArticleUtils {
 			String docType = getAttr(fields, new Key("type"));
 			docType = remove(docType);
 			article.setDocType(docType);
+		}else if(sourceEnum.equals(ArticleSourceEnum.ENGINEERING_VILLAGE)){
+			String key2 = getAttr(fields, new Key("key"));
+			key2 = remove(key2);
+			article.setKeywords(article.getKeywords() + key2);
 		}
 		
 		return article;
@@ -156,7 +142,7 @@ public class BibtexToArticleUtils {
 		bib.addObject(new BibTeXEntry(BibTeXEntry.KEY_AUTHOR, new Key(article.getAuthor())));
 		bib.addObject(new BibTeXEntry(BibTeXEntry.KEY_TITLE, new Key(article.getTitle())));
 		bib.addObject(new BibTeXEntry(BibTeXEntry.KEY_JOURNAL, new Key(article.getJournal())));
-		bib.addObject(new BibTeXEntry(BibTeXEntry.KEY_VOLUME, new Key(article.getVolume().toString())));
+		bib.addObject(new BibTeXEntry(BibTeXEntry.KEY_VOLUME, new Key(article.getVolume())));
 		bib.addObject(new BibTeXEntry(BibTeXEntry.KEY_PAGES, new Key(article.getPages())));
 		bib.addObject(new BibTeXEntry(BibTeXEntry.KEY_DOI, new Key(article.getDoi())));
 		
@@ -170,19 +156,25 @@ public class BibtexToArticleUtils {
 	}
 	
 	static private Integer getAttrInt(Map<Key, Value> fields, Key key){
+		if(key == null) {
+			return 0;
+		}
 		try{
 			return Integer.parseInt(fields.get(key).toUserString());
 		}catch(Exception e){
-			logger.error(e.getMessage());
+			logger.error("Attr: " + key +" -> "+ e.getMessage());
 			return -1;
 		}
 	}
 	
 	static private String getAttr(Map<Key, Value> fields, Key key){
+		if(key == null) {
+			return "";
+		}
 		try{
 			return fields.get(key).toUserString();
 		}catch(Exception e){
-			logger.error(e.getMessage());
+			logger.error("Attr: " + key +" -> "+ e.getMessage());
 			return "";
 		}
 	}
