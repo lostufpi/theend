@@ -401,22 +401,19 @@ public class MapStudyController {
 					try {
 						database = bibtexUtils.parseBibTeX(files.getFile(mapStudy));
 					} catch (TokenMgrException | ParseException e) {
-						System.out.println(e.getMessage());
-						logger.info(e.getMessage());
+						logger.error(e.getMessage());
 						MessagesController.addMessage(new Mensagem("bibtex", "bibtex.format.error", TipoMensagem.ERRO));
 						result.redirectTo(this).identification(id);
 						return;
 					} catch (IOException e2) {
-						System.out.println(e2.getMessage());
-						logger.info(e2.getMessage());
+						logger.error(e2.getMessage());
 						MessagesController.addMessage(new Mensagem("bibtex", "bibtex.file.error", TipoMensagem.ERRO));
 						result.redirectTo(this).identification(id);
 						return;
 					}
 				}
 			} catch (IOException e) {
-				System.out.println(e.getMessage());
-				logger.info(e.getMessage());
+				logger.error(e.getMessage());
 			}
 		}
 

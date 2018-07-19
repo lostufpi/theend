@@ -40,6 +40,13 @@ public class FilterArticles {
 
 	public boolean filter() {
 		try {
+			if (mapStudy.getRefinementParameters().getFilterLevenshtein()) {
+				calcTitleLevenshteinDistance(mapStudy.getRefinementParameters().getLevenshtein() == -1 ? 0
+						: mapStudy.getRefinementParameters().getLevenshtein());
+			} else {
+				filterTitleEquals();
+			}
+			
 			int sumLimiar = mapStudy.getRefinementParameters().getLimiarTitle()
 					+ mapStudy.getRefinementParameters().getLimiarAbstract()
 					+ mapStudy.getRefinementParameters().getLimiarKeywords()
@@ -51,12 +58,6 @@ public class FilterArticles {
 				filterAll();
 			}
 
-			if (mapStudy.getRefinementParameters().getFilterLevenshtein()) {
-				calcTitleLevenshteinDistance(mapStudy.getRefinementParameters().getLevenshtein() == -1 ? 0
-						: mapStudy.getRefinementParameters().getLevenshtein());
-			} else {
-				filterTitleEquals();
-			}
 
 			return true;
 		} catch (Exception e) {
