@@ -85,7 +85,6 @@ public class GraphicsController {
 
 	@Get("/graphics/pie/sources")
 	public void articlesSources(Long mapid){
-//		System.out.println(mapid);
 		MapStudy mapStudy = mapStudyDao.find(mapid);
 		mapStudyDao.refresh(mapStudy);
 		
@@ -95,13 +94,13 @@ public class GraphicsController {
 		List<ArticleSourceEnum> listSources = asList(ArticleSourceEnum.values());
 		
 		for (ArticleSourceEnum articleSourceEnum : listSources) {
-			sources.put(articleSourceEnum.toString(), 0d);
+			sources.put(articleSourceEnum.getDescription(), 0d);
 		}
 		
 		for (Article article : articles) {
-			Double value = sources.get(article.getSource().toString());
+			Double value = sources.get(article.getSource());
 			++value;
-			sources.put(article.getSource().toString(), value);
+			sources.put(article.getSource(), value);
 		}	
 		
 		int total = articles.size();
@@ -110,12 +109,14 @@ public class GraphicsController {
 		List<Data> data = new ArrayList<>();
 		
 		for (ArticleSourceEnum articleSourceEnum : listSources) {
-			Data d = new Data();
-			d.setName(articleSourceEnum.getDescription());
-			d.setY(sources.get(articleSourceEnum.toString()));
-			Double percent = (d.getY() / total) * 100;
-			d.setPercent(percent);
-			data.add(d);
+			if(sources.get(articleSourceEnum.getDescription()) > 0) {
+				Data d = new Data();
+				d.setName(articleSourceEnum.getDescription());
+				d.setY(sources.get(articleSourceEnum.getDescription()));
+				Double percent = (d.getY() / total) * 100;
+				d.setPercent(percent);
+				data.add(d);
+			}
 		}		
 		
 		pie.setTitle("Artigos obtidos por base de busca");
