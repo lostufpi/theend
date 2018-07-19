@@ -4,13 +4,13 @@ package org.jbibtex;
 
 import java.io.FileReader;
 import java.io.Reader;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.jbibtex.policies.BibTeXEntryKeyConflictResolutionPolicies;
 import org.jbibtex.policies.BibTeXEntryKeyConflictResolutionPolicy;
+import org.jbibtex.policies.BibTeXEntryKeyConflictResolutionPolicies;
 
 public class BibTeXParser implements BibTeXParserConstants {
 

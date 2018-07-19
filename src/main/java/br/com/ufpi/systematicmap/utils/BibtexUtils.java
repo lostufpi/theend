@@ -24,15 +24,13 @@ import org.jbibtex.policies.BibTeXEntryKeyConflictResolutionPolicies;
 public class BibtexUtils {
 
 	public BibTeXDatabase parseBibTeX(File file) throws TokenMgrException, ParseException, IOException{
-//		Reader reader = null;
-		InputStream is;
+		InputStream is = null;
 		InputStreamReader reader = null;
 		CharacterFilterReader filterReader = null;
 		try {
 			 is = new FileInputStream(file);
 			 reader = new InputStreamReader(is, StandardCharsets.UTF_8);
-//			filterReader = new CharacterFilterReader(reader);
-//			reader = new FileReader(file);
+			filterReader = new CharacterFilterReader(reader);
 			BibTeXParser parser = new BibTeXParser(BibTeXEntryKeyConflictResolutionPolicies.REKEY_SUBSEQUENT) {
 				@Override
 				public void checkStringResolution(Key key, BibTeXString string) {
@@ -49,9 +47,11 @@ public class BibtexUtils {
 				}
 			};
 
-			return parser.parse(reader);
+			return parser.parse(filterReader);
 
 		} finally {
+			if(is != null)
+				is.close();
 			if(reader!=null)
 				reader.close();
 			if(filterReader!=null)

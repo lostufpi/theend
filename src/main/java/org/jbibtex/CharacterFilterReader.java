@@ -37,7 +37,7 @@ public class CharacterFilterReader extends FilterReader {
 		}
 
 		// Unicode letters
-		if((c >= '\u0100' && c <= '\u1fff') || (c == '\u20ac' || c == '\u2122')){
+		if((c >= '\u0100' && c <= '\u1fff') || (c == '\u20ac' || c == '\u2122') || c == '\u00a0' || c == '\u00bf' || c == '\u00bd' || c == '\u00ef'){
 			return true;
 		}
 
@@ -55,6 +55,8 @@ public class CharacterFilterReader extends FilterReader {
 
 			if(accept((char)result)){
 				return result;
+			}else {
+				return '?';
 			}
 		}
 	}
@@ -76,6 +78,10 @@ public class CharacterFilterReader extends FilterReader {
 
 			if(accept(c)){
 				buffer[writeOffset] = c;
+
+				writeOffset++;
+			}else {
+				buffer[writeOffset] = '?';
 
 				writeOffset++;
 			}

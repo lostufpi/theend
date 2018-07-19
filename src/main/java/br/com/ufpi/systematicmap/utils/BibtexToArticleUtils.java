@@ -7,7 +7,6 @@ import org.jbibtex.BibTeXDatabase;
 import org.jbibtex.BibTeXEntry;
 import org.jbibtex.Key;
 import org.jbibtex.Value;
-import org.jbibtex.policies.BibTeXEntryKeyConflictResolutionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -157,12 +156,12 @@ public class BibtexToArticleUtils {
 	
 	static private Integer getAttrInt(Map<Key, Value> fields, Key key){
 		if(key == null) {
-			return 0;
+			return -1;
 		}
 		try{
 			return Integer.parseInt(fields.get(key).toUserString());
 		}catch(Exception e){
-			logger.error("Attr: " + key +" -> "+ e.getMessage());
+//			logger.error("Attr: " + key +" -> "+ e.getMessage());
 			return -1;
 		}
 	}
@@ -174,7 +173,7 @@ public class BibtexToArticleUtils {
 		try{
 			return fields.get(key).toUserString();
 		}catch(Exception e){
-			logger.error("Attr: " + key +" -> "+ e.getMessage());
+//			logger.error("Attr: " + key +" -> "+ e.getMessage());
 			return "";
 		}
 	}
