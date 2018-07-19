@@ -73,10 +73,15 @@ public class BibtexToArticleUtils {
 		String doi = getAttr(fields, BibTeXEntry.KEY_DOI);
 		doi = remove(doi);
 		article.setDoi(doi);
-		
-		String year = getAttr(fields, BibTeXEntry.KEY_YEAR);
-		year = remove(year);
-		article.setYear(Integer.parseInt(year));
+		String year = "";
+		try {
+			year = getAttr(fields, BibTeXEntry.KEY_YEAR);
+			year = remove(year);
+			article.setYear(Integer.parseInt(year));
+		} catch (Exception e) {
+			logger.warn("Article year: " + year + " --> " + title);
+			article.setYear(0);
+		}
 		
 		String abstrct =  getAttr(fields, new Key("abstract"));
 		abstrct = remove(abstrct);

@@ -18,7 +18,7 @@ public class Key implements Serializable {
 	}
 
 	public Key(String value){
-		setValue(value);
+		setValue(value.trim()); //correção do bug causado por permitir espaço nas chaves, assim o espaço no inicio/fim é ignorado.
 	}
 
 	@Override
