@@ -94,7 +94,7 @@ public class GraphicsController {
 		List<ArticleSourceEnum> listSources = asList(ArticleSourceEnum.values());
 		
 		for (ArticleSourceEnum articleSourceEnum : listSources) {
-			sources.put(articleSourceEnum.getDescription(), 0d);
+			sources.put(articleSourceEnum.toString(), 0d);
 		}
 		
 		for (Article article : articles) {
@@ -109,10 +109,10 @@ public class GraphicsController {
 		List<Data> data = new ArrayList<>();
 		
 		for (ArticleSourceEnum articleSourceEnum : listSources) {
-			if(sources.get(articleSourceEnum.getDescription()) > 0) {
+			if(sources.get(articleSourceEnum.toString()) > 0) {
 				Data d = new Data();
 				d.setName(articleSourceEnum.getDescription());
-				d.setY(sources.get(articleSourceEnum.getDescription()));
+				d.setY(sources.get(articleSourceEnum.toString()));
 				Double percent = (d.getY() / total) * 100;
 				d.setPercent(percent);
 				data.add(d);
