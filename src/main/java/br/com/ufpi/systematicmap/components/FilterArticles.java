@@ -74,25 +74,27 @@ public class FilterArticles {
 				+ mapStudy.getRefinementParameters().getLimiarTotal();
 
 		for (Article a : papers) {
-			Article article = articleDao.find(a.getId());
-			if (mapStudy.getRefinementParameters().getFilterAuthor() && article.getAuthor().equals("")) {
-				article.setClassification(ClassificationEnum.WITHOUT_AUTHORS);
-				article.setComment(article.getComment() + ClassificationEnum.WITHOUT_AUTHORS.toString());
-				articleDao.update(article);
-				continue;
-			}
-
-			if (mapStudy.getRefinementParameters().getFilterAbstract() && article.getAbstrct().equals("")) {
-				article.setClassification(ClassificationEnum.WITHOUT_ABSTRACT);
-				article.setComment(article.getComment() + ClassificationEnum.WITHOUT_ABSTRACT.toString());
-				articleDao.update(article);
-				continue;
-			}
-
-			if (sumLimiar > 0) {
-				applyRegexFilter(article);
-				article.setScore(article.getRegexAbs() + article.getRegexKeys() + article.getRegexTitle());
-				classificationArticle(article);
+			if(a.getClassification() == null) {
+				Article article = articleDao.find(a.getId());
+				if (mapStudy.getRefinementParameters().getFilterAuthor() && article.getAuthor().equals("")) {
+					article.setClassification(ClassificationEnum.WITHOUT_AUTHORS);
+					article.setComment(article.getComment() + ClassificationEnum.WITHOUT_AUTHORS.toString());
+					articleDao.update(article);
+					continue;
+				}
+				
+				if (mapStudy.getRefinementParameters().getFilterAbstract() && article.getAbstrct().equals("")) {
+					article.setClassification(ClassificationEnum.WITHOUT_ABSTRACT);
+					article.setComment(article.getComment() + ClassificationEnum.WITHOUT_ABSTRACT.toString());
+					articleDao.update(article);
+					continue;
+				}
+				
+				if (sumLimiar > 0) {
+					applyRegexFilter(article);
+					article.setScore(article.getRegexAbs() + article.getRegexKeys() + article.getRegexTitle());
+					classificationArticle(article);
+				}
 			}
 		}
 	}
