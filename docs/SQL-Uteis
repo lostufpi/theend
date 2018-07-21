@@ -9,3 +9,20 @@ SELECT * FROM Evaluation WHERE id in (
 		select e2.evaluation_id FROM systematicmap.evaluations_exclusions e2 where e2.exclusion_id != 14
 	)
 );
+
+DELIMITER //
+DROP PROCEDURE IF EXISTS removeQuebras//
+CREATE PROCEDURE removeQuebras (maxId INT)
+BEGIN
+	DECLARE contador INT DEFAULT 0;
+    loop_teste: LOOP
+		SET contador = contador + 1;
+			UPDATE article SET abstrct=REPLACE(abstrct, '\n',''), title=REPLACE(title, '\n',''), author=REPLACE(author, '\n',''), keywords=REPLACE(keywords, '\n',''), comment=REPLACE(comment, '\n','') WHERE mapStudy_id = contador;
+		IF contador > maxId THEN
+			LEAVE loop_teste;
+		END IF;
+	END LOOP loop_teste;
+END//
+DELIMITER ;
+
+CALL removeQuebras(510);
