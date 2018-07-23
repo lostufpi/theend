@@ -6,6 +6,7 @@ import static java.util.Arrays.asList;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -61,12 +62,14 @@ import br.com.ufpi.systematicmap.model.RefinementParameters;
 import br.com.ufpi.systematicmap.model.ResearchQuestion;
 import br.com.ufpi.systematicmap.model.SearchString;
 import br.com.ufpi.systematicmap.model.User;
+import br.com.ufpi.systematicmap.model.enums.AcceptanceType;
 import br.com.ufpi.systematicmap.model.enums.ArticleSourceEnum;
 import br.com.ufpi.systematicmap.model.enums.ClassificationEnum;
 import br.com.ufpi.systematicmap.model.enums.EvaluationStatusEnum;
 import br.com.ufpi.systematicmap.model.enums.QuestionType;
 import br.com.ufpi.systematicmap.model.enums.Roles;
 import br.com.ufpi.systematicmap.model.enums.TipoMensagem;
+import br.com.ufpi.systematicmap.model.enums.TypeOfFile;
 import br.com.ufpi.systematicmap.model.vo.ArticleCompareVO;
 import br.com.ufpi.systematicmap.model.vo.Percent;
 import br.com.ufpi.systematicmap.utils.BibtexToArticleUtils;
@@ -74,6 +77,7 @@ import br.com.ufpi.systematicmap.utils.BibtexUtils;
 import br.com.ufpi.systematicmap.utils.FleissKappa;
 import br.com.ufpi.systematicmap.utils.Linker;
 import br.com.ufpi.systematicmap.utils.MailUtils;
+import br.com.ufpi.systematicmap.utils.builder.FileGenerator;
 import br.com.ufpi.systematicmap.utils.service.TaskService;
 
 @Controller
@@ -113,8 +117,7 @@ public class MapStudyController {
 	public MapStudyController(MapStudyDao musicDao, UserInfo userInfo, Result result, Validator validator,
 			FilesUtils files, UserDao userDao, ArticleDao articleDao, InclusionCriteriaDao inclusionDao,
 			ExclusionCriteriaDao exclusionDao, EvaluationDao evaluationDao, MailUtils mailUtils, Linker linker,
-			ResearchQuestionDao questionDao, SearchStringDao stringDao, TaskService taskService,
-			Logger logger) {
+			ResearchQuestionDao questionDao, SearchStringDao stringDao, TaskService taskService, Logger logger) {
 		this.mapStudyDao = musicDao;
 		this.result = result;
 		this.validator = validator;
@@ -429,7 +432,7 @@ public class MapStudyController {
 
 		for (BibTeXEntry entry : entries) {
 			Article a = BibtexToArticleUtils.bibtexToArticle(entry, source);
-//			mapStudy.addArticle(a);
+			// mapStudy.addArticle(a);
 			a.setMapStudy(mapStudy);
 			articleDao.insert(a);
 		}
@@ -466,10 +469,10 @@ public class MapStudyController {
 		MapStudy mapStudy = mapStudyDao.find(mapId);
 
 		article.setSource(ArticleSourceEnum.MANUALLY.toString());
-//		mapStudy.addArticle(article);
+		// mapStudy.addArticle(article);
 		article.setMapStudy(mapStudy);
 		articleDao.insert(article);
-//		mapStudyDao.update(mapStudy);
+		// mapStudyDao.update(mapStudy);
 
 		MessagesController.addMessage(new Mensagem("mapstudy.articles", "article.add.sucess", TipoMensagem.SUCESSO));
 		result.redirectTo(this).identification(mapStudy.getId());
@@ -567,27 +570,28 @@ public class MapStudyController {
 			boolean filterLevenshtein) {
 		MapStudy mapStudy = mapStudyDao.find(id);
 		List<Article> articles = articleDao.getArticles(mapStudy);
-		
-		mapStudy.setRefinementParameters(levenshtein, regex.trim(), limiartitulo,
-				limiarabstract, limiarkeywords, limiartotal, filterAuthor, filterAbstract, filterLevenshtein);
+
+		mapStudy.setRefinementParameters(levenshtein, regex.trim(), limiartitulo, limiarabstract, limiarkeywords,
+				limiartotal, filterAuthor, filterAbstract, filterLevenshtein);
 		taskService.addTask(new FilterArticles(mapStudy, articles));
 		if (articles.size() > 100)
 			MessagesController.addMessage(new Mensagem("mapstudy.filter.start.tittle", "mapstudy.filter.start.message",
 					TipoMensagem.INFORMACAO));
 		result.redirectTo(this).show(id);
-		
-//		FilterArticles filter = new FilterArticles(mapStudy, mapStudy.getArticles());
-//		boolean filterStatus = filter.filter();
-//		
-//		if(filterStatus) {
-//			MessagesController.addMessage(new Mensagem("mapstudy.filter", "refine.articles.sucess",
-//					TipoMensagem.INFORMACAO));
-//		}else {
-//			MessagesController.addMessage(new Mensagem("mapstudy.filter", "error.filter",
-//					TipoMensagem.ERRO));
-//		}
-		
-//		result.redirectTo(this).identification(id);
+
+		// FilterArticles filter = new FilterArticles(mapStudy, mapStudy.getArticles());
+		// boolean filterStatus = filter.filter();
+		//
+		// if(filterStatus) {
+		// MessagesController.addMessage(new Mensagem("mapstudy.filter",
+		// "refine.articles.sucess",
+		// TipoMensagem.INFORMACAO));
+		// }else {
+		// MessagesController.addMessage(new Mensagem("mapstudy.filter", "error.filter",
+		// TipoMensagem.ERRO));
+		// }
+
+		// result.redirectTo(this).identification(id);
 	}
 
 	@Get("/maps/{id}/unrefinearticles")
@@ -633,7 +637,7 @@ public class MapStudyController {
 			result.redirectTo(this).show(mapid);
 			return;
 		}
-		
+
 		List<Article> articles = articleDao.getArticles(mapStudy);
 
 		if (articles == null || articles.size() <= 0) {
@@ -866,8 +870,8 @@ public class MapStudyController {
 		ExclusionCriteria criteria = exclusionDao.find(criteriaId);
 		Set<Evaluation> evaluations = criteria.getEvaluations();
 
-		List<Evaluation> evaluationsImpacted = new ArrayList<Evaluation>();
-		List<Evaluation> evaluationsRemoved = new ArrayList<Evaluation>();
+		List<Evaluation> evaluationsImpacted = new ArrayList<>();
+		List<Evaluation> evaluationsRemoved = new ArrayList<>();
 
 		for (Evaluation e : evaluations) {
 			if (e.getExclusionCriterias().size() == 1 && e.getExclusionCriterias().contains(criteria)) {
@@ -1073,116 +1077,59 @@ public class MapStudyController {
 		result.include("countClassified", countClassified);
 	}
 
-	@Path("/maps/{mapStudyId}/accepted/mine")
-	@Get
-	public Download downloadMine(Long mapStudyId) throws IOException {
+//	@Path("/maps/{mapStudyId}/{acceptanceType}/{typeOfFile}")
+	@Post("/maps/{mapStudyId}/export")
+	public Download fileDownloader(Long mapStudyId, AcceptanceType acceptanceType, TypeOfFile typeOfFile) {
 		MapStudy mapStudy = mapStudyDao.find(mapStudyId);
-		List<Evaluation> evaluations = evaluationDao.getEvaluations(userInfo.getUser(), mapStudy);
-		List<Article> articles = new ArrayList<Article>();
-
-		if (evaluations.size() < 0) {
-			MessagesController.addMessage(
-					new Mensagem("mapstudy.evaluations", "mapstudy.articles.not.evaluations", TipoMensagem.ERRO));
-			result.redirectTo(this).showEvaluates(mapStudyId);
-		} else {
-			for (Evaluation e : evaluations) {
-				if (e.getEvaluationStatus().equals(EvaluationStatusEnum.ACCEPTED)) {
-					articles.add(e.getArticle());
-				}
-			}
-			if (articles.size() < 0) {
-				MessagesController
-						.addMessage(new Mensagem("mapstudy.articles", "mapstudy.articles.none", TipoMensagem.ERRO));
-				result.redirectTo(this).show(mapStudyId);
-			}
-		}
-		return generateFile(mapStudy, articles);
-	}
-
-	@Path("/maps/{mapStudyId}/accepted/all")
-	@Get
-	public Download downloadAll(Long mapStudyId) throws IOException {
-		MapStudy mapStudy = mapStudyDao.find(mapStudyId);
-		List<Article> articles = articleDao.getArticlesFinalAccepted(mapStudy);
-
-		if (articles.size() < 0) {
-			MessagesController.addMessage(
-					new Mensagem("mapstudy.articles", "mapstudy.articles.accepted.all.none", TipoMensagem.ERRO));
+		if (mapStudy == null) {
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
 			result.redirectTo(this).showEvaluates(mapStudyId);
 			return null;
+		} else {
+			String fileName = "Evaluations_" + mapStudyId + "_" + acceptanceType + Calendar.DAY_OF_MONTH
+					+ Calendar.MONTH + Calendar.YEAR + typeOfFile.getDescription();
+			FileGenerator fileGenerator = new FileGenerator(fileName, acceptanceType, typeOfFile, mapStudy, articleDao,
+					userInfo.getUser());
+			result.redirectTo(this).showEvaluates(mapStudyId);
+			return fileGenerator.getFinalFile();
 		}
-		return generateFile(mapStudy, articles);
 	}
 
-	// TODO Depois adicionar a visão uma lista dos possiveis campos para o arquivo
-	private Download generateFile(MapStudy mapStudy, List<Article> articles) throws IOException {
-
-		// create file
-		// String filename = mapStudy.getTitle().replaceAll(" ", "_")+ ".csv";
-		Long time = System.currentTimeMillis();
-		String filename = "Evaluations_" + mapStudy.getId() + "_" + time + ".csv";
-
-		String temp = System.getProperty("java.io.tmpdir");
-		// System.out.println("FILE TEMP: " + temp);
-
-		File file = new File(temp + filename);
-		String encoding = "ISO-8859-1";
-		FileWriterWithEncoding writer = new FileWriterWithEncoding(file, encoding, false);
-
-		Collections.sort(articles, new Comparator<Article>() {
-			@Override
-			public int compare(Article a1, Article a2) {
-				return a1.getId().compareTo(a2.getId());
-			}
-		});
-
-		String delimiter = ";";
-
-		// create header
-		writer.append("Id" + delimiter);
-		writer.append("Title" + delimiter);
-		writer.append("Author" + delimiter);
-		writer.append("Journal" + delimiter);
-		// writer.append("Year"+delimiter);
-		// writer.append("Pages"+delimiter);
-		writer.append("Doi" + delimiter);
-		// writer.append("URL"+delimiter);
-		writer.append("DocType" + delimiter);
-		writer.append("Source" + delimiter);
-		// writer.append("Language"+delimiter);
-		// writer.append("Abstract"+delimiter);
-		// writer.append("Keywords");
-		writer.append('\n');
-
-		for (Article a : articles) {
-			writer.append(a.getId() + delimiter);
-			String title = a.getTitle().replace('\n', ' ').replace(';', ' ');
-			writer.append(title + delimiter);
-			String author = a.getAuthor().replace('\n', ' ').replace(';', ' ');
-			writer.append(author + delimiter);
-			String journal = a.getJournal();
-			journal = (journal != null ? journal.replace('\n', ' ').replace(';', ' ') : "");
-			writer.append(journal + delimiter);
-			// writer.append(a.getJournal()+delimiter);
-			// writer.append(a.getYear()+delimiter);
-			// writer.append(a.getPages()+delimiter);
-			// writer.append(a.getDoi()+delimiter);
-			writer.append((a.getDoi() != null ? a.getDoi() : "") + delimiter);
-			// writer.append(a.getUrl()+delimiter);
-			// writer.append(a.getDocType()+delimiter);
-			writer.append((a.getDocType() != null ? a.getDocType() : "") + delimiter);
-			writer.append(a.sourceView(a.getSource()) + delimiter);
-			// writer.append(a.getLanguage()+delimiter);
-			// writer.append(a.getAbstrct()+delimiter);
-			// writer.append(a.getKeywords());
-			writer.append('\n');
-		}
-		writer.flush();
-		writer.close();
-
-		String contentType = "text/csv";
-		return new FileDownload(file, contentType, filename);
-	}
+	// public Download downloadMine(Long mapStudyId) throws IOException {
+	// MapStudy mapStudy = mapStudyDao.find(mapStudyId);
+	// List<Evaluation> evaluations =
+	// evaluationDao.getEvaluations(userInfo.getUser(), mapStudy);
+	// List<Article> articles = new ArrayList<Article>();
+	//
+	// if (evaluations.size()  < 0) {
+	// MessagesController.addMessage(
+	// new Mensagem("mapstudy.evaluations", "mapstudy.articles.not.evaluations",
+	// TipoMensagem.ERRO));
+	// result.redirectTo(this).showEvaluates(mapStudyId);
+	// } else {
+	// for (Evaluation e : evaluations) {
+	// if (e.getEvaluationStatus().equals(EvaluationStatusEnum.ACCEPTED)) {
+	// articles.add(e.getArticle());
+	// }
+	// }
+	// if (articles.size() < 0) {
+	// MessagesController
+	// .addMessage(new Mensagem("mapstudy.articles", "mapstudy.articles.none",
+	// TipoMensagem.ERRO));
+	// result.redirectTo(this).show(mapStudyId);
+	// }
+	// }
+	// return generateFile(mapStudy, articles);
+	// }
+	//
+	// @Path("/maps/{mapStudyId}/{acceptanceType}/{typeOfFile}")
+	// @Get
+	// public Download downloadAll(Long mapStudyId, AcceptanceType acceptanceType,
+	// TypeOfFile typeOfFile)
+	// throws IOException {
+	//
+	//
+	// }
 
 	@Path("/maps/equalSelections")
 	@Post
@@ -1431,11 +1378,11 @@ public class MapStudyController {
 	@Path("/maps/{id}/identification")
 	public void identification(Long id) {
 		MapStudy mapStudy = mapStudyDao.find(id);
-		
-		if(mapStudy.getRefinementParameters() == null) {
+
+		if (mapStudy.getRefinementParameters() == null) {
 			mapStudy.setRefinementParameters(new RefinementParameters());
 		}
-		
+
 		User user = userInfo.getUser();
 
 		validator.check(mapStudy != null, new SimpleMessage("mapstudy", "mapstudy.is.not.exist"));
