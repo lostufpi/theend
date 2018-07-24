@@ -11,6 +11,11 @@ $(document).ready(function(){
 	$('#limiartotal').popover();	
 	$('#filterAuthor').popover();	
 	$('#filterAbstract').popover();	
+	$('#filterLevenshtein').popover();
+	
+	$('#filterAuthor').prop("checked", "${map.refinementParameters.filterAuthor}");
+	$('#filterAbstract').prop("checked", "${map.refinementParameters.filterAbstract}");
+	$('#filterLevenshtein').prop("checked", "${map.refinementParameters.filterLevenshtein}");
 }); 
 </script>
 
@@ -97,9 +102,7 @@ $(document).ready(function(){
 						</div>
 						<div class="form-group">
 							<label for="regex">Regex (termo:regex;...)</label>
-							<textarea class="form-control" id="regexterm" name="regex" rows="5" cols=""	data-toggle="popover" data-trigger="hover" data-placement="left" data€container="body" data-content='<fmt:message key="mapstudy.article.refine.regexterm" />' data-title='<fmt:message key="mapstudy.article.refine.information" />'>
-								${map.refinementParameters.regex}				
-							</textarea>
+							<textarea class="form-control" id="regexterm" name="regex" rows="5" cols=""	data-toggle="popover" data-trigger="hover" data-placement="left" data€container="body" data-content='<fmt:message key="mapstudy.article.refine.regexterm" />' data-title='<fmt:message key="mapstudy.article.refine.information" />'>${map.refinementParameters.regex}</textarea>
 <!-- automatico:(automat.*|semiautomati.*|semi-automati.*); -->
 <!-- web:(web|website|internet|www); -->
 <!-- usabilidade:(usability|usable); -->
@@ -134,15 +137,15 @@ $(document).ready(function(){
 						
 						<div class="form-group">
 							<label class="checkbox-inline">
-								<input value="${map.refinementParameters.filterAuthor}" type="checkbox" name="filterAuthor" id="filterAuthor" data-toggle="popover" data-trigger="hover" data-placement="left" datacontainer="body" data-content='<fmt:message key="mapstudy.article.refine.filterauthor" />' data-title='<fmt:message key="mapstudy.article.refine.information" />'> Filtro autores
+								<input type="checkbox" name="filterAuthor" id="filterAuthor" data-toggle="popover" data-trigger="hover" data-placement="left" datacontainer="body" data-content='<fmt:message key="mapstudy.article.refine.filterauthor" />' data-title='<fmt:message key="mapstudy.article.refine.information" />'> Filtro autores
 							</label>
 							
 							<label class="checkbox-inline">
-								<input value="${map.refinementParameters.filterAbstract}" type="checkbox" name="filterAbstract" id="filterAbstract" data-toggle="popover" data-trigger="hover" data-placement="left" datacontainer="body" data-content='<fmt:message key="mapstudy.article.refine.filterabstrat" />' data-title='<fmt:message key="mapstudy.article.refine.information" />'> Filtro abstract
+								<input type="checkbox" name="filterAbstract" id="filterAbstract" data-toggle="popover" data-trigger="hover" data-placement="left" datacontainer="body" data-content='<fmt:message key="mapstudy.article.refine.filterabstrat" />' data-title='<fmt:message key="mapstudy.article.refine.information" />'> Filtro abstract
 							</label>
 							
 							<label class="checkbox-inline">
-								<input value="${map.refinementParameters.filterLevenshtein}" type="checkbox" name="filterLevenshtein" id="filterLevenshtein" data-toggle="popover" data-trigger="hover" data-placement="left" datacontainer="body" data-content='<fmt:message key="mapstudy.article.refine.filterlevenshtein" />' data-title='<fmt:message key="mapstudy.article.refine.information" />'> Filtro Levenshtein
+								<input type="checkbox" name="filterLevenshtein" id="filterLevenshtein" data-toggle="popover" data-trigger="hover" data-placement="left" datacontainer="body" data-content='<fmt:message key="mapstudy.article.refine.filterlevenshtein" />' data-title='<fmt:message key="mapstudy.article.refine.information" />'> Filtro Levenshtein
 							</label>
 						</div>
 						
