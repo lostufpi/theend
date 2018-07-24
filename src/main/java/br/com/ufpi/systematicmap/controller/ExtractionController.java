@@ -427,7 +427,7 @@ public class ExtractionController {
 
 		int numberQuestions = questionVO.getQuestions().size();
 
-		article.addComments(userInfo.getUser(), questionVO.getComment());
+//		article.addComments(userInfo.getUser(), questionVO.getComment());
 
 		for (int i = 0; i < numberQuestions; i++) {
 			Set<Alternative> auxList = questionVO.getQuestions().get(i).getAlternatives();
@@ -456,6 +456,7 @@ public class ExtractionController {
 				evaluationExtraction.setArticle(article);
 				evaluationExtraction.setUser(user);
 				evaluationExtraction.setQuestion(alternative.getQuestion());
+				evaluationExtraction.setComment(questionVO.getComment());
 
 				// TODO ao adicionar seria melhor verificar aqui ? se a alternativa alternativa
 				// então deveria só atualizar
@@ -492,7 +493,6 @@ public class ExtractionController {
 	@Get
 	@Path("/extraction/article/{articleid}/load")
 	public void loadArticleAjax(Long mapid, Long articleid) {
-		// System.out.println("LoadAjax: " + mapid + "|" + articleid);
 		Article article = articleDao.find(articleid);
 
 		// se o artigo não existir
@@ -505,9 +505,8 @@ public class ExtractionController {
 		HashMap<String, Object> returns = new HashMap<>();
 		List<EvaluationExtraction> extraction = null;
 
-		if (article != null) {
-			extraction = article.getEvaluationExtraction(userInfo.getUser());
-		}
+		extraction = article.getEvaluationExtraction(userInfo.getUser());
+		
 		TreeSet<EvaluationExtraction> extractionOrdered = new TreeSet<EvaluationExtraction>(
 				new Comparator<EvaluationExtraction>() {
 					public int compare(EvaluationExtraction a, EvaluationExtraction b) {
@@ -515,9 +514,9 @@ public class ExtractionController {
 					}
 				});
 		extractionOrdered.addAll(extraction);
-		returns.put("extraction", extraction);
+		returns.put("extraction", extractionOrdered);
 		returns.put("article", article);
-		returns.put("comment", article.getComments(userInfo.getUser().getId()));
+		returns.put("comment", article.getCommentsUser(userInfo.getUser().getId()));
 
 		result.use(Results.json()).indented().withoutRoot().from(returns).recursive().serialize();
 	}
@@ -546,7 +545,7 @@ public class ExtractionController {
 		if (!mapStudy.isSupervisor(user)) {
 			extractions = this.articleDao.getExtractions(this.userInfo.getUser(), mapStudy);
 
-			if (extractions.size() < 0) {
+			if (extractions.isEmpty()) {
 				MessagesController.addMessage(new Mensagem("mapstudy.articles", "mapstudy.extraction.none", TipoMensagem.INFORMACAO));
 				result.redirectTo(MapStudyController.class).show(mapid);
 				return;

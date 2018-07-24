@@ -44,8 +44,9 @@ public class Article implements Serializable {
 	
 	private int score;
 
-	//	@GeneratedValue(strategy = GenerationType.AUTO)
 	@SkipSerialization
+//	@GeneratedValue(strategy= GenerationType.SEQUENCE, generator="MySequenceGenerator")
+//	@SequenceGenerator(allocationSize=1, schema="myschema",  name="MySequenceGenerator", sequenceName = "mysequence")
 	private Long number;
 	
 	@ManyToOne
@@ -96,12 +97,9 @@ public class Article implements Serializable {
 	@Size(max=2000, message="article.keywords.maxlength")
 	private String keywords;
 	
-	//POINTS
 	@SkipSerialization
 	@Enumerated(EnumType.STRING)
 	private ClassificationEnum classification;
-//	@SkipSerialization
-//	private String comments; 
 	@SkipSerialization
 	private Integer regexTitle = 0;
 	@SkipSerialization
@@ -116,10 +114,6 @@ public class Article implements Serializable {
 	@SkipSerialization
 	private Integer minLevenshteinDistance;
 	
-//	@OneToOne
-//	@SkipSerialization
-//	private DataExtractionForm dataExtractionForm;
-	
 	@OneToMany(mappedBy="article", cascade=CascadeType.ALL)
 	@OrderBy("question")
 	@SkipSerialization
@@ -131,11 +125,7 @@ public class Article implements Serializable {
 	private Set<EvaluationExtractionFinal> evaluationExtractionsFinal = new HashSet<>();
 	
 	@Lob
-	private String comment;
-	
-	@OneToMany(mappedBy="article", cascade=CascadeType.ALL)
-	@SkipSerialization
-	private List<Comment> comments = new ArrayList<>();
+	private String infos;
 	
 	public void addExtractionFinal(EvaluationExtraction evaluationExtraction){
 		EvaluationExtractionFinal evaluationExtractionFinal = new EvaluationExtractionFinal();
@@ -188,8 +178,6 @@ public class Article implements Serializable {
 			}
 		}
 		
-//		System.out.println(question.getId() + " | " + user.getId() + " | " + alternatives);
-
 		return alternatives;
 	}
 		
@@ -201,14 +189,6 @@ public class Article implements Serializable {
 	public void setClassification(ClassificationEnum classification) {
 		this.classification = classification;
 	}
-
-//	public String getComments() {
-//		return comments;
-//	}
-//
-//	public void setComments(String comments) {
-//		this.comments = comments;
-//	}
 
 	public Integer getRegexTitle() {
 		return regexTitle;
@@ -650,61 +630,17 @@ public class Article implements Serializable {
 	}
 
 	/**
-	 * @return the comment
+	 * @return the infos
 	 */
-	public String getComment() {
-		return comment;
+	public String getInfos() {
+		return infos;
 	}
 
 	/**
-	 * @param comment the comment to set
+	 * @param infos the infos to set
 	 */
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
-
-	/**
-	 * @return the comments
-	 */
-	public List<Comment> getComments() {
-		return comments;
-	}
-
-	/**
-	 * @param comments the comments to set
-	 */
-	public void setComments(List<Comment> comments) {
-		this.comments = comments;
-	}
-	
-	public void addComments(User user, String comment){
-		for(Comment com : comments){
-			if (com.getUser().equals(user)){
-				com.setValue(comment);
-				return;
-			}
-		}
-		
-		Comment com = new Comment();
-		com.setArticle(this);
-		com.setMapStudy(mapStudy);
-		com.setUser(user);
-		com.setValue(comment);
-		
-		comments.add(com);
-	}
-
-//	public String getComments(User user) {
-//		return getComments(user.getId());
-//	}
-	
-	public String getComments(Long id) {
-		for(Comment com : comments){
-			if (com.getUser().getId().equals(id)){
-				return com.getValue();
-			}
-		}
-		return "";
+	public void setInfos(String infos) {
+		this.infos = infos;
 	}
 
 	public void removeEvaluationExtractionFinal(Question question, Long alternative_id, EvaluationExtractionFinalDao eefDao) {
@@ -730,6 +666,15 @@ public class Article implements Serializable {
 		}
 		
 		getEvaluationExtractionsFinal().removeAll(removes);		
+	}
+
+	public String getCommentsUser(Long id2) {
+		for (EvaluationExtraction ev : evaluationExtractions) {
+			if (ev.getUser().getId().equals(id2) && ev.getArticle().getId().equals(this.getId())){
+				return ev.getComment();
+			}
+		}
+		return "";	
 	}	
 	
 }

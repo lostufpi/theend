@@ -18,7 +18,7 @@ public class BibtexToArticleUtils {
 	private static final Logger logger = LoggerFactory.getLogger(BibtexToArticleUtils.class);
 	
 	/**
-	 * <p>Existem sistuações que um campo possui mais de uma { e }.</p>
+	 * <p>Existem sistuações que um campo possui mais de uma { e } e também são removidos os seguintes caracteres especiais <code>[\r|\n|\t]</code>.</p>
 	 * <p>Exemplo:</p>
 	 * <p>  title = {{Título do artigo.}}</p>
 	 * <p>Esse método verifica a existência de {, caso existe à remove da string retornada.</p>
@@ -26,6 +26,9 @@ public class BibtexToArticleUtils {
 	 * @return string sem { e } caso exista.
 	 */
 	static public String remove(String field){
+		field = field.trim();
+		field = field.replaceAll("[\\r|\\n|\\t]", ""); 
+		
 		if (field.length() > 2 && field.charAt(0) == '{'){
 			field = field.substring(1, (field.length()-1));
 		}
