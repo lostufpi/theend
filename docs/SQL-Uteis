@@ -26,3 +26,14 @@ END//
 DELIMITER ;
 
 CALL removeQuebras(510);
+
+ALTER TABLE `systematicmap`.`article` 
+CHANGE COLUMN `note` `note` LONGTEXT NULL DEFAULT NULL ;
+
+ALTER TABLE `systematicmap`.`article` 
+CHANGE COLUMN `volume` `volume` VARCHAR(255) NULL DEFAULT NULL ;
+
+UPDATE article SET classification = 'WITHOUT_AUTHORS' WHERE (author like '' OR author is null) AND classification is null;
+UPDATE article SET classification = 'WITHOUT_ABSTRACT' WHERE (abstrct like '' OR abstrct is null) AND classification is null;
+SELECT id, author, abstrct, classification FROM article WHERE (author like '' OR abstrct like '') AND classification is null;
+UPDATE article SET abstrct=TRIM(abstrct), title=TRIM(title), author=TRIM(author), keywords=TRIM(keywords), comment=TRIM(comment);
