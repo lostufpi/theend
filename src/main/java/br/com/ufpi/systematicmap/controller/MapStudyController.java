@@ -413,7 +413,7 @@ public class MapStudyController {
 					}
 				}
 			} catch (IOException e) {
-				logger.error(e.getMessage());
+				logger.error("MapStudy_id = "+mapStudy.getId()+" "+e.getMessage());
 			}
 		}
 
@@ -428,7 +428,6 @@ public class MapStudyController {
 
 		for (BibTeXEntry entry : entries) {
 			Article a = BibtexToArticleUtils.bibtexToArticle(entry, source);
-//			mapStudy.addArticle(a);
 			a.setMapStudy(mapStudy);
 			articleDao.insert(a);
 		}
@@ -570,9 +569,9 @@ public class MapStudyController {
 		mapStudy.setRefinementParameters(levenshtein, regex.trim(), limiartitulo, limiarabstract, limiarkeywords, limiartotal, filterAuthor, filterAbstract, filterLevenshtein);
 		
 		if (articles.size() > MINIMUM_REFINED_ARTICLES_TASK) {
+			MessagesController.changeRunner(true);
 			taskService.addTask(new FilterArticles(mapStudy, articles));
-			MessagesController.addMessage(new Mensagem("mapstudy.filter.start.tittle", "mapstudy.filter.start.message",
-					TipoMensagem.INFORMACAO));
+			MessagesController.addMessage(new Mensagem("mapstudy.filter.start.tittle", "mapstudy.filter.start.message", TipoMensagem.INFORMACAO));
 			result.redirectTo(this).show(id);
 		}else {
 			FilterArticles filter = new FilterArticles(mapStudy, articles);
@@ -605,7 +604,7 @@ public class MapStudyController {
 			article.setRegexTitle(0);
 			article.setScore(0);
 			article.setClassification(null);
-			article.setComment("");
+			article.setInfos("");
 		}
 
 		MessagesController.addMessage(new Mensagem("mapstudy", "unrefine.articles.sucess", TipoMensagem.SUCESSO));

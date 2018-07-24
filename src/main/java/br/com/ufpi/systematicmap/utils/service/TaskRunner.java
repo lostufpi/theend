@@ -37,8 +37,6 @@ public class TaskRunner implements Task {
 			transaction.begin();
 			articleDao = new ArticleDao(em);
 			
-			MessagesController.changeRunner(true);
-			
 			task.setArticleDao(articleDao);
 			task.filter();
 			
