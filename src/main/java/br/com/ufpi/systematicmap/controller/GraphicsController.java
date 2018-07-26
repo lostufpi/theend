@@ -90,6 +90,11 @@ public class GraphicsController {
 		
 		List<Article> articles = articleDao.getArticles(mapStudy);
 		
+		if(articles.isEmpty()){
+			result.use(json());
+			return;
+		}
+		
 		HashMap<String, Double> sources = new HashMap<>();
 		List<ArticleSourceEnum> listSources = asList(ArticleSourceEnum.values());
 		
@@ -240,6 +245,11 @@ public class GraphicsController {
 		
 		List<Article> articles = articleDao.getArticlesToEvaluate(mapStudy);
 		
+		if(articles.isEmpty()){
+			result.use(json());
+			return;
+		}
+		
 		HashMap<String, Double> sources = new HashMap<>();
 		List<EvaluationStatusEnum> listEvaluate = asList(EvaluationStatusEnum.values());
 		
@@ -284,6 +294,11 @@ public class GraphicsController {
 		
 		List<Article> articles = articleDao.getArticles(mapStudy);
 		
+		if(articles.isEmpty()){
+			result.use(json());
+			return;
+		}
+		
 		HashMap<String, Double> sources = new HashMap<>();
 		List<ClassificationEnum> listRefines = asList(ClassificationEnum.values());
 		
@@ -313,7 +328,10 @@ public class GraphicsController {
 			Data d = new Data();
 			d.setName(articleSourceEnum.getDescription());
 			d.setY(sources.get(articleSourceEnum.toString()));
-			Double percent = (d.getY() / total) * 100;
+			Double percent = 0d;
+			if(total > 0) {
+				percent = (d.getY() / total) * 100;
+			}
 			d.setPercent(percent);
 			data.add(d);
 		}		
@@ -346,11 +364,16 @@ public class GraphicsController {
 //		List<EvaluationExtractionFinal> extractions = extractionFinalDao.getExtractionsFinal(q1, q2);
 		List<Article> articles = articleDao.getArticlesFinalExtraction(mapStudy);
 		
+		
 //		System.out.println("hash : " + articles.size());
 		
 		HashMap<String, HashMap<String, Long>> map = new HashMap<String, HashMap<String, Long>>();
 		List<Alternative> alternativeX = questionDao.getAlternativesFinalExtraction(question1, mapStudy);
 		List<Alternative> alternativeY = questionDao.getAlternativesFinalExtraction(question2, mapStudy);
+		
+		if(articles.isEmpty()){
+			return map;
+		}
 		
 		for (Alternative x : alternativeX) {
 			HashMap<String, Long> v = new HashMap<String, Long>();
@@ -420,6 +443,11 @@ public class GraphicsController {
 //		User user = userInfo.getUser();
 		
 		List<Article> articles = articleDao.getArticlesFinalExtraction(mapStudy);
+		
+		if(articles.isEmpty()){
+			result.use(json());
+			return;
+		}
 		
 		HashMap<Integer, Double> sources = new HashMap<>();		
 //		Random rand = new Random();
