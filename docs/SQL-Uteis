@@ -37,3 +37,10 @@ UPDATE article SET classification = 'WITHOUT_AUTHORS' WHERE (author like '' OR a
 UPDATE article SET classification = 'WITHOUT_ABSTRACT' WHERE (abstrct like '' OR abstrct is null) AND classification is null;
 SELECT id, author, abstrct, classification FROM article WHERE (author like '' OR abstrct like '') AND classification is null;
 UPDATE article SET abstrct=TRIM(abstrct), title=TRIM(title), author=TRIM(author), keywords=TRIM(keywords), comment=TRIM(comment);
+
+-- Limpando banco com artigos removidos
+
+DELETE FROM evaluations_inclusions WHERE evaluation_id in (SELECT id FROM evaluation WHERE article_id in (SELECT id FROM article WHERE removed = true));
+DELETE FROM evaluations_exclusions WHERE evaluation_id in (SELECT id FROM evaluation WHERE article_id in (SELECT id FROM article WHERE removed = true));
+DELETE FROM evaluation WHERE article_id in (SELECT id FROM article WHERE removed = true);
+DELETE FROM article WHERE removed = true;

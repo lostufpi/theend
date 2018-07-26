@@ -42,6 +42,8 @@ public class Article implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
+	private boolean removed;
+	
 	private int score;
 
 	@SkipSerialization
@@ -54,7 +56,7 @@ public class Article implements Serializable {
 	@SkipSerialization
 	private MapStudy mapStudy;
 	
-	@OneToMany(mappedBy="article")
+	@OneToMany(mappedBy="article", cascade= {CascadeType.REMOVE})
 	@SkipSerialization
 	private Set<Evaluation> evaluations = new HashSet<>();
 	
@@ -675,6 +677,20 @@ public class Article implements Serializable {
 			}
 		}
 		return "";	
+	}
+
+	/**
+	 * @return the removed
+	 */
+	public boolean isRemoved() {
+		return removed;
+	}
+
+	/**
+	 * @param removed the removed to set
+	 */
+	public void setRemoved(boolean removed) {
+		this.removed = removed;
 	}	
 	
 }

@@ -31,10 +31,8 @@
 				<tr>
 					<th width="2%" class="text-center"><fmt:message key="remove" />
 					<th width="2%" class="text-center"><fmt:message key="id" />
-					<th width="80%" class="text-center"><fmt:message
-							key="mapstudy.article" />
-					<th width="16%" class="text-center"><fmt:message
-							key="mapstudy.article.source" />
+					<th width="80%" class="text-center"><fmt:message key="mapstudy.article" />
+					<th width="16%" class="text-center"><fmt:message key="mapstudy.article.source" />
 				</tr>
 			</thead>
 			<tbody>
@@ -55,6 +53,7 @@
 				</c:forEach>
 			</tbody>
 		</table>
+		
 		<input type="hidden" name="mapId" id="mapId" value="${map.id}" />
 		<button type="submit" class="btn btn-danger pull-rigth">
 			<i class="glyphicon glyphicon-remove"></i>
@@ -64,4 +63,5 @@
 		<a class="btn btn-danger pull-rigth" href="${linkTo[MapStudyController].removeAllArticles(map.id)}"><i class="glyphicon glyphicon-remove"></i>
 			<fmt:message key="remove.all.selected" /></a>
 	</form>
+	
 </c:if>

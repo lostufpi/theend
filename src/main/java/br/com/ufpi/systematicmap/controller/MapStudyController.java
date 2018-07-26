@@ -513,7 +513,7 @@ public class MapStudyController {
 		result.redirectTo(this).identification(mapId);
 	}
 	
-	@Get("/maps/removeallarticles")
+	@Get("/maps/{mapId}/removeallarticles")
 	public void removeAllArticles(Long mapId) {
 		articleDao.removeAllArticlesMap(mapId);
 		MessagesController.addMessage(new Mensagem("mapstudy.articles", "article.remove.sucess", TypeMessage.SUCCESS));
@@ -866,7 +866,7 @@ public class MapStudyController {
 			return;
 		}
 
-		if (!((mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser())))) {
+		if (!((mapStudy.isCreator(user) || mapStudy.isSupervisor(user)))) {
 			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TypeMessage.ERROR));
 			result.redirectTo(this).planning(studyMapId, "divcriterias");
 			return;
@@ -1349,12 +1349,28 @@ public class MapStudyController {
 	@Get
 	public void articleDetail(Long articleId) {
 		Article article = articleDao.find(articleId);
-
 		if (article == null) {
 			MessagesController.addMessage(new Mensagem("articule", "article.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
+		
+		MapStudy mapStudy = article.getMapStudy();
+		
+		User userSession = userInfo.getUser();
+
+		if (mapStudy == null) {
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
+			result.redirectTo(this).list();
+			return;
+		}
+
+		if (!mapStudy.members().contains(userSession)) {
+			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TypeMessage.ERROR));
+			result.redirectTo(this).list();
+			return;
+		}
+
 		HashMap<String, Object> retorno = new HashMap<String, Object>();
 		retorno.put("id", article.getId());
 		retorno.put("title", article.getTitle());
@@ -1392,6 +1408,21 @@ public class MapStudyController {
 	@Path("/maps/{id}/articles.json")
 	public void articlesJson(Long id) {
 		MapStudy mapStudy = mapStudyDao.find(id);
+		
+		User user = userInfo.getUser();
+
+		if (mapStudy == null) {
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
+			result.redirectTo(this).list();
+			return;
+		}
+
+		if (!mapStudy.members().contains(user)) {
+			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TypeMessage.ERROR));
+			result.redirectTo(this).list();
+			return;
+		}
+		
 		List<Article> articles = articleDao.getArticles(mapStudy);
 		result.use(json()).indented().from(articles, "articles").serialize();
 	}
