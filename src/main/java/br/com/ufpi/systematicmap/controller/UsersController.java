@@ -26,7 +26,7 @@ import br.com.ufpi.systematicmap.model.InclusionCriteria;
 import br.com.ufpi.systematicmap.model.MapStudy;
 import br.com.ufpi.systematicmap.model.Mensagem;
 import br.com.ufpi.systematicmap.model.User;
-import br.com.ufpi.systematicmap.model.enums.TipoMensagem;
+import br.com.ufpi.systematicmap.model.enums.TypeMessage;
 import br.com.ufpi.systematicmap.utils.GenerateHashPasswordUtil;
 import br.com.ufpi.systematicmap.utils.Linker;
 import br.com.ufpi.systematicmap.utils.MailUtils;
@@ -87,7 +87,7 @@ public class UsersController {
         validator.onErrorUsePageOf(HomeController.class).create();
         
         if (!user.getPassword().equals(repassword)) {
-        	MessagesController.addMessage(new Mensagem("user.password", "password_different", TipoMensagem.ERRO));
+        	MessagesController.addMessage(new Mensagem("user.password", "password_different", TypeMessage.ERROR));
         	result.redirectTo(HomeController.class).create();
         	return;
         }
@@ -117,7 +117,7 @@ public class UsersController {
 
 		// you can add objects to result even in redirects. Added objects will
 		// survive one more request when redirecting.
-		MessagesController.addMessage(new Mensagem("create", "create.user.sucess", TipoMensagem.SUCESSO));
+		MessagesController.addMessage(new Mensagem("create", "create.user.sucess", TypeMessage.SUCCESS));
 		result.redirectTo(HomeController.class).login();
 	}
 	
@@ -136,11 +136,11 @@ public class UsersController {
 	public void profile(Long id) {
 		User user = userInfo.getUser();
 		if (user==null) {
-			MessagesController.addMessage(new Mensagem("user", "user.non-existent", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", "user.non-existent", TypeMessage.ERROR));
 			result.redirectTo(HomeController.class).home();
 		} else {
 			result.include("user", user);
-			MessagesController.addMessage(new Mensagem("user.profile", "user.profile.sucess", TipoMensagem.SUCESSO));
+			MessagesController.addMessage(new Mensagem("user.profile", "user.profile.sucess", TypeMessage.SUCCESS));
 		}		
 	}
 	
@@ -149,13 +149,13 @@ public class UsersController {
 		MapStudy mapStudy = mapStudyDao.find(mapid);
 		
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
 
 		if (!(mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser()))) {
-			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TipoMensagem.INFORMACAO));
+			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TypeMessage.INFORMATION));
 			result.redirectTo(this).list();
 			return;
 		}

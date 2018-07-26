@@ -241,4 +241,8 @@ public class ArticleDao extends Dao<Article> {
 					.getResultList();
 			return finalExtractions;
 	}
+
+	public void removeAllArticlesMap(Long mapId) {
+		entityManager.createQuery("DELETE FROM Article a WHERE a.mapStudy.id = :mapId").setParameter("mapId", mapId).executeUpdate();		
+	}
 }

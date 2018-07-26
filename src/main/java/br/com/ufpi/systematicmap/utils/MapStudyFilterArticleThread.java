@@ -11,7 +11,7 @@ import br.com.ufpi.systematicmap.controller.MessagesController;
 import br.com.ufpi.systematicmap.dao.ArticleDao;
 import br.com.ufpi.systematicmap.model.MapStudy;
 import br.com.ufpi.systematicmap.model.Mensagem;
-import br.com.ufpi.systematicmap.model.enums.TipoMensagem;
+import br.com.ufpi.systematicmap.model.enums.TypeMessage;
 
 @Dependent
 public class MapStudyFilterArticleThread extends Thread implements Serializable {

@@ -49,7 +49,7 @@ import br.com.ufpi.systematicmap.model.Question;
 import br.com.ufpi.systematicmap.model.User;
 import br.com.ufpi.systematicmap.model.enums.QuestionType;
 import br.com.ufpi.systematicmap.model.enums.ReturnStatusEnum;
-import br.com.ufpi.systematicmap.model.enums.TipoMensagem;
+import br.com.ufpi.systematicmap.model.enums.TypeMessage;
 import br.com.ufpi.systematicmap.model.vo.ExtractionCompareVO;
 import br.com.ufpi.systematicmap.model.vo.ExtractionFinalVO;
 import br.com.ufpi.systematicmap.model.vo.QuestionAndAlternativeCSV;
@@ -296,24 +296,24 @@ public class ExtractionController {
 		MapStudy mapStudy = mapStudyDao.find(mapid);
 		User user = userInfo.getUser();
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(MapStudyController.class).list();
 			return;
 		}
 		if (!mapStudy.members().contains(user)) {
-			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TypeMessage.ERROR));
 			result.redirectTo(MapStudyController.class).list();
 			return;
 		}
 
 		if (mapStudy.getForm() == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.form", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.form", TypeMessage.ERROR));
 			result.redirectTo(MapStudyController.class).show(mapid);
 			return;
 		}
 
 		if (mapStudy.getForm().getQuestions() == null || mapStudy.getForm().getQuestions().size() <= 0) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.form", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.form", TypeMessage.ERROR));
 			result.redirectTo(MapStudyController.class).show(mapid);
 			return;
 		}
@@ -331,7 +331,7 @@ public class ExtractionController {
 			// se existe artigos para realizar extração entra
 			if (countArticlesToExtraction < 0l) {
 				MessagesController.addMessage(
-						new Mensagem("mapstudy", "mapstudy.is.not.article.to.extraction", TipoMensagem.ERRO));
+						new Mensagem("mapstudy", "mapstudy.is.not.article.to.extraction", TypeMessage.ERROR));
 				result.redirectTo(MapStudyController.class).show(mapid);
 				return;
 			}
@@ -345,7 +345,7 @@ public class ExtractionController {
 		MapStudy mapStudy = mapStudyDao.find(mapid);
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(MapStudyController.class).list();
 			return;
 		}
@@ -375,7 +375,7 @@ public class ExtractionController {
 
 		if (article == null) {
 			article = extractions.get(0);
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.extraction.articles.none", TipoMensagem.INFORMACAO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.extraction.articles.none", TypeMessage.INFORMATION));
 		}
 
 		Double percentExtractedDouble = mapStudy.percentExtractedDouble(articleDao, userInfo.getUser()); // TODO da um
@@ -420,7 +420,7 @@ public class ExtractionController {
 		MapStudy mapStudy = mapStudyDao.find(questionVO.getMapid());
 
 		if (article == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.extraction.articles.none", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.extraction.articles.none", TypeMessage.ERROR));
 			result.redirectTo(MapStudyController.class).show(questionVO.getMapid());
 			return;
 		}
@@ -497,7 +497,7 @@ public class ExtractionController {
 
 		// se o artigo não existir
 		if (article == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.evaluate.articles.none", TipoMensagem.INFORMACAO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.evaluate.articles.none", TypeMessage.INFORMATION));
 			result.redirectTo(MapStudyController.class).show(mapid);
 			return;
 		}
@@ -528,12 +528,12 @@ public class ExtractionController {
 		Double percentEvaluatedDouble = 0d;
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(MapStudyController.class).list();
 			return;
 		}
 		if (!mapStudy.members().contains(user)) {
-			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TipoMensagem.INFORMACAO));
+			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TypeMessage.INFORMATION));
 			result.redirectTo(MapStudyController.class).list();
 			return;
 		}
@@ -546,7 +546,7 @@ public class ExtractionController {
 			extractions = this.articleDao.getExtractions(this.userInfo.getUser(), mapStudy);
 
 			if (extractions.isEmpty()) {
-				MessagesController.addMessage(new Mensagem("mapstudy.articles", "mapstudy.extraction.none", TipoMensagem.INFORMACAO));
+				MessagesController.addMessage(new Mensagem("mapstudy.articles", "mapstudy.extraction.none", TypeMessage.INFORMATION));
 				result.redirectTo(MapStudyController.class).show(mapid);
 				return;
 			}
@@ -603,12 +603,12 @@ public class ExtractionController {
 		User user = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(MapStudyController.class).list();
 			return;
 		}
 		if (!mapStudy.members().contains(user)) {
-			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TipoMensagem.INFORMACAO));
+			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TypeMessage.INFORMATION));
 			result.redirectTo(MapStudyController.class).list();
 			return;
 		}
@@ -621,7 +621,7 @@ public class ExtractionController {
 		User user = userInfo.getUser();
 		
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(MapStudyController.class).list();
 			return;
 		}
@@ -647,7 +647,7 @@ public class ExtractionController {
 
 		if (article == null) {
 			article = articlesFinalExtracted.get(0);
-			MessagesController.addMessage(new Mensagem("mapstudy.article", "mapstudy.extraction.final.articles.none", TipoMensagem.INFORMACAO));
+			MessagesController.addMessage(new Mensagem("mapstudy.article", "mapstudy.extraction.final.articles.none", TypeMessage.INFORMATION));
 		}
 
 		List<User> members = userDao.mapStudyUsers(mapStudy);
@@ -683,7 +683,7 @@ public class ExtractionController {
 		result.include("articlesFinalExtracted", articlesFinalExtracted);
 		result.include("articlesToCompare", articlesToCompare);
 		result.include("extractionCompareVO", extractionCompareVO);
-		MessagesController.addMessage(new Mensagem("mapstudy.article", "mapstudy.article.load.success", TipoMensagem.SUCESSO));
+		MessagesController.addMessage(new Mensagem("mapstudy.article", "mapstudy.article.load.success", TypeMessage.SUCCESS));
 	}
 
 	@Post
@@ -744,7 +744,7 @@ public class ExtractionController {
 		List<Article> articles = articleDao.getExtractions(userInfo.getUser(), mapStudy);
 
 		if (articles.size() < 0) {
-			MessagesController.addMessage(new Mensagem("mapstudy.articles", "mapstudy.articles.extraction.none", TipoMensagem.INFORMACAO));
+			MessagesController.addMessage(new Mensagem("mapstudy.articles", "mapstudy.articles.extraction.none", TypeMessage.INFORMATION));
 			result.redirectTo(this).showExtractionEvaluates(mapStudyId);
 			return null;
 		}
@@ -761,7 +761,7 @@ public class ExtractionController {
 		List<Article> articles = articleDao.getArticlesFinalExtraction(mapStudy);
 
 		if (articles.size() < 0) {
-			MessagesController.addMessage(new Mensagem("mapstudy.articles", "mapstudy.articles.extractionfinal.all.none", TipoMensagem.INFORMACAO));
+			MessagesController.addMessage(new Mensagem("mapstudy.articles", "mapstudy.articles.extractionfinal.all.none", TypeMessage.INFORMATION));
 			result.redirectTo(this).showExtractionEvaluates(mapStudyId);
 			return null;
 		}

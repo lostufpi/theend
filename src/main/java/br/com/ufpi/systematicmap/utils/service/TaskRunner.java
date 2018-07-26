@@ -14,7 +14,7 @@ import br.com.ufpi.systematicmap.components.FilterArticles;
 import br.com.ufpi.systematicmap.controller.MessagesController;
 import br.com.ufpi.systematicmap.dao.ArticleDao;
 import br.com.ufpi.systematicmap.model.Mensagem;
-import br.com.ufpi.systematicmap.model.enums.TipoMensagem;
+import br.com.ufpi.systematicmap.model.enums.TypeMessage;
 
 @Scheduled(fixedRate = 60000, concurrent = false)
 public class TaskRunner implements Task {
@@ -40,7 +40,7 @@ public class TaskRunner implements Task {
 			task.setArticleDao(articleDao);
 			task.filter();
 			
-			MessagesController.addMessage(new Mensagem("mapstudy.filter.end.tittle", "mapstudy.filter.end.message", TipoMensagem.SUCESSO));
+			MessagesController.addMessage(new Mensagem("mapstudy.filter.end.tittle", "mapstudy.filter.end.message", TypeMessage.SUCCESS));
 			MessagesController.changeRunner(false);
 
 			log.info("TaskRunner.finalizado()");

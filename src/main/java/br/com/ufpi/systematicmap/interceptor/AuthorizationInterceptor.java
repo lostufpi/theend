@@ -13,7 +13,7 @@ import br.com.ufpi.systematicmap.controller.MessagesController;
 import br.com.ufpi.systematicmap.dao.UserDao;
 import br.com.ufpi.systematicmap.model.Mensagem;
 import br.com.ufpi.systematicmap.model.User;
-import br.com.ufpi.systematicmap.model.enums.TipoMensagem;
+import br.com.ufpi.systematicmap.model.enums.TypeMessage;
 
 /**
  * Interceptor to check if the user is in the session.
@@ -51,7 +51,7 @@ public class AuthorizationInterceptor {
 		
 		if (current == null) {
 			// remember added parameters will survive one more request, when there is a redirect
-			MessagesController.addMessage(new Mensagem("user", "user.is.not.logged.in", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", "user.is.not.logged.in", TypeMessage.ERROR));
 			result.redirectTo(HomeController.class).home();
 			return;
 		}

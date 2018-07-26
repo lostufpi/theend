@@ -364,7 +364,7 @@ public class MapStudy implements Serializable{
 	
 	public List<User> members(){
 		List<User> members = new ArrayList<>();
-		for (UsersMapStudys u : usersMapStudys) {
+		for (UsersMapStudys u : getUsersMapStudys()) {
 			if (!u.isRemoved()){
 				members.add(u.getUser());
 			}			
