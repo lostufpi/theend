@@ -43,4 +43,5 @@ UPDATE article SET abstrct=TRIM(abstrct), title=TRIM(title), author=TRIM(author)
 DELETE FROM evaluations_inclusions WHERE evaluation_id in (SELECT id FROM evaluation WHERE article_id in (SELECT id FROM article WHERE removed = true));
 DELETE FROM evaluations_exclusions WHERE evaluation_id in (SELECT id FROM evaluation WHERE article_id in (SELECT id FROM article WHERE removed = true));
 DELETE FROM evaluation WHERE article_id in (SELECT id FROM article WHERE removed = true);
+UPDATE article SET same_article_id = null WHERE removed = true;
 DELETE FROM article WHERE removed = true;
