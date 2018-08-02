@@ -84,7 +84,7 @@ $(document).ready(function(){
 									<tr class="${s.index % 2 == 0 ? 'even' : 'odd'} gradeA">
 										<td>${article.id}</td>
 										<td>${article.score}</td>
-										<td>${article.title}</td>
+										<td><a class="readArticle" href="${linkTo[ArticleController].show(map.id, article.id)}">${article.title}</a></td>
 										<td>${article.classification.description}</td>
 									</tr>
 								</c:forEach>
@@ -103,13 +103,6 @@ $(document).ready(function(){
 						<div class="form-group">
 							<label for="regex">Regex (termo:regex;...)</label>
 							<textarea class="form-control" id="regexterm" name="regex" rows="5" cols=""	data-toggle="popover" data-trigger="hover" data-placement="left" data€container="body" data-content='<fmt:message key="mapstudy.article.refine.regexterm" />' data-title='<fmt:message key="mapstudy.article.refine.information" />'>${map.refinementParameters.regex}</textarea>
-<!-- automatico:(automat.*|semiautomati.*|semi-automati.*); -->
-<!-- web:(web|website|internet|www); -->
-<!-- usabilidade:(usability|usable); -->
-<!-- tecnica:(evalu.*|assess.*|measur.*|experiment.*|stud.*|test.*|method.*|techni.*|approach.*) -->
-							
-							<!-- 							IC:(computational\sintelligence|artificial\sintelligence|soft\scomputing|metaheuristic);Ferramenta:(framework|tool|service|library|api) -->
-
 						</div>
 						<div class="form-group">
 							<label for="limiartitulo">Limiar T&iacute;tulo</label>
