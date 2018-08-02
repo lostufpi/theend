@@ -182,12 +182,22 @@
 								aria-label="Close">
 								<span aria-hidden="true">&times;</span>
 							</button>
-							<strong> <fmt:message key="${mensagem.category}" /></strong>
-							<fmt:message key="${mensagem.value}" />
+							<strong> <fmt:message key="${mensagem.category}" /></strong> - <fmt:message key="${mensagem.value}" />
 						</div>
 					</c:forEach>
 				</c:if>
 				${msg.clean()}
+				
+					<c:if test="${not empty errors}">
+					<div class="alert alert-danger alert-dismissible" role="alert">
+							<!-- <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> -->
+							<!-- <span class="sr-only">Error:</span> -->
+	 						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<c:forEach items="${errors}" var="error">
+							<b><fmt:message key="${error.category}" /></b> - <fmt:message key="${error.message}" /><br/>
+						</c:forEach>
+					</div>
+				</c:if>
 				<decorator:body />
 			</div>
 		</div>
