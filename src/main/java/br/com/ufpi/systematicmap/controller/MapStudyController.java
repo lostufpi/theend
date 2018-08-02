@@ -626,7 +626,7 @@ public class MapStudyController {
 		User user = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.SUCCESS));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -693,6 +693,12 @@ public class MapStudyController {
 			article = evaluations.get(0).getArticle();
 			MessagesController
 					.addMessage(new Mensagem("mapstudy", "mapstudy.evaluate.articles.none", TypeMessage.ERROR));
+		}
+		
+		if(!article.getMapStudy().getId().equals(mapStudy.getId())) {
+			MessagesController
+			.addMessage(new Mensagem("article", "article.is.not.part.mapping", TypeMessage.ERROR));
+			article = evaluations.get(0).getArticle();
 		}
 
 		Evaluation evaluationDone = evaluationDao.getEvaluation(userInfo.getUser(), mapStudy, article);
