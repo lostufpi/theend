@@ -3,7 +3,7 @@ package br.com.ufpi.systematicmap.controller;
 import static br.com.caelum.vraptor.view.Results.json;
 import static java.util.Arrays.asList;
 
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -21,7 +21,6 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.jbibtex.BibTeXDatabase;
 import org.jbibtex.BibTeXEntry;
 import org.jbibtex.Key;
@@ -35,7 +34,9 @@ import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.observer.download.Download;
+import br.com.caelum.vraptor.observer.download.DownloadBuilder;
 import br.com.caelum.vraptor.observer.download.FileDownload;
+import br.com.caelum.vraptor.observer.download.InputStreamDownload;
 import br.com.caelum.vraptor.observer.upload.UploadedFile;
 import br.com.caelum.vraptor.validator.SimpleMessage;
 import br.com.caelum.vraptor.validator.Validator;
@@ -988,14 +989,14 @@ public class MapStudyController {
 		List<Evaluation> evaluations = evaluationDao.getEvaluations(user, mapStudy);
 		List<Article> articles = articleDao.getArticles(mapStudy);
 
-		if (articles.size() <= 0) {
+		if (articles.isEmpty()) {
 			MessagesController
 					.addMessage(new Mensagem("mapstudy.articles", "mapstudy.articles.none", TipoMensagem.ERRO));
 			result.redirectTo(this).show(studyMapId);
 		}
 
 		if (!mapStudy.isSupervisor(user)) {
-			if (evaluations.size() < 0) {
+			if (evaluations.isEmpty()) {
 				MessagesController.addMessage(
 						new Mensagem("mapstudy.evaluations", "mapstudy.articles.not.evaluations", TipoMensagem.ERRO));
 				result.redirectTo(this).show(studyMapId);
@@ -1075,10 +1076,11 @@ public class MapStudyController {
 		result.include("countWithoutAbstracts", countWithoutAbstracts);
 		result.include("countWithoutClassification", countWithoutClassification);
 		result.include("countClassified", countClassified);
+		
+		result.include("acceptances", asList(AcceptanceType.values()));
+		result.include("fileTypes", asList(TypeOfFile.values()));
 	}
 
-//	@Path("/maps/{mapStudyId}/{acceptanceType}/{typeOfFile}")
-	@Post("/maps/{mapStudyId}/export")
 	public Download fileDownloader(Long mapStudyId, AcceptanceType acceptanceType, TypeOfFile typeOfFile) {
 		MapStudy mapStudy = mapStudyDao.find(mapStudyId);
 		if (mapStudy == null) {
@@ -1087,11 +1089,18 @@ public class MapStudyController {
 			return null;
 		} else {
 			String fileName = "Evaluations_" + mapStudyId + "_" + acceptanceType + Calendar.DAY_OF_MONTH
-					+ Calendar.MONTH + Calendar.YEAR + typeOfFile.getDescription();
+					+ Calendar.MONTH + Calendar.YEAR + typeOfFile;
 			FileGenerator fileGenerator = new FileGenerator(fileName, acceptanceType, typeOfFile, mapStudy, articleDao,
 					userInfo.getUser());
-			result.redirectTo(this).showEvaluates(mapStudyId);
-			return fileGenerator.getFinalFile();
+			FileDownload download;
+			try {
+				download = DownloadBuilder.of(fileGenerator.getFinalFile()).withFileName("arquivo"+ typeOfFile.getDescription()).withContentType("application/excel").downloadable().build();
+				return download;
+			} catch (FileNotFoundException e) {
+				logger.error(e.getMessage());
+				e.printStackTrace();
+			}
+			return null;
 		}
 	}
 

@@ -1,11 +1,11 @@
 package br.com.ufpi.systematicmap.utils.builder;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import org.slf4j.Logger;
 
-import br.com.caelum.vraptor.observer.download.Download;
 import br.com.ufpi.systematicmap.controller.MessagesController;
 import br.com.ufpi.systematicmap.dao.ArticleDao;
 import br.com.ufpi.systematicmap.model.Article;
@@ -30,22 +30,22 @@ public class FileGenerator {
 			ArticleDao articleDao2, User user) {
 		this.user = user;
 		this.fileName = fileName;
-		this.acceptanceType = acceptanceType;
-		this.typeOfFile = typeOfFile;
+		this.acceptanceType=acceptanceType;
+		this.typeOfFile=typeOfFile;
 		this.mapStudy = mapStudy;
 		this.articleDao = articleDao2;
 	}
 
-	public Download getFinalFile() {
-		if (acceptanceType.equals(AcceptanceType.MY_ACCEPTACES))
-			return myAcceptances();
+	public File getFinalFile() {
+ 		if (acceptanceType.equals(AcceptanceType.MY_ACCEPTACES))
+ 			return myAcceptances();
 		else if (acceptanceType.equals(AcceptanceType.ALL_ACCEPTANCES))
 			return allAcceptances();
 		else
 			return null;
 	}
 
-	private Download allAcceptances() {
+	private File allAcceptances() {
 		List<Article> articles = articleDao.getArticlesFinalAccepted(mapStudy);
 		if (articles.isEmpty()) {
 			MessagesController.addMessage(
@@ -62,7 +62,7 @@ public class FileGenerator {
 
 	}
 
-	private Download myAcceptances() {
+	private File myAcceptances() {
 		List<Article> articles = articleDao.getArticlesEvaluated(user, mapStudy);
 		if (articles.isEmpty()) {
 			MessagesController.addMessage(
@@ -78,7 +78,7 @@ public class FileGenerator {
 		return null;
 	}
 
-	public Download finalGenerator(List<Article> articles) throws IOException {
+	public File finalGenerator(List<Article> articles) throws IOException {
 		if (typeOfFile.equals(TypeOfFile.XLS))
 			return XLSBuilder.generateFile(articles, fileName);
 		else if (typeOfFile.equals(TypeOfFile.CSV))
