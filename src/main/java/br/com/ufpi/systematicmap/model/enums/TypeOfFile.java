@@ -2,7 +2,7 @@ package br.com.ufpi.systematicmap.model.enums;
 
 import javax.inject.Named;
 
-@Named
+@Named("fileTypes")
 public enum TypeOfFile {
 
 	XLS(".xls"),
@@ -17,7 +17,9 @@ public enum TypeOfFile {
 	public String getDescription() {
 		return description;
 	}
+	
 	public void setDescription(String description) {
-		this.description = description;
+		this.description=description;
 	}
+	
 }

@@ -6,13 +6,11 @@ import java.util.List;
 
 import org.apache.commons.io.output.FileWriterWithEncoding;
 
-import br.com.caelum.vraptor.observer.download.Download;
-import br.com.caelum.vraptor.observer.download.FileDownload;
 import br.com.ufpi.systematicmap.model.Article;
 
 public class CSVBuilder {
 
-	public static Download generateFile(List<Article> articles, String fileName) throws IOException {
+	public static File generateFile(List<Article> articles, String fileName) throws IOException {
 
 		String temp = System.getProperty("java.io.tmpdir");
 
@@ -33,24 +31,27 @@ public class CSVBuilder {
 		writer.append('\n');
 
 		for (Article a : articles) {
-			writer.append(a.getId() + delimiter);
-			String title = a.getTitle().replace('\n', ' ').replace(';', ' ');
-			writer.append(title + delimiter);
-			String author = a.getAuthor().replace('\n', ' ').replace(';', ' ');
-			writer.append(author + delimiter);
-			String journal = a.getJournal();
-			journal = (journal != null ? journal.replace('\n', ' ').replace(';', ' ') : "");
-			writer.append(journal + delimiter);
-			writer.append((a.getDoi() != null ? a.getDoi() : "") + delimiter);
-			writer.append((a.getDocType() != null ? a.getDocType() : "") + delimiter);
-			writer.append(a.sourceView(a.getSource()) + delimiter);
-			writer.append('\n');
+			lineGeneratorCsv(writer, delimiter, a);
 		}
 		writer.flush();
 		writer.close();
+		return file;
+	}
 
-		String contentType = "text/csv";
-		return new FileDownload(file, contentType, fileName);
+	private static void lineGeneratorCsv(FileWriterWithEncoding writer, String delimiter, Article a)
+			throws IOException {
+		writer.append(a.getId() + delimiter);
+		String title = a.getTitle().replace('\n', ' ').replace(';', ' ');
+		writer.append(title + delimiter);
+		String author = a.getAuthor().replace('\n', ' ').replace(';', ' ');
+		writer.append(author + delimiter);
+		String journal = a.getJournal();
+		journal = (journal != null ? journal.replace('\n', ' ').replace(';', ' ') : "");
+		writer.append(journal + delimiter);
+		writer.append((a.getDoi() != null ? a.getDoi() : "") + delimiter);
+		writer.append((a.getDocType() != null ? a.getDocType() : "") + delimiter);
+		writer.append(a.sourceView(a.getSource()) + delimiter);
+		writer.append('\n');
 	}
 
 	

@@ -1,11 +1,11 @@
 package br.com.ufpi.systematicmap.utils.builder;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import org.slf4j.Logger;
 
-import br.com.caelum.vraptor.observer.download.Download;
 import br.com.ufpi.systematicmap.controller.MessagesController;
 import br.com.ufpi.systematicmap.dao.ArticleDao;
 import br.com.ufpi.systematicmap.model.Article;
@@ -24,28 +24,29 @@ public class FileGenerator {
 	private MapStudy mapStudy;
 	private ArticleDao articleDao;
 	private User user;
-	private Logger logguer;
+	private Logger logger;
 
 	public FileGenerator(String fileName, AcceptanceType acceptanceType, TypeOfFile typeOfFile, MapStudy mapStudy,
-			ArticleDao articleDao2, User user) {
+			ArticleDao articleDao2, User user, Logger logger) {
 		this.user = user;
 		this.fileName = fileName;
-		this.acceptanceType = acceptanceType;
-		this.typeOfFile = typeOfFile;
+		this.acceptanceType=acceptanceType;
+		this.typeOfFile=typeOfFile;
 		this.mapStudy = mapStudy;
 		this.articleDao = articleDao2;
+		this.logger=logger;
 	}
 
-	public Download getFinalFile() {
-		if (acceptanceType.equals(AcceptanceType.MY_ACCEPTACES))
-			return myAcceptances();
+	public File getFinalFile() {
+ 		if (acceptanceType.equals(AcceptanceType.MY_ACCEPTACES))
+ 			return myAcceptances(logger);
 		else if (acceptanceType.equals(AcceptanceType.ALL_ACCEPTANCES))
-			return allAcceptances();
+			return allAcceptances(logger);
 		else
 			return null;
 	}
 
-	private Download allAcceptances() {
+	private File allAcceptances(Logger logguer) {
 		List<Article> articles = articleDao.getArticlesFinalAccepted(mapStudy);
 		if (articles.isEmpty()) {
 			MessagesController.addMessage(
@@ -53,7 +54,7 @@ public class FileGenerator {
 			return null;
 		} else {
 			try {
-				return finalGenerator(articles);
+				return finalGenerator(articles,logguer);
 			} catch (IOException e) {
 				logguer.error(e.getMessage());
 			}
@@ -62,7 +63,7 @@ public class FileGenerator {
 
 	}
 
-	private Download myAcceptances() {
+	private File myAcceptances(Logger logguer) {
 		List<Article> articles = articleDao.getArticlesEvaluated(user, mapStudy);
 		if (articles.isEmpty()) {
 			MessagesController.addMessage(
@@ -70,7 +71,7 @@ public class FileGenerator {
 			return null;
 		} else {
 			try {
-				return finalGenerator(articles);
+				return finalGenerator(articles, logguer);
 			} catch (IOException ioException) {
 				logguer.error(ioException.getMessage());
 			}
@@ -78,9 +79,9 @@ public class FileGenerator {
 		return null;
 	}
 
-	public Download finalGenerator(List<Article> articles) throws IOException {
+	public File finalGenerator(List<Article> articles, Logger logguer) throws IOException {
 		if (typeOfFile.equals(TypeOfFile.XLS))
-			return XLSBuilder.generateFile(articles, fileName);
+			return XLSBuilder.generateFile(articles, fileName, logguer);
 		else if (typeOfFile.equals(TypeOfFile.CSV))
 			return CSVBuilder.generateFile(articles, fileName);
 		return null;
