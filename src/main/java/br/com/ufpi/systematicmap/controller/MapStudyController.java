@@ -578,19 +578,6 @@ public class MapStudyController {
 					TipoMensagem.INFORMACAO));
 		result.redirectTo(this).show(id);
 
-		// FilterArticles filter = new FilterArticles(mapStudy, mapStudy.getArticles());
-		// boolean filterStatus = filter.filter();
-		//
-		// if(filterStatus) {
-		// MessagesController.addMessage(new Mensagem("mapstudy.filter",
-		// "refine.articles.sucess",
-		// TipoMensagem.INFORMACAO));
-		// }else {
-		// MessagesController.addMessage(new Mensagem("mapstudy.filter", "error.filter",
-		// TipoMensagem.ERRO));
-		// }
-
-		// result.redirectTo(this).identification(id);
 	}
 
 	@Get("/maps/{id}/unrefinearticles")

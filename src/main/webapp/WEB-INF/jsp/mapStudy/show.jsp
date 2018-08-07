@@ -74,7 +74,6 @@
 
 						<c:choose>
 							<c:when test="${not msg.isRunner()}">
-
 								<!-- 						Terceiro Botão -->
 								<button type="button" class="btn btn-default"
 									style="margin-bottom: 1%;"

@@ -100,12 +100,6 @@ $(document).ready(function(){
 							<textarea class="form-control" id="regexterm" name="regex" rows="5" cols=""	data-toggle="popover" data-trigger="hover" data-placement="left" data€container="body" data-content='<fmt:message key="mapstudy.article.refine.regexterm" />' data-title='<fmt:message key="mapstudy.article.refine.information" />'>
 								${map.refinementParameters.regex}				
 							</textarea>
-<!-- automatico:(automat.*|semiautomati.*|semi-automati.*); -->
-<!-- web:(web|website|internet|www); -->
-<!-- usabilidade:(usability|usable); -->
-<!-- tecnica:(evalu.*|assess.*|measur.*|experiment.*|stud.*|test.*|method.*|techni.*|approach.*) -->
-							
-							<!-- 							IC:(computational\sintelligence|artificial\sintelligence|soft\scomputing|metaheuristic);Ferramenta:(framework|tool|service|library|api) -->
 
 						</div>
 						<div class="form-group">
