@@ -36,6 +36,7 @@ import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.observer.download.Download;
 import br.com.caelum.vraptor.observer.download.DownloadBuilder;
 import br.com.caelum.vraptor.observer.download.FileDownload;
+import br.com.caelum.vraptor.observer.download.InputStreamDownload;
 import br.com.caelum.vraptor.observer.upload.UploadedFile;
 import br.com.caelum.vraptor.validator.SimpleMessage;
 import br.com.caelum.vraptor.validator.Validator;
@@ -1089,6 +1090,7 @@ public class MapStudyController {
 					+ Calendar.MONTH + Calendar.YEAR + typeOfFile;
 			FileGenerator fileGenerator = new FileGenerator(fileName, acceptanceType, typeOfFile, mapStudy, articleDao,
 					userInfo.getUser(), logger);
+
 			FileDownload download;
 			try {
 				download = DownloadBuilder.of(fileGenerator.getFinalFile()).withFileName("arquivo"+ typeOfFile.getDescription()).withContentType("application/excel").downloadable().build();

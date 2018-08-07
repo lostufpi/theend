@@ -19,7 +19,6 @@ import br.com.ufpi.systematicmap.model.Article;
 public class XLSBuilder {
 
 	private XLSBuilder() {
-
 	}
 
 	public static File generateFile(List<Article> articles, String fileName, Logger logger) throws IOException {
