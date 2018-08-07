@@ -102,14 +102,7 @@ $(document).ready(function(){
 						</div>
 						<div class="form-group">
 							<label for="regex">Regex (termo:regex;...)</label>
-<<<<<<< HEAD
-							<textarea class="form-control" id="regexterm" name="regex" rows="5" cols=""	data-toggle="popover" data-trigger="hover" data-placement="left" data€container="body" data-content='<fmt:message key="mapstudy.article.refine.regexterm" />' data-title='<fmt:message key="mapstudy.article.refine.information" />'>
-								${map.refinementParameters.regex}				
-							</textarea>
-
-=======
 							<textarea class="form-control" id="regexterm" name="regex" rows="5" cols=""	data-toggle="popover" data-trigger="hover" data-placement="left" data€container="body" data-content='<fmt:message key="mapstudy.article.refine.regexterm" />' data-title='<fmt:message key="mapstudy.article.refine.information" />'>${map.refinementParameters.regex}</textarea>
->>>>>>> refs/remotes/origin/master
 						</div>
 						<div class="form-group">
 							<label for="limiartitulo">Limiar T&iacute;tulo</label>
