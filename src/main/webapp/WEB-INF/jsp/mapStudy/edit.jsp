@@ -45,6 +45,7 @@
 	<div class="col-md-offset-2 col-md-8">
 		<div class="well">
 			<form action="${linkTo[MapStudyController].update}" method="post" id="formAddMapStudy">
+				<input type="hidden" name="mapstudy.id" value="${mapstudy.id}" />
 				<div class="form-group">
 					<label for="title" class=""><fmt:message key="mapstudy.title"/></label>
 					<input type="text" class="form-control" name="mapstudy.title" id="title" value="${mapstudy.title}"/>
@@ -54,7 +55,7 @@
 					<textarea class="form-control" rows="3" name="mapstudy.description" id="description">${mapstudy.description}</textarea>
 				</div>
 				<div class="form-group pull-right">	
-					<button type="submit" class="btn btn-primary"><fmt:message key="mapstudy.create"/></button>
+					<button type="submit" class="btn btn-primary"><fmt:message key="mapstudy.edit.save"/></button>
 				</div>	
 			</form>
 		</div>

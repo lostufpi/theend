@@ -1,14 +1,14 @@
 package br.com.ufpi.systematicmap.model;
 
-import br.com.ufpi.systematicmap.model.enums.TipoMensagem;
+import br.com.ufpi.systematicmap.model.enums.TypeMessage;
 
 public class Mensagem {
 
 	private String category;
 	private String value;
-	private TipoMensagem type;
+	private TypeMessage type;
 
-	public Mensagem(String category, String value, TipoMensagem type) {
+	public Mensagem(String category, String value, TypeMessage type) {
 		this.category = category;
 		this.value = value;
 		this.type = type;
@@ -16,11 +16,11 @@ public class Mensagem {
 
 	public String getType() {
 
-		if (type == TipoMensagem.SUCESSO)
+		if (type == TypeMessage.SUCCESS)
 			return "alert-success";
-		if (type == TipoMensagem.ERRO)
+		if (type == TypeMessage.ERROR)
 			return "alert-danger";
-		if (type == TipoMensagem.INFORMACAO)
+		if (type == TypeMessage.INFORMATION)
 			return "alert-info";
 
 		return null;

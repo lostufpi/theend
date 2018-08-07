@@ -34,7 +34,7 @@ public class EvaluationExtractionFinalDao extends Dao<EvaluationExtractionFinal>
     }
 
     public List<Article> getArticlesToExtractionFinal(MapStudy mapStudy) {
-        List<Article> articles = this.entityManager.createQuery("select a from Article a where a.classification = null and a.mapStudy = :mapStudy order by a.title asc", Article.class)
+        List<Article> articles = this.entityManager.createQuery("select a from Article a where a.classification = null and a.mapStudy = :mapStudy AND a.removed = false order by a.title asc", Article.class)
         		.setParameter("mapStudy", mapStudy).getResultList();
         return articles;
     }

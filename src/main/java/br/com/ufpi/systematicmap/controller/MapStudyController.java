@@ -38,7 +38,6 @@ import br.com.caelum.vraptor.observer.download.DownloadBuilder;
 import br.com.caelum.vraptor.observer.download.FileDownload;
 import br.com.caelum.vraptor.observer.download.InputStreamDownload;
 import br.com.caelum.vraptor.observer.upload.UploadedFile;
-import br.com.caelum.vraptor.validator.SimpleMessage;
 import br.com.caelum.vraptor.validator.Validator;
 import br.com.caelum.vraptor.view.Results;
 import br.com.ufpi.systematicmap.components.FilterArticles;
@@ -69,8 +68,8 @@ import br.com.ufpi.systematicmap.model.enums.ClassificationEnum;
 import br.com.ufpi.systematicmap.model.enums.EvaluationStatusEnum;
 import br.com.ufpi.systematicmap.model.enums.QuestionType;
 import br.com.ufpi.systematicmap.model.enums.Roles;
-import br.com.ufpi.systematicmap.model.enums.TipoMensagem;
 import br.com.ufpi.systematicmap.model.enums.TypeOfFile;
+import br.com.ufpi.systematicmap.model.enums.TypeMessage;
 import br.com.ufpi.systematicmap.model.vo.ArticleCompareVO;
 import br.com.ufpi.systematicmap.model.vo.Percent;
 import br.com.ufpi.systematicmap.utils.BibtexToArticleUtils;
@@ -84,8 +83,10 @@ import br.com.ufpi.systematicmap.utils.service.TaskService;
 @Controller
 public class MapStudyController {
 
+	private static final int MINIMUM_REFINED_ARTICLES_TASK = 1000;
 	private static final String MAPSTUDY_IS_NOT_EXIST = "mapstudy.is.not.exist";
 	private static final String USER_DOES_NOT_HAVE_ACCESS = "user.does.not.have.access";
+	
 	private TaskService taskService;
 	private Result result;
 
@@ -150,7 +151,7 @@ public class MapStudyController {
 		mapstudy.addCreator(user);
 		mapStudyDao.add(mapstudy);
 
-		MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.add.sucess", TipoMensagem.SUCESSO));
+		MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.add.sucess", TypeMessage.SUCCESS));
 		result.redirectTo(this).list();
 	}
 
@@ -160,13 +161,13 @@ public class MapStudyController {
 		MapStudy mapStudy = mapStudyDao.find(mapId);
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
 
 		if (!(mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser()))) {
-			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TipoMensagem.INFORMACAO));
+			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TypeMessage.INFORMATION));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -174,7 +175,7 @@ public class MapStudyController {
 		mapStudy.setRemoved(true);
 		mapStudy = mapStudyDao.update(mapStudy);
 
-		MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.remove.sucess", TipoMensagem.SUCESSO));
+		MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.remove.sucess", TypeMessage.SUCCESS));
 		result.redirectTo(this).list();
 	}
 
@@ -183,41 +184,42 @@ public class MapStudyController {
 		validator.onErrorForwardTo(this).list();
 		MapStudy mapStudy = mapStudyDao.find(mapId);
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
 		if (!(mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser()))) {
-			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TipoMensagem.INFORMACAO));
+			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TypeMessage.INFORMATION));
 			result.redirectTo(this).list();
 			return;
 		}
-		validator.onErrorRedirectTo(this).list();
 		result.include("mapstudy", mapStudy);
 	}
 
 	@Post("/maps/update")
 	public void update(final @NotNull @Valid MapStudy mapstudy) {
-		validator.onErrorForwardTo(this).create();
+		validator.onErrorForwardTo(this).show(mapstudy.getId());
 		mapStudyDao.update(mapstudy);
-		result.include("notice", new SimpleMessage("mapstudy", "mapstudy.update.sucess", TipoMensagem.SUCESSO));
-		result.redirectTo(this).list();
+		
+		MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.update.sucess", TypeMessage.SUCCESS));
+		result.redirectTo(this).show(mapstudy.getId());
 	}
 
 	@Get("/maps/{id}")
 	public void show(Long id) {
+		validator.onErrorForwardTo(this).list();
 		MapStudy mapStudy = mapStudyDao.find(id);
 		User user = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
 
 		if (!(mapStudy.members().contains(user))) {
-			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TipoMensagem.ERRO));
-			validator.onErrorRedirectTo(this).list();
+			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TypeMessage.ERROR));
+			result.redirectTo(this).list();
 			return;
 		}
 
@@ -279,7 +281,7 @@ public class MapStudyController {
 		article.setClassification(classification);
 		articleDao.update(article);
 		MessagesController
-				.addMessage(new Mensagem("mapstudy.articles", "articles.classification.sucess", TipoMensagem.SUCESSO));
+				.addMessage(new Mensagem("mapstudy.articles", "articles.classification.sucess", TypeMessage.SUCCESS));
 		result.redirectTo(this).evaluateArticle(mapid, 0l);
 	}
 
@@ -289,9 +291,11 @@ public class MapStudyController {
 
 		MapStudy mapStudy = mapStudyDao.find(id);
 		User user = userDao.find(userId);
-
-		validator.check(mapStudy != null, new SimpleMessage("mapstudy", "mapstudy.is.not.exist"));
-		validator.onErrorRedirectTo(this).list();
+		
+		if(mapStudy == null) {
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.SUCCESS));
+			result.redirectTo(this).list();
+		}
 
 		// Um usuario esta associado a avaliações e outras coisas caso o mesmo seja
 		// removido apos o inicio dos trabalhos devemos ocultar suas avaliações mas não
@@ -300,7 +304,7 @@ public class MapStudyController {
 		mapStudy.removeUserMap(user);
 		mapStudyDao.update(mapStudy);
 
-		MessagesController.addMessage(new Mensagem("mapstudy", "member.exit.sucess", TipoMensagem.SUCESSO));
+		MessagesController.addMessage(new Mensagem("mapstudy", "member.exit.sucess", TypeMessage.SUCCESS));
 		result.redirectTo(this).list();
 	}
 
@@ -313,21 +317,21 @@ public class MapStudyController {
 		User currentUser = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		} else if (!(mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser()))) {
-			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TypeMessage.ERROR));
 
 		} else if (currentUser.equals(user)) {
-			MessagesController.addMessage(new Mensagem("user", "user.is.not.remove.creator", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", "user.is.not.remove.creator", TypeMessage.ERROR));
 		} else {
 			// Um usuario esta associado a avaliações e outras coisas caso o mesmo seja
 			// removido apos o inicio dos trabalhos devemos ocultar suas avaliações mas não
 			// removelas
 			mapStudy.removeUserMap(user);
 			mapStudyDao.update(mapStudy);
-			MessagesController.addMessage(new Mensagem("mapstudy", "member.remove.sucess", TipoMensagem.SUCESSO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "member.remove.sucess", TypeMessage.SUCCESS));
 		}
 		result.redirectTo(this).show(id);
 		return;
@@ -345,15 +349,15 @@ public class MapStudyController {
 		}
 
 		if (user == null) {
-			MessagesController.addMessage(new Mensagem("user", "user.is.not.select", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", "user.is.not.select", TypeMessage.ERROR));
 		} else if (!(mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser()))) {
-			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TypeMessage.ERROR));
 		} else {
 			mapStudy.addUser(user, role);
 
 			mapStudyDao.update(mapStudy);
 			userDao.update(user);
-			MessagesController.addMessage(new Mensagem("mapstudy", "member.add.sucess", TipoMensagem.SUCESSO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "member.add.sucess", TypeMessage.SUCCESS));
 		}
 
 		if (notify) {
@@ -384,7 +388,7 @@ public class MapStudyController {
 		MapStudy mapStudy = mapStudyDao.find(id);
 
 		if (!(mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser()))) {
-			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TypeMessage.ERROR));
 			result.redirectTo(this).identification(id);
 			return;
 		}
@@ -394,34 +398,31 @@ public class MapStudyController {
 		if (upFile != null) {
 			try {
 				if (!files.save(upFile, mapStudy)) {
-					MessagesController.addMessage(new Mensagem("user", "error.generating.file", TipoMensagem.ERRO));
+					MessagesController.addMessage(new Mensagem("user", "error.generating.file", TypeMessage.ERROR));
 					result.redirectTo(this).identification(id);
 					return;
 				} else {
 					try {
 						database = bibtexUtils.parseBibTeX(files.getFile(mapStudy));
 					} catch (TokenMgrException | ParseException e) {
-						System.out.println(e.getMessage());
-						logger.info(e.getMessage());
-						MessagesController.addMessage(new Mensagem("bibtex", "bibtex.format.error", TipoMensagem.ERRO));
+						logger.error(e.getMessage());
+						MessagesController.addMessage(new Mensagem("bibtex", "bibtex.format.error", TypeMessage.ERROR));
 						result.redirectTo(this).identification(id);
 						return;
 					} catch (IOException e2) {
-						System.out.println(e2.getMessage());
-						logger.info(e2.getMessage());
-						MessagesController.addMessage(new Mensagem("bibtex", "bibtex.file.error", TipoMensagem.ERRO));
+						logger.error(e2.getMessage());
+						MessagesController.addMessage(new Mensagem("bibtex", "bibtex.file.error", TypeMessage.ERROR));
 						result.redirectTo(this).identification(id);
 						return;
 					}
 				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("MapStudy_id = "+mapStudy.getId()+" "+e.getMessage());
 			}
 		}
 
 		if (database == null) {
-			MessagesController.addMessage(new Mensagem("path", "no.select.path", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("path", "no.select.path", TypeMessage.ERROR));
 			result.redirectTo(this).identification(id);
 			return;
 		}
@@ -431,14 +432,13 @@ public class MapStudyController {
 
 		for (BibTeXEntry entry : entries) {
 			Article a = BibtexToArticleUtils.bibtexToArticle(entry, source);
-			// mapStudy.addArticle(a);
 			a.setMapStudy(mapStudy);
 			articleDao.insert(a);
 		}
 
 		mapStudyDao.update(mapStudy);
 
-		MessagesController.addMessage(new Mensagem("mapstudy.articles", "articles.add.sucess", TipoMensagem.SUCESSO));
+		MessagesController.addMessage(new Mensagem("mapstudy.articles", "articles.add.sucess", TypeMessage.SUCCESS));
 		result.redirectTo(this).identification(id);
 	}
 
@@ -449,13 +449,13 @@ public class MapStudyController {
 		MapStudy mapStudy = mapStudyDao.find(mapId);
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
 
 		if (!(mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser()))) {
-			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TypeMessage.ERROR));
 			result.redirectTo(this).identification(mapId);
 		}
 		result.include("map", mapStudy);
@@ -473,7 +473,7 @@ public class MapStudyController {
 		articleDao.insert(article);
 		// mapStudyDao.update(mapStudy);
 
-		MessagesController.addMessage(new Mensagem("mapstudy.articles", "article.add.sucess", TipoMensagem.SUCESSO));
+		MessagesController.addMessage(new Mensagem("mapstudy.articles", "article.add.sucess", TypeMessage.SUCCESS));
 		result.redirectTo(this).identification(mapStudy.getId());
 	}
 
@@ -485,13 +485,13 @@ public class MapStudyController {
 		MapStudy mapStudy = mapStudyDao.find(mapId);
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.SUCESSO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.SUCCESS));
 			result.redirectTo(this).list();
 			return;
 		}
 
 		if (!(mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser()))) {
-			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -504,14 +504,21 @@ public class MapStudyController {
 	public void removearticlesform(Long mapId, final List<Integer> articlesIds) {
 		if (articlesIds == null) {
 			MessagesController
-					.addMessage(new Mensagem("mapstudy.articles", "article.is.not.select", TipoMensagem.ERRO));
+					.addMessage(new Mensagem("mapstudy.articles", "article.is.not.select", TypeMessage.ERROR));
 		} else {
 			for (Integer id : articlesIds) {
 				articleDao.delete(id.longValue());
 			}
 			MessagesController
-					.addMessage(new Mensagem("mapstudy.articles", "article.remove.sucess", TipoMensagem.SUCESSO));
+					.addMessage(new Mensagem("mapstudy.articles", "article.remove.sucess", TypeMessage.SUCCESS));
 		}
+		result.redirectTo(this).identification(mapId);
+	}
+	
+	@Get("/maps/{mapId}/removeallarticles")
+	public void removeAllArticles(Long mapId) {
+		articleDao.removeAllArticlesMap(mapId);
+		MessagesController.addMessage(new Mensagem("mapstudy.articles", "article.remove.sucess", TypeMessage.SUCCESS));
 		result.redirectTo(this).identification(mapId);
 	}
 
@@ -525,16 +532,16 @@ public class MapStudyController {
 		inclusionCriteria.setMapStudy(mapStudy);
 
 		if (!(mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser()))) {
-			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TypeMessage.ERROR));
 		} else if (inclusionCriteria.getDescription() == null) {
 			MessagesController
-					.addMessage(new Mensagem("mapstudy.inclusion.criteria", "error.not.null", TipoMensagem.ERRO));
+					.addMessage(new Mensagem("mapstudy.inclusion.criteria", "error.not.null", TypeMessage.ERROR));
 		} else {
 			mapStudy.addInclusionCriteria(inclusionCriteria);
 			inclusionDao.insert(inclusionCriteria);
 			mapStudyDao.update(mapStudy);
 			MessagesController
-					.addMessage(new Mensagem("mapstudy", "inclusion.criteria.add.sucess", TipoMensagem.SUCESSO));
+					.addMessage(new Mensagem("mapstudy", "inclusion.criteria.add.sucess", TypeMessage.SUCCESS));
 		}
 		result.redirectTo(this).planning(id, "divcriterias");
 	}
@@ -549,16 +556,16 @@ public class MapStudyController {
 		exclusionCriteria.setMapStudy(mapStudy);
 
 		if (!((mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser())))) {
-			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TypeMessage.ERROR));
 		} else if (exclusionCriteria.getDescription() == null) {
 			MessagesController
-					.addMessage(new Mensagem("mapstudy.exclusion.criteria", "error.not.null", TipoMensagem.ERRO));
+					.addMessage(new Mensagem("mapstudy.exclusion.criteria", "error.not.null", TypeMessage.ERROR));
 		} else {
 			mapStudy.addExclusionCriteria(exclusionCriteria);
 			exclusionDao.insert(exclusionCriteria);
 			mapStudyDao.update(mapStudy);
 			MessagesController
-					.addMessage(new Mensagem("mapstudy", "exclusion.criteria.add.sucess", TipoMensagem.SUCESSO));
+					.addMessage(new Mensagem("mapstudy", "exclusion.criteria.add.sucess", TypeMessage.SUCCESS));
 		}
 		result.redirectTo(this).planning(id, "divcriterias");
 	}
@@ -569,15 +576,29 @@ public class MapStudyController {
 			boolean filterLevenshtein) {
 		MapStudy mapStudy = mapStudyDao.find(id);
 		List<Article> articles = articleDao.getArticles(mapStudy);
-
-		mapStudy.setRefinementParameters(levenshtein, regex.trim(), limiartitulo, limiarabstract, limiarkeywords,
-				limiartotal, filterAuthor, filterAbstract, filterLevenshtein);
-		taskService.addTask(new FilterArticles(mapStudy, articles));
-		if (articles.size() > 100)
-			MessagesController.addMessage(new Mensagem("mapstudy.filter.start.tittle", "mapstudy.filter.start.message",
-					TipoMensagem.INFORMACAO));
-		result.redirectTo(this).show(id);
-
+		
+		mapStudy.setRefinementParameters(levenshtein, regex.trim(), limiartitulo, limiarabstract, limiarkeywords, limiartotal, filterAuthor, filterAbstract, filterLevenshtein);
+		
+		if (articles.size() > MINIMUM_REFINED_ARTICLES_TASK) {
+			MessagesController.changeRunner(true);
+			taskService.addTask(new FilterArticles(mapStudy, articles));
+			MessagesController.addMessage(new Mensagem("mapstudy.filter.start.tittle", "mapstudy.filter.start.message", TypeMessage.INFORMATION));
+			result.redirectTo(this).show(id);
+		}else {
+			FilterArticles filter = new FilterArticles(mapStudy, articles);
+			boolean filterStatus = filter.filter();
+			
+			if(filterStatus) {
+				MessagesController.addMessage(new Mensagem("mapstudy.filter", "refine.articles.sucess",
+						TypeMessage.INFORMATION));
+			}else {
+				MessagesController.addMessage(new Mensagem("mapstudy.filter", "error.filter",
+						TypeMessage.ERROR));
+			}
+			
+			result.redirectTo(this).identification(id);
+		}
+		
 	}
 
 	@Get("/maps/{id}/unrefinearticles")
@@ -594,10 +615,10 @@ public class MapStudyController {
 			article.setRegexTitle(0);
 			article.setScore(0);
 			article.setClassification(null);
-			article.setComment("");
+			article.setInfos("");
 		}
 
-		MessagesController.addMessage(new Mensagem("mapstudy", "unrefine.articles.sucess", TipoMensagem.SUCESSO));
+		MessagesController.addMessage(new Mensagem("mapstudy", "unrefine.articles.sucess", TypeMessage.SUCCESS));
 		result.redirectTo(this).identification(id);
 	}
 
@@ -607,19 +628,19 @@ public class MapStudyController {
 		User user = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.SUCESSO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
 
 		if (!mapStudy.members().contains(user)) {
-			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
 
 		if (!(mapStudy.getExclusionCriterias().size() > 0 && mapStudy.getInclusionCriterias().size() > 0)) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.criterias", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.criterias", TypeMessage.ERROR));
 			result.redirectTo(this).show(mapid);
 			return;
 		}
@@ -627,7 +648,7 @@ public class MapStudyController {
 		List<Article> articles = articleDao.getArticles(mapStudy);
 
 		if (articles == null || articles.size() <= 0) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "articles.without.mapping", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "articles.without.mapping", TypeMessage.ERROR));
 			result.redirectTo(this).show(mapid);
 			return;
 		}
@@ -639,7 +660,7 @@ public class MapStudyController {
 	public void evaluateArticle(Long mapid, Long articleid) {
 		MapStudy mapStudy = mapStudyDao.find(mapid);
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -673,7 +694,13 @@ public class MapStudyController {
 		if (article == null) {
 			article = evaluations.get(0).getArticle();
 			MessagesController
-					.addMessage(new Mensagem("mapstudy", "mapstudy.evaluate.articles.none", TipoMensagem.ERRO));
+					.addMessage(new Mensagem("mapstudy", "mapstudy.evaluate.articles.none", TypeMessage.ERROR));
+		}
+		
+		if(!article.getMapStudy().getId().equals(mapStudy.getId())) {
+			MessagesController
+			.addMessage(new Mensagem("article", "article.is.not.part.mapping", TypeMessage.ERROR));
+			article = evaluations.get(0).getArticle();
 		}
 
 		Evaluation evaluationDone = evaluationDao.getEvaluation(userInfo.getUser(), mapStudy, article);
@@ -776,7 +803,7 @@ public class MapStudyController {
 		// se o artigo não existir
 		if (article == null) {
 			MessagesController
-					.addMessage(new Mensagem("mapstudy", "mapstudy.evaluate.articles.none", TipoMensagem.ERRO));
+					.addMessage(new Mensagem("mapstudy", "mapstudy.evaluate.articles.none", TypeMessage.ERROR));
 			result.redirectTo(this).show(mapid);
 			return;
 		}
@@ -798,7 +825,7 @@ public class MapStudyController {
 
 		if (ids == null) {
 			MessagesController
-					.addMessage(new Mensagem("mapstudy", "mapstudy.evaluate.criterias.none", TipoMensagem.ERRO));
+					.addMessage(new Mensagem("mapstudy", "mapstudy.evaluate.criterias.none", TypeMessage.ERROR));
 			result.redirectTo(this).evaluateArticle(mapid, articleid);
 			return;
 		}
@@ -839,16 +866,16 @@ public class MapStudyController {
 	public void removeexclusioncriteriapage(Long studyMapId, Long criteriaId) {
 
 		MapStudy mapStudy = mapStudyDao.find(studyMapId);
-//		User user = userInfo.getUser();
+		User user = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
 
-		if (!((mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser())))) {
-			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TipoMensagem.ERRO));
+		if (!((mapStudy.isCreator(user) || mapStudy.isSupervisor(user)))) {
+			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TypeMessage.ERROR));
 			result.redirectTo(this).planning(studyMapId, "divcriterias");
 			return;
 		}
@@ -889,7 +916,7 @@ public class MapStudyController {
 		exclusionDao.delete(criteriaId);
 
 		MessagesController
-				.addMessage(new Mensagem("mapstudy", "exclusion.criteria.remove.sucess", TipoMensagem.SUCESSO));
+				.addMessage(new Mensagem("mapstudy", "exclusion.criteria.remove.sucess", TypeMessage.SUCCESS));
 		result.redirectTo(this).planning(studyMapId, "divcriterias");
 	}
 
@@ -902,13 +929,13 @@ public class MapStudyController {
 //		User user = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
 
 		if (!(mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser()))) {
-			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TypeMessage.ERROR));
 			result.redirectTo(this).planning(studyMapId, "divcriterias");
 			return;
 		}
@@ -950,7 +977,7 @@ public class MapStudyController {
 		inclusionDao.delete(criteriaId);
 
 		MessagesController
-				.addMessage(new Mensagem("mapstudy", "inclusion.criteria.remove.sucess", TipoMensagem.SUCESSO));
+				.addMessage(new Mensagem("mapstudy", "inclusion.criteria.remove.sucess", TypeMessage.SUCCESS));
 		result.redirectTo(this).planning(studyMapId, "divcriterias");
 	}
 
@@ -960,13 +987,13 @@ public class MapStudyController {
 		User user = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
 
 		if (!(mapStudy.members().contains(user))) {
-			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -976,14 +1003,14 @@ public class MapStudyController {
 
 		if (articles.isEmpty()) {
 			MessagesController
-					.addMessage(new Mensagem("mapstudy.articles", "mapstudy.articles.none", TipoMensagem.ERRO));
+					.addMessage(new Mensagem("mapstudy.articles", "mapstudy.articles.none", TypeMessage.ERROR));
 			result.redirectTo(this).show(studyMapId);
 		}
 
 		if (!mapStudy.isSupervisor(user)) {
 			if (evaluations.isEmpty()) {
 				MessagesController.addMessage(
-						new Mensagem("mapstudy.evaluations", "mapstudy.articles.not.evaluations", TipoMensagem.ERRO));
+						new Mensagem("mapstudy.evaluations", "mapstudy.articles.not.evaluations", TypeMessage.ERROR));
 				result.redirectTo(this).show(studyMapId);
 			}
 
@@ -1069,7 +1096,7 @@ public class MapStudyController {
 	public Download fileDownloader(Long mapStudyId, AcceptanceType acceptanceType, TypeOfFile typeOfFile) {
 		MapStudy mapStudy = mapStudyDao.find(mapStudyId);
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(this).showEvaluates(mapStudyId);
 			return null;
 		} else {
@@ -1106,13 +1133,13 @@ public class MapStudyController {
 		User user = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
 
 		if (!mapStudy.members().contains(user)) {
-			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -1129,7 +1156,7 @@ public class MapStudyController {
 		if (!mapStudy.isSupervisor(user)) {
 			if (percentEvaluatedDouble < 100) {
 				MessagesController
-						.addMessage(new Mensagem("mapstudy", "mapstudy.evaluations.compare.undone", TipoMensagem.ERRO));
+						.addMessage(new Mensagem("mapstudy", "mapstudy.evaluations.compare.undone", TypeMessage.ERROR));
 				result.redirectTo(this).list();
 				return;
 			}
@@ -1247,12 +1274,28 @@ public class MapStudyController {
 	@Get
 	public void articleDetail(Long articleId) {
 		Article article = articleDao.find(articleId);
-
 		if (article == null) {
-			MessagesController.addMessage(new Mensagem("articule", "article.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("articule", "article.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
+		
+		MapStudy mapStudy = article.getMapStudy();
+		
+		User userSession = userInfo.getUser();
+
+		if (mapStudy == null) {
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
+			result.redirectTo(this).list();
+			return;
+		}
+
+		if (!mapStudy.members().contains(userSession)) {
+			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TypeMessage.ERROR));
+			result.redirectTo(this).list();
+			return;
+		}
+
 		HashMap<String, Object> retorno = new HashMap<String, Object>();
 		retorno.put("id", article.getId());
 		retorno.put("title", article.getTitle());
@@ -1290,6 +1333,21 @@ public class MapStudyController {
 	@Path("/maps/{id}/articles.json")
 	public void articlesJson(Long id) {
 		MapStudy mapStudy = mapStudyDao.find(id);
+		
+		User user = userInfo.getUser();
+
+		if (mapStudy == null) {
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
+			result.redirectTo(this).list();
+			return;
+		}
+
+		if (!mapStudy.members().contains(user)) {
+			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TypeMessage.ERROR));
+			result.redirectTo(this).list();
+			return;
+		}
+		
 		List<Article> articles = articleDao.getArticles(mapStudy);
 		result.use(json()).indented().from(articles, "articles").serialize();
 	}
@@ -1303,12 +1361,12 @@ public class MapStudyController {
 		User user = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
 		if (!mapStudy.members().contains(user)) {
-			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -1338,18 +1396,22 @@ public class MapStudyController {
 	@Path("/maps/{id}/identification")
 	public void identification(Long id) {
 		MapStudy mapStudy = mapStudyDao.find(id);
-
-		if (mapStudy.getRefinementParameters() == null) {
+		User user = userInfo.getUser();
+		
+		if (mapStudy == null) {
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
+			result.redirectTo(this).list();
+			return;
+		}
+		if (!mapStudy.members().contains(user)) {
+			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TypeMessage.ERROR));
+			result.redirectTo(this).list();
+			return;
+		}
+		
+		if(mapStudy.getRefinementParameters() == null) {
 			mapStudy.setRefinementParameters(new RefinementParameters());
 		}
-
-		User user = userInfo.getUser();
-
-		validator.check(mapStudy != null, new SimpleMessage("mapstudy", "mapstudy.is.not.exist"));
-		validator.onErrorRedirectTo(this).list();
-
-		validator.check(mapStudy.members().contains(user), new SimpleMessage("user", "user.does.not.have.access"));
-		validator.onErrorRedirectTo(this).list();
 
 		List<Article> articles = articleDao.getArticles(mapStudy);
 		List<ArticleSourceEnum> sources = asList(ArticleSourceEnum.values());
@@ -1367,12 +1429,12 @@ public class MapStudyController {
 		User user = userInfo.getUser();
 
 		if (mapStudy == null) {
-			MessagesController.addMessage(new Mensagem("mapstudy", MAPSTUDY_IS_NOT_EXIST, TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("mapstudy", MAPSTUDY_IS_NOT_EXIST, TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
 		if (!mapStudy.members().contains(user)) {
-			MessagesController.addMessage(new Mensagem("user", USER_DOES_NOT_HAVE_ACCESS, TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", USER_DOES_NOT_HAVE_ACCESS, TypeMessage.ERROR));
 			result.redirectTo(this).list();
 			return;
 		}
@@ -1380,7 +1442,7 @@ public class MapStudyController {
 		mapStudy.setGoals(goals);
 		mapStudyDao.update(mapStudy);
 
-		MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.goals.add.success", TipoMensagem.SUCESSO));
+		MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.goals.add.success", TypeMessage.SUCCESS));
 		result.redirectTo(this).planning(id, "divgoals");
 
 	}
@@ -1398,13 +1460,13 @@ public class MapStudyController {
 		researchQuestion.setMapStudy(mapStudy);
 
 		if (!mapStudy.isCreator(userInfo.getUser())) {
-			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TypeMessage.ERROR));
 			result.redirectTo(this).planning(id, "divquestion");
 			return;
 		}
 		if (researchQuestion.getDescription() == null) {
 			MessagesController.addMessage(
-					new Mensagem("mapstudy.research.question.no.description", "error.not.null", TipoMensagem.ERRO));
+					new Mensagem("mapstudy.research.question.no.description", "error.not.null", TypeMessage.ERROR));
 			result.redirectTo(this).planning(id, "divquestion");
 			return;
 		}
@@ -1415,7 +1477,7 @@ public class MapStudyController {
 		mapStudyDao.update(mapStudy);
 
 		MessagesController
-				.addMessage(new Mensagem("mapstudy", "mapstudy.research.question.add.success", TipoMensagem.SUCESSO));
+				.addMessage(new Mensagem("mapstudy", "mapstudy.research.question.add.success", TypeMessage.SUCCESS));
 		result.redirectTo(this).planning(id, "divquestion");
 	}
 
@@ -1430,7 +1492,7 @@ public class MapStudyController {
 
 		if (searchString.getDescription() == null) {
 			MessagesController.addMessage(
-					new Mensagem("mapstudy.search.string.no.description", "error.not.null", TipoMensagem.ERRO));
+					new Mensagem("mapstudy.search.string.no.description", "error.not.null", TypeMessage.ERROR));
 			result.redirectTo(this).planning(id, "divstring");
 			return;
 		}
@@ -1441,7 +1503,7 @@ public class MapStudyController {
 		mapStudyDao.update(mapStudy);
 
 		MessagesController
-				.addMessage(new Mensagem("mapstudy", "mapstudy.search.string.add.success", TipoMensagem.SUCESSO));
+				.addMessage(new Mensagem("mapstudy", "mapstudy.search.string.add.success", TypeMessage.SUCCESS));
 		result.redirectTo(this).planning(id, "divstring");
 
 	}
@@ -1463,7 +1525,7 @@ public class MapStudyController {
 		mapStudyDao.update(mapStudy);
 
 		MessagesController.addMessage(
-				new Mensagem("mapstudy", "mapstudy.research.question.remove.success", TipoMensagem.SUCESSO));
+				new Mensagem("mapstudy", "mapstudy.research.question.remove.success", TypeMessage.SUCCESS));
 		result.redirectTo(this).planning(mapid, "divquestion");
 	}
 
@@ -1506,5 +1568,7 @@ public class MapStudyController {
 	@Get("/home")
 	public void home() {
 	}
+	
+	
 
 }

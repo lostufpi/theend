@@ -36,7 +36,7 @@ public class RefinementParameters implements Serializable{
 
 	public RefinementParameters() {
 		super();
-		this.regex = regexSample();
+		this.regex = regexSample().trim();
 	}
 
 	public RefinementParameters(Integer levenshtein, String regex, Integer limiarTitle, Integer limiarAbstract,

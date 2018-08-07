@@ -14,7 +14,7 @@ import br.com.ufpi.systematicmap.dao.UserDao;
 import br.com.ufpi.systematicmap.interceptor.Public;
 import br.com.ufpi.systematicmap.model.Mensagem;
 import br.com.ufpi.systematicmap.model.User;
-import br.com.ufpi.systematicmap.model.enums.TipoMensagem;
+import br.com.ufpi.systematicmap.model.enums.TypeMessage;
 import br.com.ufpi.systematicmap.utils.GenerateHashPasswordUtil;
 import br.com.ufpi.systematicmap.utils.Linker;
 import br.com.ufpi.systematicmap.utils.MailUtils;
@@ -55,7 +55,7 @@ public class EmailController {
 		User user = userDao.findEmail(email);
 		
 		if (user == null) {
-			MessagesController.addMessage(new Mensagem("user.email", "user.email.invalid", TipoMensagem.INFORMACAO));
+			MessagesController.addMessage(new Mensagem("user.email", "user.email.invalid", TypeMessage.INFORMATION));
 			result.redirectTo(HomeController.class).recovery();
 		}
 		
@@ -82,11 +82,11 @@ public class EmailController {
 		} catch (Exception e) {
 			user.setRecoveryCode(null);
 			userDao.update(user);
-			MessagesController.addMessage(new Mensagem("user.email", "error_email", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user.email", "error_email", TypeMessage.ERROR));
 			result.redirectTo(HomeController.class).recovery();
 		}		
 		
-		MessagesController.addMessage(new Mensagem("user.email","email.recovery.success", TipoMensagem.SUCESSO));
+		MessagesController.addMessage(new Mensagem("user.email","email.recovery.success", TypeMessage.SUCCESS));
 		result.redirectTo(HomeController.class).recovery();
 	}
 	
@@ -96,7 +96,7 @@ public class EmailController {
 		final User user = userDao.findCodeRecovery(code);
 		
 		if(user == null) {
-			MessagesController.addMessage(new Mensagem("user.email", "invalid_code_recovery", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user.email", "invalid_code_recovery", TypeMessage.ERROR));
 			result.redirectTo(HomeController.class).login();
 		}
 		
@@ -109,7 +109,7 @@ public class EmailController {
 		final User user = userDao.findCodeRecovery(code);
 		
 		if(!password.equals(repassword)) {
-			MessagesController.addMessage(new Mensagem("user.password", "password_different", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("user.password", "password_different", TypeMessage.ERROR));
 			result.redirectTo(this).validateCode(code);
 		}
 		
@@ -120,7 +120,7 @@ public class EmailController {
 		
 		userDao.update(user);		
 		
-		MessagesController.addMessage(new Mensagem("user.password", "password.changed.sucess", TipoMensagem.SUCESSO));
+		MessagesController.addMessage(new Mensagem("user.password", "password.changed.sucess", TypeMessage.SUCCESS));
 		result.redirectTo(HomeController.class).login();	
 	}
 }

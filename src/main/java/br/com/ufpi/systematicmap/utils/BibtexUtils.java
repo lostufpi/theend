@@ -1,31 +1,37 @@
 package br.com.ufpi.systematicmap.utils;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 
 import org.jbibtex.BibTeXDatabase;
 import org.jbibtex.BibTeXEntry;
 import org.jbibtex.BibTeXFormatter;
 import org.jbibtex.BibTeXParser;
 import org.jbibtex.BibTeXString;
+import org.jbibtex.CharacterFilterReader;
 import org.jbibtex.Key;
 import org.jbibtex.ParseException;
 import org.jbibtex.TokenMgrException;
+import org.jbibtex.policies.BibTeXEntryKeyConflictResolutionPolicies;
 
 public class BibtexUtils {
 
-	public BibTeXDatabase parseBibTeX(File file) throws IOException, TokenMgrException, ParseException {
-		Reader reader = null;
+	public BibTeXDatabase parseBibTeX(File file) throws TokenMgrException, ParseException, IOException{
+		InputStream is = null;
+		InputStreamReader reader = null;
+		CharacterFilterReader filterReader = null;
 		try {
-			reader = new FileReader(file);
-			// InputStream is = new FileInputStream(file);
-			// InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8);
-			BibTeXParser parser = new BibTeXParser() {
+			 is = new FileInputStream(file);
+			 reader = new InputStreamReader(is, StandardCharsets.UTF_8);
+			filterReader = new CharacterFilterReader(reader);
+			BibTeXParser parser = new BibTeXParser(BibTeXEntryKeyConflictResolutionPolicies.REKEY_SUBSEQUENT) {
 				@Override
 				public void checkStringResolution(Key key, BibTeXString string) {
 					if (string == null) {
@@ -41,10 +47,16 @@ public class BibtexUtils {
 				}
 			};
 
-			return parser.parse(reader);
+			return parser.parse(filterReader);
 
 		} finally {
-			reader.close();
+			if(is != null)
+				is.close();
+			if(reader!=null)
+				reader.close();
+			if(filterReader!=null)
+				filterReader.close();
+			
 		}
 	}
 

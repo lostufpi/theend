@@ -13,11 +13,10 @@ import br.com.ufpi.systematicmap.model.MapStudy;
 import br.com.ufpi.systematicmap.model.Mensagem;
 import br.com.ufpi.systematicmap.model.User;
 import br.com.ufpi.systematicmap.model.enums.AcceptanceType;
-import br.com.ufpi.systematicmap.model.enums.TipoMensagem;
+import br.com.ufpi.systematicmap.model.enums.TypeMessage;
 import br.com.ufpi.systematicmap.model.enums.TypeOfFile;
 
 public class FileGenerator {
-
 	private String fileName;
 	private AcceptanceType acceptanceType;
 	private TypeOfFile typeOfFile;
@@ -50,7 +49,7 @@ public class FileGenerator {
 		List<Article> articles = articleDao.getArticlesFinalAccepted(mapStudy);
 		if (articles.isEmpty()) {
 			MessagesController.addMessage(
-					new Mensagem("mapstudy.articles", "mapstudy.articles.accepted.all.none", TipoMensagem.ERRO));
+					new Mensagem("mapstudy.articles", "mapstudy.articles.accepted.all.none", TypeMessage.ERROR));
 			return null;
 		} else {
 			try {
@@ -67,7 +66,7 @@ public class FileGenerator {
 		List<Article> articles = articleDao.getArticlesEvaluated(user, mapStudy);
 		if (articles.isEmpty()) {
 			MessagesController.addMessage(
-					new Mensagem("mapstudy.articles", "mapstudy.articles.evaluated.none", TipoMensagem.ERRO));
+					new Mensagem("mapstudy.articles", "mapstudy.articles.evaluated.none", TypeMessage.ERROR));
 			return null;
 		} else {
 			try {
