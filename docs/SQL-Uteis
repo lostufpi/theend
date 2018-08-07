@@ -9,3 +9,39 @@ SELECT * FROM Evaluation WHERE id in (
 		select e2.evaluation_id FROM systematicmap.evaluations_exclusions e2 where e2.exclusion_id != 14
 	)
 );
+
+DELIMITER //
+DROP PROCEDURE IF EXISTS removeQuebras//
+CREATE PROCEDURE removeQuebras (maxId INT)
+BEGIN
+	DECLARE contador INT DEFAULT 0;
+    loop_teste: LOOP
+		SET contador = contador + 1;
+			UPDATE article SET abstrct=REPLACE(abstrct, '\n',''), title=REPLACE(title, '\n',''), author=REPLACE(author, '\n',''), keywords=REPLACE(keywords, '\n',''), comment=REPLACE(comment, '\n','') WHERE mapStudy_id = contador;
+		IF contador > maxId THEN
+			LEAVE loop_teste;
+		END IF;
+	END LOOP loop_teste;
+END//
+DELIMITER ;
+
+CALL removeQuebras(510);
+
+ALTER TABLE `systematicmap`.`article` 
+CHANGE COLUMN `note` `note` LONGTEXT NULL DEFAULT NULL ;
+
+ALTER TABLE `systematicmap`.`article` 
+CHANGE COLUMN `volume` `volume` VARCHAR(255) NULL DEFAULT NULL ;
+
+UPDATE article SET classification = 'WITHOUT_AUTHORS' WHERE (author like '' OR author is null) AND classification is null;
+UPDATE article SET classification = 'WITHOUT_ABSTRACT' WHERE (abstrct like '' OR abstrct is null) AND classification is null;
+SELECT id, author, abstrct, classification FROM article WHERE (author like '' OR abstrct like '') AND classification is null;
+UPDATE article SET abstrct=TRIM(abstrct), title=TRIM(title), author=TRIM(author), keywords=TRIM(keywords), comment=TRIM(comment);
+
+-- Limpando banco com artigos removidos
+
+DELETE FROM evaluations_inclusions WHERE evaluation_id in (SELECT id FROM evaluation WHERE article_id in (SELECT id FROM article WHERE removed = true));
+DELETE FROM evaluations_exclusions WHERE evaluation_id in (SELECT id FROM evaluation WHERE article_id in (SELECT id FROM article WHERE removed = true));
+DELETE FROM evaluation WHERE article_id in (SELECT id FROM article WHERE removed = true);
+UPDATE article SET same_article_id = null WHERE removed = true;
+DELETE FROM article WHERE removed = true;

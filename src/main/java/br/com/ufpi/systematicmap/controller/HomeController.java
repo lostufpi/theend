@@ -11,7 +11,7 @@ import br.com.ufpi.systematicmap.interceptor.Public;
 import br.com.ufpi.systematicmap.interceptor.UserInfo;
 import br.com.ufpi.systematicmap.model.Mensagem;
 import br.com.ufpi.systematicmap.model.User;
-import br.com.ufpi.systematicmap.model.enums.TipoMensagem;
+import br.com.ufpi.systematicmap.model.enums.TypeMessage;
 import br.com.ufpi.systematicmap.utils.GenerateHashPasswordUtil;
 
 @Controller
@@ -52,14 +52,14 @@ public class HomeController {
 		GenerateHashPasswordUtil generateHashPasswordUtil = new GenerateHashPasswordUtil();
 		final User currentUser = dao.find(login, generateHashPasswordUtil.generateHash(password));
 		if (currentUser == null) {
-			MessagesController.addMessage(new Mensagem("login", "invalid_login_or_password", TipoMensagem.ERRO));
+			MessagesController.addMessage(new Mensagem("login", "invalid_login_or_password", TypeMessage.ERROR));
 			result.redirectTo(this).login();
 			return;
 		}
 		
 		userInfo.login(currentUser);
 		
-		MessagesController.addMessage(new Mensagem("user.login", "mapstudy.login.success", TipoMensagem.SUCESSO));
+		MessagesController.addMessage(new Mensagem("user.login", "mapstudy.login.success", TypeMessage.SUCCESS));
 		result.redirectTo(MapStudyController.class).home();
 	}
 

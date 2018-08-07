@@ -85,11 +85,15 @@ public class GraphicsController {
 
 	@Get("/graphics/pie/sources")
 	public void articlesSources(Long mapid){
-//		System.out.println(mapid);
 		MapStudy mapStudy = mapStudyDao.find(mapid);
 		mapStudyDao.refresh(mapStudy);
 		
 		List<Article> articles = articleDao.getArticles(mapStudy);
+		
+		if(articles.isEmpty()){
+			result.use(json());
+			return;
+		}
 		
 		HashMap<String, Double> sources = new HashMap<>();
 		List<ArticleSourceEnum> listSources = asList(ArticleSourceEnum.values());
@@ -99,9 +103,9 @@ public class GraphicsController {
 		}
 		
 		for (Article article : articles) {
-			Double value = sources.get(article.getSource().toString());
+			Double value = sources.get(article.getSource());
 			++value;
-			sources.put(article.getSource().toString(), value);
+			sources.put(article.getSource(), value);
 		}	
 		
 		int total = articles.size();
@@ -110,12 +114,14 @@ public class GraphicsController {
 		List<Data> data = new ArrayList<>();
 		
 		for (ArticleSourceEnum articleSourceEnum : listSources) {
-			Data d = new Data();
-			d.setName(articleSourceEnum.getDescription());
-			d.setY(sources.get(articleSourceEnum.toString()));
-			Double percent = (d.getY() / total) * 100;
-			d.setPercent(percent);
-			data.add(d);
+			if(sources.get(articleSourceEnum.toString()) > 0) {
+				Data d = new Data();
+				d.setName(articleSourceEnum.getDescription());
+				d.setY(sources.get(articleSourceEnum.toString()));
+				Double percent = (d.getY() / total) * 100;
+				d.setPercent(percent);
+				data.add(d);
+			}
 		}		
 		
 		pie.setTitle("Artigos obtidos por base de busca");
@@ -239,6 +245,11 @@ public class GraphicsController {
 		
 		List<Article> articles = articleDao.getArticlesToEvaluate(mapStudy);
 		
+		if(articles.isEmpty()){
+			result.use(json());
+			return;
+		}
+		
 		HashMap<String, Double> sources = new HashMap<>();
 		List<EvaluationStatusEnum> listEvaluate = asList(EvaluationStatusEnum.values());
 		
@@ -283,6 +294,11 @@ public class GraphicsController {
 		
 		List<Article> articles = articleDao.getArticles(mapStudy);
 		
+		if(articles.isEmpty()){
+			result.use(json());
+			return;
+		}
+		
 		HashMap<String, Double> sources = new HashMap<>();
 		List<ClassificationEnum> listRefines = asList(ClassificationEnum.values());
 		
@@ -312,7 +328,10 @@ public class GraphicsController {
 			Data d = new Data();
 			d.setName(articleSourceEnum.getDescription());
 			d.setY(sources.get(articleSourceEnum.toString()));
-			Double percent = (d.getY() / total) * 100;
+			Double percent = 0d;
+			if(total > 0) {
+				percent = (d.getY() / total) * 100;
+			}
 			d.setPercent(percent);
 			data.add(d);
 		}		
@@ -345,11 +364,16 @@ public class GraphicsController {
 //		List<EvaluationExtractionFinal> extractions = extractionFinalDao.getExtractionsFinal(q1, q2);
 		List<Article> articles = articleDao.getArticlesFinalExtraction(mapStudy);
 		
+		
 //		System.out.println("hash : " + articles.size());
 		
 		HashMap<String, HashMap<String, Long>> map = new HashMap<String, HashMap<String, Long>>();
 		List<Alternative> alternativeX = questionDao.getAlternativesFinalExtraction(question1, mapStudy);
 		List<Alternative> alternativeY = questionDao.getAlternativesFinalExtraction(question2, mapStudy);
+		
+		if(articles.isEmpty()){
+			return map;
+		}
 		
 		for (Alternative x : alternativeX) {
 			HashMap<String, Long> v = new HashMap<String, Long>();
@@ -419,6 +443,11 @@ public class GraphicsController {
 //		User user = userInfo.getUser();
 		
 		List<Article> articles = articleDao.getArticlesFinalExtraction(mapStudy);
+		
+		if(articles.isEmpty()){
+			result.use(json());
+			return;
+		}
 		
 		HashMap<Integer, Double> sources = new HashMap<>();		
 //		Random rand = new Random();

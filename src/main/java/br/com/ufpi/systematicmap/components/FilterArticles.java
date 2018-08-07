@@ -1,7 +1,6 @@
 package br.com.ufpi.systematicmap.components;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,11 +18,10 @@ import br.com.ufpi.systematicmap.utils.Utils;
 public class FilterArticles {
 
 	private Map<String, String> regexList = new HashMap<>();
-	private List<Article> papers;// = new LinkedHashSet<>();
-	private boolean filterStatus = true;
+	private List<Article> papers;
 	private MapStudy mapStudy;
 	private ArticleDao articleDao;
-	
+
 	public FilterArticles(MapStudy mapStudy, List<Article> articles) {
 		super();
 		this.mapStudy = mapStudy;
@@ -31,7 +29,7 @@ public class FilterArticles {
 	}
 
 	private void generateListRegex() {
-		String[] termos = mapStudy.getRefinementParameters().getRegex().split(";");
+		String[] termos = mapStudy.getRefinementParameters().getRegex().trim().split(";");
 		for (String t : termos) {
 			if (t.length() > 1) {
 				String[] strings = t.split(":");
@@ -41,21 +39,25 @@ public class FilterArticles {
 	}
 
 	public boolean filter() {
-//		this.articleDao = articleDao;
-//		this.papers = mapStudy.getArticles();
-		
 		try {
-			int sumLimiar = mapStudy.getRefinementParameters().getLimiarTitle() + mapStudy.getRefinementParameters().getLimiarAbstract() + mapStudy.getRefinementParameters().getLimiarKeywords() + mapStudy.getRefinementParameters().getLimiarTotal();
-
-			if (mapStudy.getRefinementParameters().getFilterAuthor() || mapStudy.getRefinementParameters().getFilterAbstract() || mapStudy.getRefinementParameters().getFilterLevenshtein() || sumLimiar > 0) {
-				filterAll();
-			}
-
 			if (mapStudy.getRefinementParameters().getFilterLevenshtein()) {
-				calcTitleLevenshteinDistance(mapStudy.getRefinementParameters().getLevenshtein() == -1 ? 0 : mapStudy.getRefinementParameters().getLevenshtein());
+				calcTitleLevenshteinDistance(mapStudy.getRefinementParameters().getLevenshtein() <= 0 ? 0
+						: mapStudy.getRefinementParameters().getLevenshtein());
 			} else {
 				filterTitleEquals();
 			}
+			
+			int sumLimiar = mapStudy.getRefinementParameters().getLimiarTitle()
+					+ mapStudy.getRefinementParameters().getLimiarAbstract()
+					+ mapStudy.getRefinementParameters().getLimiarKeywords()
+					+ mapStudy.getRefinementParameters().getLimiarTotal();
+
+			if (mapStudy.getRefinementParameters().getFilterAuthor()
+					|| mapStudy.getRefinementParameters().getFilterAbstract()
+					|| mapStudy.getRefinementParameters().getFilterLevenshtein() || sumLimiar > 0) {
+				filterAll(sumLimiar);
+			}
+
 
 			return true;
 		} catch (Exception e) {
@@ -64,73 +66,81 @@ public class FilterArticles {
 		}
 	}
 
-	private void filterAll() {
-		int contaRefinados = 0;
+	private void filterAll(int sumLimiar) {
 		generateListRegex();
-		int sumLimiar = mapStudy.getRefinementParameters().getLimiarTitle() + mapStudy.getRefinementParameters().getLimiarAbstract() + mapStudy.getRefinementParameters().getLimiarKeywords() + mapStudy.getRefinementParameters().getLimiarTotal();
-
 		for (Article a : papers) {
 			Article article = articleDao.find(a.getId());
-			if (mapStudy.getRefinementParameters().getFilterAuthor() && article.getAuthor().equals("")) {
-				article.setClassification(ClassificationEnum.WITHOUT_AUTHORS);
-				article.setComment(article.getComment() + ClassificationEnum.WITHOUT_AUTHORS.toString());
-				article = articleDao.update(article);
-				continue;
-			}
-
-			if (mapStudy.getRefinementParameters().getFilterAbstract() && article.getAbstrct().equals("")) {
-				article.setClassification(ClassificationEnum.WITHOUT_ABSTRACT);
-				article.setComment(article.getComment() + ClassificationEnum.WITHOUT_ABSTRACT.toString());
-				article = articleDao.update(article);
-				continue;
-			}
-
-			if (sumLimiar > 0) {
-				Set<String> termos = new HashSet<>();
-
-				if (mapStudy.getRefinementParameters().getLimiarTotal() > 0) {
-					countRegex(article, FieldEnum.TITLE, mapStudy.getRefinementParameters().getLimiarTitle(), termos);
-					countRegex(article, FieldEnum.ABS, mapStudy.getRefinementParameters().getLimiarAbstract(), termos);
-					countRegex(article, FieldEnum.KEYS, mapStudy.getRefinementParameters().getLimiarKeywords(), termos);
-				} else {
-					if (mapStudy.getRefinementParameters().getLimiarTitle() > 0)
-						countRegex(article, FieldEnum.TITLE, mapStudy.getRefinementParameters().getLimiarTitle(), termos);
-					if (mapStudy.getRefinementParameters().getLimiarAbstract() > 0)
-						countRegex(article, FieldEnum.ABS, mapStudy.getRefinementParameters().getLimiarAbstract(), termos);
-					if (mapStudy.getRefinementParameters().getLimiarKeywords() > 0)
-						countRegex(article, FieldEnum.KEYS, mapStudy.getRefinementParameters().getLimiarKeywords(), termos);
+			if(article.getClassification() == null) {
+				if(filterAuthor(article)) continue;
+				if(filterAbstract(article)) continue;
+				if (sumLimiar > 0 && article.getClassification() == null) {
+					applyRegexFilter(article);
+					article.setScore(article.getRegexAbs() + article.getRegexKeys() + article.getRegexTitle());
+					classificationArticle(article);
 				}
-
-				// p.setScore(p.getRegexAbs() + p.getRegexKeys() + p.getRegexTitle())
-
-				article.setScore(article.getRegexAbs() + article.getRegexKeys() + article.getRegexTitle());
-
-				if (mapStudy.getRefinementParameters().getLimiarTotal() > 0) {
-					if (article.getScore() < mapStudy.getRefinementParameters().getLimiarTotal()) {
-						article.setClassification(ClassificationEnum.WORDS_DONT_MATCH);
-						article = articleDao.update(article);
-						contaRefinados++;
-					}
-				} else {
-					if (article.getRegexTitle() < mapStudy.getRefinementParameters().getLimiarTitle()) {
-						article.setClassification(ClassificationEnum.WORDS_DONT_MATCH);
-						article = articleDao.update(article);						
-					}
-					if (article.getRegexAbs() < mapStudy.getRefinementParameters().getLimiarAbstract()) {
-						article.setClassification(ClassificationEnum.WORDS_DONT_MATCH);
-						article = articleDao.update(article);						
-					}
-					if (article.getRegexKeys() < mapStudy.getRefinementParameters().getLimiarKeywords()) {
-						article.setClassification(ClassificationEnum.WORDS_DONT_MATCH);
-						article = articleDao.update(article);						
-					}
-				}
-
-				filterStatus = false;
 			}
 		}
+	}
+
+	private boolean filterAuthor(Article article) {
+		if (mapStudy.getRefinementParameters().getFilterAuthor() && (article.getAuthor() == null || article.getAuthor().trim().isEmpty())) {
+			article.setClassification(ClassificationEnum.WITHOUT_AUTHORS);
+			article.setInfos(article.getInfos() != null?article.getInfos():"" + ClassificationEnum.WITHOUT_AUTHORS.toString());
+			articleDao.update(article);
+			
+			return true;
+		}
 		
-		System.out.println("TOTAL REFINADOS: " + contaRefinados);
+		return false;
+	}
+	
+	private boolean filterAbstract(Article article) {
+		if (mapStudy.getRefinementParameters().getFilterAbstract() && (article.getAbstrct() == null || article.getAbstrct().trim().isEmpty())) {
+			article.setClassification(ClassificationEnum.WITHOUT_ABSTRACT);
+			article.setInfos(article.getInfos() != null?article.getInfos():"" + ClassificationEnum.WITHOUT_ABSTRACT.toString());
+			articleDao.update(article);
+			
+			return true;
+		}
+		
+		return false;
+	}
+
+	private void applyRegexFilter(Article article) {
+		if (mapStudy.getRefinementParameters().getLimiarTotal() > 0) {
+			countRegex(article, FieldEnum.TITLE);
+			countRegex(article, FieldEnum.ABS);
+			countRegex(article, FieldEnum.KEYS);
+		} else {
+			if (mapStudy.getRefinementParameters().getLimiarTitle() > 0)
+				countRegex(article, FieldEnum.TITLE);
+			if (mapStudy.getRefinementParameters().getLimiarAbstract() > 0)
+				countRegex(article, FieldEnum.ABS);
+			if (mapStudy.getRefinementParameters().getLimiarKeywords() > 0)
+				countRegex(article, FieldEnum.KEYS);
+		}
+	}
+
+	private void classificationArticle(Article article) {
+		if (mapStudy.getRefinementParameters().getLimiarTotal() > 0) {
+			if (article.getScore() < mapStudy.getRefinementParameters().getLimiarTotal()) {
+				article.setClassification(ClassificationEnum.WORDS_DONT_MATCH);
+				articleDao.update(article);
+			}
+		} else {
+			if (article.getRegexTitle() < mapStudy.getRefinementParameters().getLimiarTitle()) {
+				article.setClassification(ClassificationEnum.WORDS_DONT_MATCH);
+				articleDao.update(article);
+			}
+			if (article.getRegexAbs() < mapStudy.getRefinementParameters().getLimiarAbstract()) {
+				article.setClassification(ClassificationEnum.WORDS_DONT_MATCH);
+				articleDao.update(article);
+			}
+			if (article.getRegexKeys() < mapStudy.getRefinementParameters().getLimiarKeywords()) {
+				article.setClassification(ClassificationEnum.WORDS_DONT_MATCH);
+				articleDao.update(article);
+			}
+		}
 	}
 
 	public void filterTitleEquals() {
@@ -139,131 +149,20 @@ public class FilterArticles {
 			if (article1.getClassification() == null) {
 				for (Article p2 : papers) {
 					Article article2 = articleDao.find(p2.getId());
-					if (article1.getId() != article2.getId() && article2.getClassification() == null) {
-
-						if (article1.getTitle().replaceAll(" ", "").equalsIgnoreCase(article2.getTitle().replaceAll(" ", ""))) {
-
-							article2.setClassification(ClassificationEnum.REPEAT);
-							String comment = article1.getComment() != null ? article1.getComment() : "";
-							article2.setComment(comment + " " + ClassificationEnum.REPEAT.toString());
-							article2.setMinLevenshteinDistance(0);
-							article2.setPaperMinLevenshteinDistance(article1);
-							//
-							article1.setMinLevenshteinDistance(0);
-							article1.setPaperMinLevenshteinDistance(article2);
-							
-							article1 = articleDao.update(article1);
-							article2 = articleDao.update(article2);
-						}
-
+					if (article1.getId() != article2.getId() && article2.getClassification() == null && article1
+							.getTitle().equalsIgnoreCase(article2.getTitle())) {
+						article2.setClassification(ClassificationEnum.REPEAT);
+						String comment = article2.getInfos() != null ? article2.getInfos() : "";
+						article2.setInfos(comment + " " + ClassificationEnum.REPEAT.toString());
+						article2.setMinLevenshteinDistance(0);
+						article2.setPaperMinLevenshteinDistance(article1);
+						
+						articleDao.update(article2);
 					}
 				}
 			}
 
 		}
-	}
-
-	private int filterAuthors() {
-		int count = 0;
-		for (Article p : papers) {
-			if (p.getAuthor().equals("")) {
-				p.setClassification(ClassificationEnum.WITHOUT_AUTHORS);
-				p.setComment(p.getComment() + ClassificationEnum.WITHOUT_AUTHORS.toString());
-				// p.addComment(userInfo.getUser(), p.getComment(userInfo.getUser()) +
-				// ClassificationEnum.WITHOUT_AUTHORS.toString());
-				count++;
-			}
-		}
-		return count;
-	}
-
-	private int filterPatents() {
-		int count = 0;
-		for (Article p : papers) {
-			if (p.getAbstrct().equals("")) {
-				p.setClassification(ClassificationEnum.WITHOUT_ABSTRACT);
-				p.setComment(p.getComment() + ClassificationEnum.WITHOUT_ABSTRACT.toString());
-				// p.addComment(userInfo.getUser(), p.getComment(userInfo.getUser()) +
-				// ClassificationEnum.WITHOUT_ABSTRACT.toString());
-				count++;
-			}
-		}
-		return count;
-	}
-
-	private void filterRegex(int limiarTitle, int limiarAbs, int limiarKeys, int limiarTotal) {
-		for (Article p : papers) {
-			Set<String> termos = new HashSet<>();
-
-			termos = countRegexAntigo(p, FieldEnum.TITLE, limiarTitle, termos);
-			termos = countRegexAntigo(p, FieldEnum.ABS, limiarAbs, termos);
-			termos = countRegexAntigo(p, FieldEnum.KEYS, limiarKeys, termos);
-
-			// p.setScore(p.getRegexAbs() + p.getRegexKeys() + p.getRegexTitle())
-
-			if ((limiarAbs + limiarKeys + limiarTitle + limiarTotal) > 0) {
-				p.setScore(termos.size());
-			}
-
-			if (termos.size() < limiarTotal) {
-				p.setClassification(ClassificationEnum.WORDS_DONT_MATCH);
-			}
-		}
-	}
-
-	private Set<String> countRegexAntigo(Article p, FieldEnum fieldEnum, int limiar, Set<String> termos) {
-		String s = "";
-
-		if (fieldEnum.equals(FieldEnum.ABS)) {
-			s = p.getAbstrct();
-		} else if (fieldEnum.equals(FieldEnum.TITLE)) {
-			s = p.getTitle();
-		} else if (fieldEnum.equals(FieldEnum.KEYS)) {
-			s = p.getKeywords();
-		}
-
-		Pattern pattern;
-		Matcher regexMatcher;
-		String comment = "";
-		int count = 0;
-
-		if (s != null && !s.equals("")) {
-			Set<Entry<String, String>> set = regexList.entrySet();
-			for (Entry<String, String> entry : set) {
-				String regex = entry.getValue();
-				pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-				regexMatcher = pattern.matcher(s);
-
-				boolean containRegex = false;
-				while (regexMatcher.find()) {
-					containRegex = true;
-					// System.out.println(regexMatcher.group(1));
-				}
-
-				if (containRegex) {
-					termos.add(entry.getKey());
-					count++;
-				} else {
-					comment += entry.getKey() + ", ";
-				}
-			}
-		}
-
-		if (fieldEnum.equals(FieldEnum.ABS)) {
-			p.setRegexAbs(count);
-		} else if (fieldEnum.equals(FieldEnum.TITLE)) {
-			p.setRegexTitle(count);
-		} else if (fieldEnum.equals(FieldEnum.KEYS)) {
-			p.setRegexKeys(count);
-		}
-
-		if (count < limiar) {
-			p.setClassification(ClassificationEnum.WORDS_DONT_MATCH);
-//			p.setComments(p.getComments() + " " + ClassificationEnum.WORDS_DONT_MATCH.toString() + "-"
-//					+ fieldEnum.toString() + " DONT contains=(" + comment + ");");
-		}
-
-		return termos;
 	}
 
 	private void calcTitleLevenshteinDistance(int limiar) {
@@ -274,23 +173,19 @@ public class FilterArticles {
 					Article article2 = articleDao.find(p2.getId());
 					if (article.getId() != article2.getId() && article2.getClassification() == null) {
 
-						String titleArticleOne = article.getTitle().toLowerCase().replaceAll(" ", "");
-						String titleArticleTwo = article2.getTitle().toLowerCase().replaceAll(" ", "");
+						String titleArticleOne = article.getTitle().toLowerCase();
+						String titleArticleTwo = article2.getTitle().toLowerCase();
 						int dist = Utils.getLevenshteinDistance(titleArticleOne, titleArticleTwo);
 
 						if (dist <= limiar) {
 
 							article2.setClassification(ClassificationEnum.REPEAT);
-							String comment = article.getComment() != null ? article.getComment() : "";
-							article2.setComment(comment + " " + ClassificationEnum.REPEAT.toString());
+							String comment = article2.getInfos() != null ? article2.getInfos() : "";
+							article2.setInfos(comment + " " + ClassificationEnum.REPEAT.toString());
 							article2.setMinLevenshteinDistance(dist);
 							article2.setPaperMinLevenshteinDistance(article);
 
-							article.setMinLevenshteinDistance(dist);
-							article.setPaperMinLevenshteinDistance(article2);
-							
-							article = articleDao.update(article);
-							article2 = articleDao.update(article2);
+							articleDao.update(article2);
 						}
 					}
 				}
@@ -298,21 +193,16 @@ public class FilterArticles {
 		}
 	}
 
-	private void countRegex(Article article, FieldEnum fieldEnum, int limiar, Set<String> termos) {
-		String s = "";
-
-		if (fieldEnum.equals(FieldEnum.ABS)) {
-			s = article.getAbstrct();
-		} else if (fieldEnum.equals(FieldEnum.TITLE)) {
-			s = article.getTitle();
-		} else if (fieldEnum.equals(FieldEnum.KEYS)) {
-			s = article.getKeywords();
-		}
+	private void countRegex(Article article, FieldEnum fieldEnum) {
+		String s = fieldFilter(article, fieldEnum);
 
 		Pattern pattern;
 		Matcher regexMatcher;
-		 String comment = "";
+		String comment = "";
 		int count = 0;
+		
+		String foundTerms = "";
+		String notFoundTerms = "";
 
 		if (s != null && !s.equals("")) {
 			Set<Entry<String, String>> set = regexList.entrySet();
@@ -322,21 +212,29 @@ public class FilterArticles {
 				regexMatcher = pattern.matcher(s);
 
 				boolean containRegex = false;
+				
 				while (regexMatcher.find()) {
 					containRegex = true;
 				}
 
 				if (containRegex) {
-					// termos.add(entry.getKey());
-					comment += entry.getKey() + ", ";
+					foundTerms = foundTerms.concat(entry.getKey().concat(", "));
 					count++;
 				} else {
-//					 comment += entry.getKey() + ", ";
+					notFoundTerms = notFoundTerms.concat(entry.getKey().concat(", "));
 				}
 			}
 		}
 		
-		article.setComment(article.getComment() + comment);
+		if(!foundTerms.isEmpty()) {
+			comment = "TERMS FOUND = ".concat(foundTerms).concat("-");
+		}
+		
+		if(!foundTerms.isEmpty()) {
+			comment = comment.concat("TERMS NOT FOUND = ".concat(notFoundTerms));
+		}
+
+		article.setInfos(article.getInfos() != null?article.getInfos():"" + comment);
 
 		if (fieldEnum.equals(FieldEnum.ABS)) {
 			article.setRegexAbs(count);
@@ -345,40 +243,22 @@ public class FilterArticles {
 		} else if (fieldEnum.equals(FieldEnum.KEYS)) {
 			article.setRegexKeys(count);
 		}
-
-		// if (count < limiar) {
-		// article.setClassification(ClassificationEnum.WORDS_DONT_MATCH);
-		// article.setComment(article.getComment() + " " +
-		// ClassificationEnum.WORDS_DONT_MATCH.toString() + "-"
-		// + fieldEnum.toString() + " DONT contains=(" + comment + ");");
-		// p.addComment(userInfo.getUser(), p.getComment(userInfo.getUser())+"
-		// "+ClassificationEnum.WORDS_DONT_MATCH.toString()+"-"+fieldEnum.toString()+"
-		// DONT contains=("+comment+");");
-		// }
-
-		// return termos;
 	}
 
-	private int countPapers(ClassificationEnum ce) {
-		int count = 0;
-		for (Article paper : papers) {
-			if (paper.getClassification() != null && paper.getClassification().equals(ce)) {
-				count++;
-			}
+	private String fieldFilter(Article article, FieldEnum fieldEnum) {
+		if (fieldEnum.equals(FieldEnum.ABS)) {
+			return article.getAbstrct();
+		} else if (fieldEnum.equals(FieldEnum.TITLE)) {
+			return article.getTitle();
+		} else if (fieldEnum.equals(FieldEnum.KEYS)) {
+			return article.getKeywords();
 		}
-		return count;
+		
+		return "";
 	}
 
 	public List<Article> getPappers() {
 		return papers;
-	}
-
-	public boolean isFilterStatus() {
-		return filterStatus;
-	}
-
-	public void setFilterStatus(boolean filterStatus) {
-		this.filterStatus = filterStatus;
 	}
 
 	/**
@@ -389,7 +269,8 @@ public class FilterArticles {
 	}
 
 	/**
-	 * @param articleDao the articleDao to set
+	 * @param articleDao
+	 *            the articleDao to set
 	 */
 	public void setArticleDao(ArticleDao articleDao) {
 		this.articleDao = articleDao;
