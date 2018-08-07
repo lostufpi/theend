@@ -3,6 +3,7 @@ package br.com.ufpi.systematicmap.controller;
 import static br.com.caelum.vraptor.view.Results.json;
 import static java.util.Arrays.asList;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,7 +37,6 @@ import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.observer.download.Download;
 import br.com.caelum.vraptor.observer.download.DownloadBuilder;
 import br.com.caelum.vraptor.observer.download.FileDownload;
-import br.com.caelum.vraptor.observer.download.InputStreamDownload;
 import br.com.caelum.vraptor.observer.upload.UploadedFile;
 import br.com.caelum.vraptor.validator.Validator;
 import br.com.caelum.vraptor.view.Results;
@@ -68,8 +68,8 @@ import br.com.ufpi.systematicmap.model.enums.ClassificationEnum;
 import br.com.ufpi.systematicmap.model.enums.EvaluationStatusEnum;
 import br.com.ufpi.systematicmap.model.enums.QuestionType;
 import br.com.ufpi.systematicmap.model.enums.Roles;
-import br.com.ufpi.systematicmap.model.enums.TypeOfFile;
 import br.com.ufpi.systematicmap.model.enums.TypeMessage;
+import br.com.ufpi.systematicmap.model.enums.TypeOfFile;
 import br.com.ufpi.systematicmap.model.vo.ArticleCompareVO;
 import br.com.ufpi.systematicmap.model.vo.Percent;
 import br.com.ufpi.systematicmap.utils.BibtexToArticleUtils;
@@ -1100,14 +1100,18 @@ public class MapStudyController {
 			result.redirectTo(this).showEvaluates(mapStudyId);
 			return null;
 		} else {
-			String fileName = "Evaluations_" + mapStudyId + "_" + acceptanceType + Calendar.DAY_OF_MONTH
-					+ Calendar.MONTH + Calendar.YEAR + typeOfFile;
+			String fileName = "Evaluations_" + mapStudyId + "_" + acceptanceType + Calendar.getInstance().getTimeInMillis();
 			FileGenerator fileGenerator = new FileGenerator(fileName, acceptanceType, typeOfFile, mapStudy, articleDao,
 					userInfo.getUser(), logger);
 
 			FileDownload download;
+			File file = fileGenerator.getFinalFile();
 			try {
-				download = DownloadBuilder.of(fileGenerator.getFinalFile()).withFileName("arquivo"+ typeOfFile.getDescription()).withContentType("application/excel").downloadable().build();
+				if (file==null) {
+					result.redirectTo(this).showEvaluates(mapStudyId);
+					return null;
+				}
+				download = DownloadBuilder.of(file).withFileName(fileName + typeOfFile.getDescription()).withContentType("application/excel").downloadable().build();
 				return download;
 			} catch (FileNotFoundException e) {
 				logger.error(e.getMessage());
