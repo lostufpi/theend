@@ -1007,14 +1007,14 @@ public class MapStudyController {
 			result.redirectTo(this).show(studyMapId);
 		}
 
-		if (!mapStudy.isSupervisor(user)) {
-			if (evaluations.isEmpty()) {
-				MessagesController.addMessage(
-						new Mensagem("mapstudy.evaluations", "mapstudy.articles.not.evaluations", TypeMessage.ERROR));
-				result.redirectTo(this).show(studyMapId);
-			}
-
-		}
+//		if (!mapStudy.isSupervisor(user)) {
+//			if (evaluations.isEmpty()) {
+//				MessagesController.addMessage(
+//						new Mensagem("mapstudy.evaluations", "mapstudy.articles.not.evaluations", TypeMessage.ERROR));
+//				result.redirectTo(this).show(studyMapId);
+//			}
+//
+//		}
 
 		HashMap<InclusionCriteria, Integer> inclusionCriterias = new HashMap<InclusionCriteria, Integer>();
 		HashMap<ExclusionCriteria, Integer> exclusionCriterias = new HashMap<ExclusionCriteria, Integer>();
@@ -1148,7 +1148,7 @@ public class MapStudyController {
 			return;
 		}
 
-		Double percentEvaluatedDouble = mapStudy.percentEvaluatedDouble(articleDao, user);
+//		Double percentEvaluatedDouble = mapStudy.percentEvaluatedDouble(articleDao, user);
 		List<User> members = userDao.mapStudyUsers(mapStudy);
 
 		for (int i = 0; i < members.size(); i++) {
@@ -1157,14 +1157,14 @@ public class MapStudyController {
 			}
 		}
 
-		if (!mapStudy.isSupervisor(user)) {
-			if (percentEvaluatedDouble < 100) {
-				MessagesController
-						.addMessage(new Mensagem("mapstudy", "mapstudy.evaluations.compare.undone", TypeMessage.ERROR));
-				result.redirectTo(this).list();
-				return;
-			}
-		}
+//		if (!mapStudy.isSupervisor(user)) {
+//			if (percentEvaluatedDouble < 100) {
+//				MessagesController
+//						.addMessage(new Mensagem("mapstudy", "mapstudy.evaluations.compare.undone", TypeMessage.ERROR));
+//				result.redirectTo(this).list();
+//				return;
+//			}
+//		}
 
 		List<Article> articles = articleDao.getArticlesToEvaluate(mapStudy);
 
@@ -1227,7 +1227,7 @@ public class MapStudyController {
 		if (members.size() > 1) {
 			result.include("kappa", FleissKappa.combineKappas(articlesCompare, members));
 		} else {
-			result.include("kappa", 100.0f);
+			result.include("kappa", 1.0f);
 		}
 	}
 

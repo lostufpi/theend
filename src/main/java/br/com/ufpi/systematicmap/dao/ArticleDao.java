@@ -101,6 +101,14 @@ public class ArticleDao extends Dao<Article> {
 		return count;
 	}
 	
+	public List<Article> getArticlesFinalEvaluate(MapStudy mapStudy){
+		List<Article> articles = entityManager
+			.createQuery("select a from Article a where a.classification = null and a.finalEvaluation is not null and a.finalEvaluation <> :finalEvaluation and a.mapStudy = :mapStudy AND a.removed = false order by a.title asc", Article.class)
+				.setParameter("mapStudy", mapStudy).setParameter("finalEvaluation", EvaluationStatusEnum.NOT_EVALUATED)
+				.getResultList();
+		return articles;
+	}
+	
 	
 	/**
 	 * Conta quantos artigos não possuem avaliação final
