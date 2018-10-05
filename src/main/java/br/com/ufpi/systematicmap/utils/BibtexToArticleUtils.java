@@ -82,7 +82,7 @@ public class BibtexToArticleUtils {
 			year = remove(year);
 			article.setYear(Integer.parseInt(year));
 		} catch (Exception e) {
-			logger.warn("Article year: " + year + " --> " + title);
+//			logger.warn("Article year: " + year + " --> " + title);
 			article.setYear(0);
 		}
 		
@@ -137,6 +137,11 @@ public class BibtexToArticleUtils {
 			String key2 = getAttr(fields, new Key("key"));
 			key2 = remove(key2);
 			article.setKeywords(article.getKeywords() + key2);
+		}else if (sourceEnum.equals(ArticleSourceEnum.IEEE_EXPLORE)){
+			journal = getAttr(fields, new Key("booktitle"));
+			journal = remove(journal);
+			
+			article.setJournal(journal);
 		}
 		
 		return article;

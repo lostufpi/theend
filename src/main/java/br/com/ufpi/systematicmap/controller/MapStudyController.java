@@ -1005,14 +1005,14 @@ public class MapStudyController {
 			result.redirectTo(this).show(studyMapId);
 		}
 
-		if (!mapStudy.isSupervisor(user)) {
-			if (evaluations.size() < 0) {
-				MessagesController.addMessage(
-						new Mensagem("mapstudy.evaluations", "mapstudy.articles.not.evaluations", TypeMessage.ERROR));
-				result.redirectTo(this).show(studyMapId);
-			}
-
-		}
+//		if (!mapStudy.isSupervisor(user)) {
+//			if (evaluations.size() < 0) {
+//				MessagesController.addMessage(
+//						new Mensagem("mapstudy.evaluations", "mapstudy.articles.not.evaluations", TypeMessage.ERROR));
+//				result.redirectTo(this).show(studyMapId);
+//			}
+//
+//		}
 
 		HashMap<InclusionCriteria, Integer> inclusionCriterias = new HashMap<InclusionCriteria, Integer>();
 		HashMap<ExclusionCriteria, Integer> exclusionCriterias = new HashMap<ExclusionCriteria, Integer>();
@@ -1118,7 +1118,7 @@ public class MapStudyController {
 	@Get
 	public Download downloadAll(Long mapStudyId) throws IOException {
 		MapStudy mapStudy = mapStudyDao.find(mapStudyId);
-		List<Article> articles = articleDao.getArticlesFinalAccepted(mapStudy);
+		List<Article> articles = articleDao.getArticlesFinalEvaluate(mapStudy);
 
 		if (articles.size() < 0) {
 			MessagesController.addMessage(
@@ -1141,7 +1141,7 @@ public class MapStudyController {
 		// System.out.println("FILE TEMP: " + temp);
 
 		File file = new File(temp + filename);
-		String encoding = "ISO-8859-1";
+		String encoding = "UTF-8";
 		FileWriterWithEncoding writer = new FileWriterWithEncoding(file, encoding, false);
 
 		Collections.sort(articles, new Comparator<Article>() {
@@ -1158,40 +1158,38 @@ public class MapStudyController {
 		writer.append("Title" + delimiter);
 		writer.append("Author" + delimiter);
 		writer.append("Journal" + delimiter);
-		// writer.append("Year"+delimiter);
-		// writer.append("Pages"+delimiter);
-		writer.append("Doi" + delimiter);
-		// writer.append("URL"+delimiter);
 		writer.append("DocType" + delimiter);
 		writer.append("Source" + delimiter);
-		// writer.append("Language"+delimiter);
-		// writer.append("Abstract"+delimiter);
-		// writer.append("Keywords");
+		writer.append("Abstract" + delimiter);
+		writer.append("Keywords" + delimiter);
+		writer.append("regexTitle" + delimiter);
+		writer.append("regexKey" + delimiter);
+		writer.append("regexAbs" + delimiter);
+		writer.append("Score" + delimiter);
+		writer.append("finalEvaluate");
 		writer.append('\n');
 
 		for (Article a : articles) {
 			writer.append(a.getId() + delimiter);
-			String title = a.getTitle().replace('\n', ' ').replace(';', ' ');
+			String title = a.getTitle().replace("\n", ",").replace(';', ',');
 			writer.append(title + delimiter);
-			String author = a.getAuthor().replace('\n', ' ').replace(';', ' ');
+			String author = a.getAuthor().replace('\n', ',').replace(';', ',');
 			writer.append(author + delimiter);
 			String journal = a.getJournal();
-			journal = (journal != null ? journal.replace('\n', ' ').replace(';', ' ') : "");
+			journal = (journal != null ? journal.replace('\n', ',').replace(';', ','): "");
 			writer.append(journal + delimiter);
-			// writer.append(a.getJournal()+delimiter);
-			// writer.append(a.getYear()+delimiter);
-			// writer.append(a.getPages()+delimiter);
-			// writer.append(a.getDoi()+delimiter);
-			writer.append((a.getDoi() != null ? a.getDoi() : "") + delimiter);
-			// writer.append(a.getUrl()+delimiter);
-			// writer.append(a.getDocType()+delimiter);
-			writer.append((a.getDocType() != null ? a.getDocType() : "") + delimiter);
-			writer.append(a.sourceView(a.getSource()) + delimiter);
-			// writer.append(a.getLanguage()+delimiter);
-			// writer.append(a.getAbstrct()+delimiter);
-			// writer.append(a.getKeywords());
+			writer.append(a.getDocType() + delimiter);
+			writer.append(a.getSource() + delimiter);
+			writer.append(a.getAbstrct().replace('\n', ',').replace(';', ',') + delimiter);
+			writer.append(a.getKeywords() + delimiter);
+			writer.append(a.getRegexTitle() + delimiter);
+			writer.append(a.getRegexKeys() + delimiter);
+			writer.append(a.getRegexAbs() + delimiter);
+			writer.append(a.getScore() + delimiter);
+			writer.append(a.getFinalEvaluation().toString());
 			writer.append('\n');
 		}
+		
 		writer.flush();
 		writer.close();
 
@@ -1234,14 +1232,14 @@ public class MapStudyController {
 			}
 		}
 
-		if (!mapStudy.isSupervisor(user)) {
-			if (percentEvaluatedDouble < 100) {
-				MessagesController
-						.addMessage(new Mensagem("mapstudy", "mapstudy.evaluations.compare.undone", TypeMessage.ERROR));
-				result.redirectTo(this).list();
-				return;
-			}
-		}
+//		if (!mapStudy.isSupervisor(user)) {
+//			if (percentEvaluatedDouble < 100) {
+//				MessagesController
+//						.addMessage(new Mensagem("mapstudy", "mapstudy.evaluations.compare.undone", TypeMessage.ERROR));
+//				result.redirectTo(this).list();
+//				return;
+//			}
+//		}
 
 		List<Article> articles = articleDao.getArticlesToEvaluate(mapStudy);
 
@@ -1304,7 +1302,7 @@ public class MapStudyController {
 		if (members.size() > 1) {
 			result.include("kappa", FleissKappa.combineKappas(articlesCompare, members));
 		} else {
-			result.include("kappa", 100.0f);
+			result.include("kappa", 1.0f);
 		}
 	}
 

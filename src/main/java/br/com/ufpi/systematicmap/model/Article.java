@@ -678,6 +678,17 @@ public class Article implements Serializable {
 		}
 		return "";	
 	}
+	
+	public List<Comment> getComments() {
+		List<Comment> comments = new ArrayList<>();
+
+		for (EvaluationExtraction ev : evaluationExtractions) {
+			if(ev.getComment() != null && !ev.getComment().isEmpty())
+				comments.add(new Comment(ev.getUser(), ev.getComment()));
+		}
+		
+		return comments;
+	}
 
 	/**
 	 * @return the removed

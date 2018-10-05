@@ -542,7 +542,7 @@ var messages = function (type, category, text){
 <!-- 					Comentários -->
 					<p>
 						<strong><fmt:message key="mapstudy.article.comments"/>:</strong><br/>
-						<textarea class="form-control" id="comment" name="comment" rows="5" cols="">${article.getComments(userInfo.user.id)}</textarea>
+						<textarea class="form-control" id="comment" name="comment" rows="5" cols="">${article.getCommentsUser(userInfo.user.id)}</textarea>
 					</p>
 								
 					<button type="submit" id="submit" class="btn btn-large btn-primary buttonextraction">

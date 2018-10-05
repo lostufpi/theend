@@ -86,6 +86,14 @@ public class ArticleDao extends Dao<Article> {
 		return articles;
 	}
 	
+	public List<Article> getArticlesFinalEvaluate(MapStudy mapStudy){
+		List<Article> articles = entityManager
+			.createQuery("select a from Article a where a.classification = null and a.finalEvaluation is not null and a.finalEvaluation <> :finalEvaluation and a.mapStudy = :mapStudy AND a.removed = false order by a.title asc", Article.class)
+				.setParameter("mapStudy", mapStudy).setParameter("finalEvaluation", EvaluationStatusEnum.NOT_EVALUATED)
+				.getResultList();
+		return articles;
+	}
+	
 	public Long countArticlesFinalAccepted(MapStudy mapStudy){
 		Long count = -1l;
 		
@@ -238,7 +246,7 @@ public class ArticleDao extends Dao<Article> {
 	
 	public List<Article> getArticlesFinalExtraction(MapStudy mapStudy) {
 		List<Article> finalExtractions = entityManager
-				.createQuery("select distinct(e.article) from EvaluationExtractionFinal e where e.article.classification = null and e.article.finalEvaluation = :finalEvaluation and e.mapStudy = :mapStudy AND a.article.removed = false order by e.article.id asc", Article.class)
+				.createQuery("select distinct(e.article) from EvaluationExtractionFinal e where e.article.classification = null and e.article.finalEvaluation = :finalEvaluation and e.mapStudy = :mapStudy AND e.article.removed = false order by e.article.id asc", Article.class)
 					.setParameter("finalEvaluation", EvaluationStatusEnum.ACCEPTED)
 					.setParameter("mapStudy", mapStudy)
 					.getResultList();

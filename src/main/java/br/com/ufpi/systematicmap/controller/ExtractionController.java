@@ -329,7 +329,7 @@ public class ExtractionController {
 		if (!percentExtractedDouble.equals((Double) 100.0)) {
 			Long countArticlesToExtraction = articleDao.countArticleToEvaluateExtraction(user, mapStudy);
 			// se existe artigos para realizar extração entra
-			if (countArticlesToExtraction < 0l) {
+			if (countArticlesToExtraction <= 0l) {
 				MessagesController.addMessage(
 						new Mensagem("mapstudy", "mapstudy.is.not.article.to.extraction", TypeMessage.ERROR));
 				result.redirectTo(MapStudyController.class).show(mapid);
@@ -337,6 +337,7 @@ public class ExtractionController {
 			}
 
 		}
+		
 		result.redirectTo(this).evaluateExtraction(mapid, 0l);
 	}
 
@@ -605,7 +606,8 @@ public class ExtractionController {
 			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TypeMessage.INFORMATION));
 			result.redirectTo(MapStudyController.class).list();
 			return;
-		}
+		}		
+		
 		result.redirectTo(this).finalExtractionLoad(mapid, 0l);
 	}
 
@@ -640,8 +642,14 @@ public class ExtractionController {
 		}
 
 		if (article == null) {
-			article = articlesFinalExtracted.get(0);
+			article = articlesFinalExtracted.isEmpty() ? null : articlesFinalExtracted.get(0);
 			MessagesController.addMessage(new Mensagem("mapstudy.article", "mapstudy.extraction.final.articles.none", TypeMessage.INFORMATION));
+		}
+		
+		if(article == null){
+			MessagesController.addMessage(new Mensagem("mapstudy.article", "mapstudy.extraction.articles.none", TypeMessage.ERROR));
+			result.redirectTo(this).showExtractionEvaluates(mapid);
+			return;
 		}
 
 		List<User> members = userDao.mapStudyUsers(mapStudy);

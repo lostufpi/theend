@@ -8,6 +8,8 @@ public enum ArticleSourceEnum {
 	APA("American Psychological Association"),
 	SPELL("Spell"),
 	SCIELO("Scielo"),
+	CAB_DIRECT("CAB Direct"),
+	IEEE_EXPLORE("IEEE Xplore"),
 	OTHER("Outros"), 
 	MANUALLY("Manual");
 	

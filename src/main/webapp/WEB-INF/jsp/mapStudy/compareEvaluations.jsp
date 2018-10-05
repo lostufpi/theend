@@ -123,7 +123,7 @@
 			
 			<div class="form-group">
 				<div class="col-lg-4">
-					<input required="" type="text" class="form-control" id="articleId" name="articleId" placeholder="<fmt:message key="mapstudy.evaluations.articleid" />"/>
+					<input required="true" type="text" class="form-control" id="articleId" name="articleId" placeholder="<fmt:message key="mapstudy.evaluations.articleid" />"/>
 				</div>
 				
 				<div class="col-lg-6">
