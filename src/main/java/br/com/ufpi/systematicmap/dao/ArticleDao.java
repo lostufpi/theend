@@ -36,7 +36,7 @@ public class ArticleDao extends Dao<Article> {
 
 	public List<Article> getArticles(MapStudy mapStudy){
 		List<Article> articles = entityManager
-			.createQuery("select a from Article a where a.mapStudy = :mapStudy AND a.removed = false order by a.title asc", Article.class)
+			.createQuery("select a from Article a where a.mapStudy = :mapStudy AND a.removed = false order by a.id asc", Article.class)
 				.setParameter("mapStudy", mapStudy)
 				.getResultList();
 		return articles;
@@ -44,7 +44,7 @@ public class ArticleDao extends Dao<Article> {
 	
 	public List<Article> getArticlesToEvaluate(MapStudy mapStudy){
 		List<Article> articles = entityManager
-			.createQuery("select a from Article a where a.classification = null and a.mapStudy = :mapStudy AND a.removed = false order by a.title asc", Article.class)
+			.createQuery("select a from Article a where a.classification = null and a.mapStudy = :mapStudy AND a.removed = false order by a.id asc", Article.class)
 				.setParameter("mapStudy", mapStudy)
 				.getResultList();
 		return articles;
@@ -52,7 +52,7 @@ public class ArticleDao extends Dao<Article> {
 	
 	public List<Article> getArticlesToEvaluate(User user, MapStudy mapStudy){
 		List<Article> articles = entityManager
-			.createQuery("select a from Article a where a.classification = null and a.mapStudy = :mapStudy AND a.removed = false and a.id not in (select e.article.id from Evaluation e where e.user = :user and e.mapStudy = :mapStudy) order by a.title asc", Article.class)
+			.createQuery("select a from Article a where a.classification = null and a.mapStudy = :mapStudy AND a.removed = false and a.id not in (select e.article.id from Evaluation e where e.user = :user and e.mapStudy = :mapStudy) order by a.id asc", Article.class)
 				.setParameter("user", user)
 				.setParameter("mapStudy", mapStudy)
 				.getResultList();
@@ -70,7 +70,7 @@ public class ArticleDao extends Dao<Article> {
 	
 	public List<Article> getArticlesEvaluated(User user, MapStudy mapStudy){
 		List<Article> articles = entityManager
-			.createQuery("select a from Article a where a.classification = null and a.mapStudy = :mapStudy AND a.removed = false and a.id in (select e.article.id from Evaluation e where e.user = :user and e.mapStudy = :mapStudy) order by a.title asc", Article.class)
+			.createQuery("select a from Article a where a.classification = null and a.mapStudy = :mapStudy AND a.removed = false and a.id in (select e.article.id from Evaluation e where e.user = :user and e.mapStudy = :mapStudy) order by a.id asc", Article.class)
 				.setParameter("user", user)
 				.setParameter("mapStudy", mapStudy)
 				.getResultList();
@@ -79,17 +79,9 @@ public class ArticleDao extends Dao<Article> {
 	
 	public List<Article> getArticlesFinalAccepted(MapStudy mapStudy){
 		List<Article> articles = entityManager
-			.createQuery("select a from Article a where a.classification = null and a.finalEvaluation = :finalEvaluation and a.mapStudy = :mapStudy AND a.removed = false order by a.title asc", Article.class)
+			.createQuery("select a from Article a where a.classification = null and a.finalEvaluation = :finalEvaluation and a.mapStudy = :mapStudy AND a.removed = false order by a.id asc", Article.class)
 				.setParameter("mapStudy", mapStudy)
 				.setParameter("finalEvaluation", EvaluationStatusEnum.ACCEPTED)
-				.getResultList();
-		return articles;
-	}
-	
-	public List<Article> getArticlesFinalEvaluate(MapStudy mapStudy){
-		List<Article> articles = entityManager
-			.createQuery("select a from Article a where a.classification = null and a.finalEvaluation is not null and a.finalEvaluation <> :finalEvaluation and a.mapStudy = :mapStudy AND a.removed = false order by a.title asc", Article.class)
-				.setParameter("mapStudy", mapStudy).setParameter("finalEvaluation", EvaluationStatusEnum.NOT_EVALUATED)
 				.getResultList();
 		return articles;
 	}
@@ -199,7 +191,7 @@ public class ArticleDao extends Dao<Article> {
 
 	public List<Article> getArticlesToExtraction(User user, MapStudy mapStudy) {
 		List<Article> articles = entityManager
-				.createQuery("select a from Article a where a.classification = null and a.finalEvaluation = :finalEvaluation and a.mapStudy = :mapStudy AND a.removed = false and a.id not in (select e.article.id from EvaluationExtraction e where e.user = :user) order by a.title asc", Article.class)
+				.createQuery("select a from Article a where a.classification = null and a.finalEvaluation = :finalEvaluation and a.mapStudy = :mapStudy AND a.removed = false and a.id not in (select e.article.id from EvaluationExtraction e where e.user = :user) order by a.id asc", Article.class)
 					.setParameter("user", user)
 					.setParameter("mapStudy", mapStudy)
 					.setParameter("finalEvaluation", EvaluationStatusEnum.ACCEPTED)
