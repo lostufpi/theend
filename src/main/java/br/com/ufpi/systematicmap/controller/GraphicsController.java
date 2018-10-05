@@ -440,7 +440,6 @@ public class GraphicsController {
 	public void articlesYear(Long mapid){
 		MapStudy mapStudy = mapStudyDao.find(mapid);
 		mapStudyDao.refresh(mapStudy);
-//		User user = userInfo.getUser();
 		
 		List<Article> articles = articleDao.getArticlesFinalExtraction(mapStudy);
 		
@@ -450,12 +449,9 @@ public class GraphicsController {
 		}
 		
 		HashMap<Integer, Double> sources = new HashMap<>();		
-//		Random rand = new Random();
 		
 		for (Article article : articles) {
-//		for (int i = 0; i < 10; i++) {
 			Integer year = article.getYear();
-//			Integer year = rand.nextInt(1000);
 			
 			if (year == null){
 				year = -1;
