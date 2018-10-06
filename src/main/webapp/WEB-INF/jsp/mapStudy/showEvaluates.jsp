@@ -54,33 +54,44 @@
 						<%-- 						</c:if> --%>
 						<%-- 						<c:if test="${percentEvaluatedDouble < 100 && !mapStudy.isSupervisor(userInfo.user)}"><fmt:message key="mapstudy.evaluations.compare.undone"/></c:if> --%>
 					</dd>
-					<dt class="mydt">
-						<strong><fmt:message key="mapstudy.evaluations.export" />:</strong>
-					</dt>
-					<dd class="mydd">
-						<div class="container">
-							<form action="${linkTo[MapStudyController].fileDownloader}" method="post">
-							<input type="hidden" name="mapStudyId" value="${mapStudy.id}">
-								<div class="row">
-									<div class="col-md-3">
-										<select class="form-control" name="acceptanceType">
-											<c:forEach var="acceptanceType" items="${acceptances}">
-												<option value="${acceptanceType}">${acceptanceType.description}</option>
-											</c:forEach>
-										</select>
-									</div>
-									<div class="col-md-3">
-										<select class="form-control" name="typeOfFile">
-											<c:forEach var="typeOfFile" items="${fileTypes}">
-												<option value="${typeOfFile}">${typeOfFile.description}</option>
-											</c:forEach>
-										</select>
-									</div>
-								</div>
-								<button type="submit" class="btn btn-primary">Baixar</button>
-							</form>
+					<!-- 					<dt class="mydt"> -->
+					
+					<div style="float: left !important;">
+					<div class="row">
+						<div class="col-md-12" style="margin-bottom: 1%;">
+							<strong><fmt:message key="mapstudy.evaluations.export" />:</strong>
 						</div>
-					</dd>
+					</div>
+					<!-- 					</dt> -->
+<!-- 					<dd class="mydd"> -->
+						<!-- 						<div class="container"> -->
+					<form action="${linkTo[MapStudyController].fileDownloader}" method="post">
+						<input type="hidden" name="mapStudyId" value="${mapStudy.id}">
+						<div class="row">
+							<div class="col-md-4">
+								<select class="form-control" name="acceptanceType">
+									<c:forEach var="acceptanceType" items="${acceptances}">
+										<option value="${acceptanceType}">${acceptanceType.description}</option>
+									</c:forEach>
+								</select>
+							</div>
+							<div class="col-md-4">
+								<select class="form-control" name="typeOfFile">
+									<c:forEach var="typeOfFile" items="${fileTypes}">
+										<option value="${typeOfFile}">${typeOfFile.description}</option>
+									</c:forEach>
+								</select>
+							</div>
+
+							<div class="col-md-2">
+								<button type="submit" class="btn btn-primary">Baixar</button>
+
+							</div>
+						</div>
+					</form>
+					</div>
+					<!-- 						</div> -->
+<!-- 					</dd> -->
 				</dl>
 			</div>
 		</div>

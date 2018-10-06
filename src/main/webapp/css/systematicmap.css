@@ -14,7 +14,9 @@ body {
 
 .container_main{
 	background-color: #fff;
-    padding-top: 15px;
+    padding-top: 1%;
+    padding-left: 1%;
+    padding-right: 1%;
     box-shadow: 0 0 4px rgba(0,0,0,.15);
     border-radius: 0 0 5px 5px;
 }
