@@ -12,20 +12,20 @@ import br.com.ufpi.systematicmap.model.Article;
 import br.com.ufpi.systematicmap.model.MapStudy;
 import br.com.ufpi.systematicmap.model.Mensagem;
 import br.com.ufpi.systematicmap.model.User;
-import br.com.ufpi.systematicmap.model.enums.AcceptanceType;
+import br.com.ufpi.systematicmap.model.enums.DownloadArticleType;
 import br.com.ufpi.systematicmap.model.enums.TypeMessage;
 import br.com.ufpi.systematicmap.model.enums.TypeOfFile;
 
 public class FileGenerator {
 	private String fileName;
-	private AcceptanceType acceptanceType;
+	private DownloadArticleType acceptanceType;
 	private TypeOfFile typeOfFile;
 	private MapStudy mapStudy;
 	private ArticleDao articleDao;
 	private User user;
 	private Logger logger;
 
-	public FileGenerator(String fileName, AcceptanceType acceptanceType, TypeOfFile typeOfFile, MapStudy mapStudy,
+	public FileGenerator(String fileName, DownloadArticleType acceptanceType, TypeOfFile typeOfFile, MapStudy mapStudy,
 			ArticleDao articleDao2, User user, Logger logger) {
 		this.user = user;
 		this.fileName = fileName;
@@ -37,9 +37,9 @@ public class FileGenerator {
 	}
 
 	public File getFinalFile() {
- 		if (acceptanceType.equals(AcceptanceType.MY_ACCEPTACES))
+ 		if (acceptanceType.equals(DownloadArticleType.MY_ACCEPTACES))
  			return myAcceptances(logger);
-		else if (acceptanceType.equals(AcceptanceType.ALL_ACCEPTANCES))
+		else if (acceptanceType.equals(DownloadArticleType.ALL_ACCEPTANCES))
 			return allAcceptances(logger);
 		else
 			return null;

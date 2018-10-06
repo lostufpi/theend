@@ -70,8 +70,8 @@
 						<div class="row">
 							<div class="col-md-4">
 								<select class="form-control" name="acceptanceType">
-									<c:forEach var="acceptanceType" items="${acceptances}">
-										<option value="${acceptanceType}">${acceptanceType.description}</option>
+									<c:forEach var=typeOfDown" items="${typesDownload}">
+										<option value="${typeOfDown}">${typeOfDown.description}</option>
 									</c:forEach>
 								</select>
 							</div>

@@ -62,7 +62,7 @@ import br.com.ufpi.systematicmap.model.RefinementParameters;
 import br.com.ufpi.systematicmap.model.ResearchQuestion;
 import br.com.ufpi.systematicmap.model.SearchString;
 import br.com.ufpi.systematicmap.model.User;
-import br.com.ufpi.systematicmap.model.enums.AcceptanceType;
+import br.com.ufpi.systematicmap.model.enums.DownloadArticleType;
 import br.com.ufpi.systematicmap.model.enums.ArticleSourceEnum;
 import br.com.ufpi.systematicmap.model.enums.ClassificationEnum;
 import br.com.ufpi.systematicmap.model.enums.EvaluationStatusEnum;
@@ -1089,11 +1089,11 @@ public class MapStudyController {
 		result.include("countWithoutClassification", countWithoutClassification);
 		result.include("countClassified", countClassified);
 		
-		result.include("acceptances", asList(AcceptanceType.values()));
+		result.include("typesDownload", asList(DownloadArticleType.values()));
 		result.include("fileTypes", asList(TypeOfFile.values()));
 	}
 
-	public Download fileDownloader(Long mapStudyId, AcceptanceType acceptanceType, TypeOfFile typeOfFile) {
+	public Download fileDownloader(Long mapStudyId, DownloadArticleType acceptanceType, TypeOfFile typeOfFile) {
 		MapStudy mapStudy = mapStudyDao.find(mapStudyId);
 		if (mapStudy == null) {
 			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
