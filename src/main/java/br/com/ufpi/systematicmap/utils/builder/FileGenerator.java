@@ -13,76 +13,81 @@ import br.com.ufpi.systematicmap.model.MapStudy;
 import br.com.ufpi.systematicmap.model.Mensagem;
 import br.com.ufpi.systematicmap.model.User;
 import br.com.ufpi.systematicmap.model.enums.DownloadArticleType;
+import br.com.ufpi.systematicmap.model.enums.EvaluationStatusEnum;
 import br.com.ufpi.systematicmap.model.enums.TypeMessage;
 import br.com.ufpi.systematicmap.model.enums.TypeOfFile;
 
 public class FileGenerator {
 	private String fileName;
-	private DownloadArticleType acceptanceType;
+	private DownloadArticleType typeOfDown;
 	private TypeOfFile typeOfFile;
 	private MapStudy mapStudy;
 	private ArticleDao articleDao;
 	private User user;
 	private Logger logger;
 
-	public FileGenerator(String fileName, DownloadArticleType acceptanceType, TypeOfFile typeOfFile, MapStudy mapStudy,
+	public FileGenerator(String fileName, DownloadArticleType typeOfDown, TypeOfFile typeOfFile, MapStudy mapStudy,
 			ArticleDao articleDao2, User user, Logger logger) {
 		this.user = user;
 		this.fileName = fileName;
-		this.acceptanceType=acceptanceType;
-		this.typeOfFile=typeOfFile;
+		this.typeOfDown = typeOfDown;
+		this.typeOfFile = typeOfFile;
 		this.mapStudy = mapStudy;
 		this.articleDao = articleDao2;
-		this.logger=logger;
+		this.logger = logger;
 	}
 
 	public File getFinalFile() {
- 		if (acceptanceType.equals(DownloadArticleType.MY_ACCEPTACES))
- 			return myAcceptances(logger);
-		else if (acceptanceType.equals(DownloadArticleType.ALL_ACCEPTANCES))
-			return allAcceptances(logger);
-		else
-			return null;
-	}
-
-	private File allAcceptances(Logger logguer) {
-		List<Article> articles = articleDao.getArticlesFinalAccepted(mapStudy);
+		List<Article> articles = articlesList();
+				
 		if (articles.isEmpty()) {
-			MessagesController.addMessage(
-					new Mensagem("mapstudy.articles", "mapstudy.articles.accepted.all.none", TypeMessage.ERROR));
+			MessagesController.addMessage(new Mensagem("mapstudy.articles", "mapstudy.articles.list.none", TypeMessage.ERROR));
 			return null;
 		} else {
 			try {
-				return finalGenerator(articles,logguer);
-			} catch (IOException e) {
-				logguer.error(e.getMessage());
-			}
-			return null;
-		}
-
-	}
-
-	private File myAcceptances(Logger logguer) {
-		List<Article> articles = articleDao.getArticlesEvaluated(user, mapStudy);
-		if (articles.isEmpty()) {
-			MessagesController.addMessage(
-					new Mensagem("mapstudy.articles", "mapstudy.articles.evaluated.none", TypeMessage.ERROR));
-			return null;
-		} else {
-			try {
-				return finalGenerator(articles, logguer);
+				return finalGenerator(articles);
 			} catch (IOException ioException) {
-				logguer.error(ioException.getMessage());
+				logger.error(ioException.getMessage());
 			}
 		}
 		return null;
 	}
 
-	public File finalGenerator(List<Article> articles, Logger logguer) throws IOException {
+	private List<Article> articlesList() {
+		List<Article> articles = null;
+
+		if (typeOfDown.equals(DownloadArticleType.MY_ACCEPTACES)) {
+			articles = articleDao.getArticlesEvaluated(user, mapStudy, EvaluationStatusEnum.ACCEPTED);
+		} else if (typeOfDown.equals(DownloadArticleType.MY_REJECTED)) {
+			articles = articleDao.getArticlesEvaluated(user, mapStudy, EvaluationStatusEnum.REJECTED);
+		} else if (typeOfDown.equals(DownloadArticleType.MY_ALL)) {
+			articles = articleDao.getArticlesEvaluated(user, mapStudy);
+		} else if (typeOfDown.equals(DownloadArticleType.ALL_ACCEPTANCES)) {
+			articles = articleDao.getArticlesFinalEvaluate(mapStudy, EvaluationStatusEnum.ACCEPTED);
+		} else if (typeOfDown.equals(DownloadArticleType.ALL_REJECTED)) {
+			articles = articleDao.getArticlesFinalEvaluate(mapStudy, EvaluationStatusEnum.REJECTED);
+		} else if (typeOfDown.equals(DownloadArticleType.ALL_EVALUATED)) {
+			articles = articleDao.getArticlesFinalEvaluate(mapStudy);
+		} else if (typeOfDown.equals(DownloadArticleType.ALL)) {
+			articles = articleDao.getArticles(mapStudy);
+		}
+
+		return articles;
+	}
+
+	public File finalGenerator(List<Article> articles) throws IOException {
 		if (typeOfFile.equals(TypeOfFile.XLS))
-			return XLSBuilder.generateFile(articles, fileName, logguer);
+			return XLSBuilder.generateFile(articles, fileName, logger, isDownloadMy());
 		else if (typeOfFile.equals(TypeOfFile.CSV))
-			return CSVBuilder.generateFile(articles, fileName);
+			return CSVBuilder.generateFile(articles, fileName, isDownloadMy());
+		return null;
+	}
+	
+	public User isDownloadMy(){
+		if(typeOfDown.equals(DownloadArticleType.MY_ACCEPTACES) || typeOfDown.equals(DownloadArticleType.MY_REJECTED) || typeOfDown.equals(DownloadArticleType.MY_ALL)){
+			return user;
+		}
+		
 		return null;
 	}
 }

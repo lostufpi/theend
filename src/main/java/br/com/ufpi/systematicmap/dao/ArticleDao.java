@@ -1,5 +1,6 @@
 package br.com.ufpi.systematicmap.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
@@ -61,7 +62,7 @@ public class ArticleDao extends Dao<Article> {
 	
 //	public Article getArticlesToEvaluate(User user, Long articleid){
 //		Article article = entityManager
-//			.createQuery("select a from Article a where a.classification = null  and a.id = :articleid and a.id not in (select e.article.id from Evaluation e where e.user = :user) order by a.title asc", Article.class)
+//			.createQuery("select a from Article a where a.classification = null  and a.id = :articleid and a.id not in (select e.article.id from Evaluation e where e.user = :user) order by a.id asc", Article.class)
 //				.setParameter("user", user)
 //				.setParameter("articleid", articleid)
 //				.getSingleResult();
@@ -75,6 +76,28 @@ public class ArticleDao extends Dao<Article> {
 				.setParameter("mapStudy", mapStudy)
 				.getResultList();
 		return articles;
+	}
+	
+	public List<Article> getArticlesEvaluated(User user, MapStudy mapStudy, EvaluationStatusEnum evaluation){
+		List<Article> articlesEvaluations = new ArrayList<>();
+		
+		List<Article> articles = entityManager
+			.createQuery("select a from Article a where a.classification = null and a.mapStudy = :mapStudy AND a.removed = false and a.id in (select e.article.id from Evaluation e where e.user = :user and e.mapStudy = :mapStudy) order by a.id asc", Article.class)
+				.setParameter("user", user)
+				.setParameter("mapStudy", mapStudy)
+				.getResultList();
+		
+		for (Article a : articles){
+			if(evaluation.equals(EvaluationStatusEnum.ACCEPTED) && a.getEvaluationClassification(user).equals(EvaluationStatusEnum.ACCEPTED.getDescription())){
+				articlesEvaluations.add(a);
+			}else if(evaluation.equals(EvaluationStatusEnum.REJECTED) && a.getEvaluationClassification(user).equals(EvaluationStatusEnum.REJECTED.getDescription())){
+				articlesEvaluations.add(a);
+			}else if(evaluation.equals(EvaluationStatusEnum.NOT_EVALUATED) && a.getEvaluationClassification(user).equals(EvaluationStatusEnum.NOT_EVALUATED.getDescription())){
+				articlesEvaluations.add(a);
+			}		
+		}
+		
+		return articlesEvaluations;
 	}
 	
 	public List<Article> getArticlesFinalAccepted(MapStudy mapStudy){
@@ -103,7 +126,7 @@ public class ArticleDao extends Dao<Article> {
 	
 	public List<Article> getArticlesFinalEvaluate(MapStudy mapStudy){
 		List<Article> articles = entityManager
-			.createQuery("select a from Article a where a.classification = null and a.finalEvaluation is not null and a.finalEvaluation <> :finalEvaluation and a.mapStudy = :mapStudy AND a.removed = false order by a.title asc", Article.class)
+			.createQuery("select a from Article a where a.classification is null and a.finalEvaluation is not null and a.finalEvaluation <> :finalEvaluation and a.mapStudy = :mapStudy AND a.removed = false order by a.id asc", Article.class)
 				.setParameter("mapStudy", mapStudy).setParameter("finalEvaluation", EvaluationStatusEnum.NOT_EVALUATED)
 				.getResultList();
 		return articles;
@@ -260,4 +283,13 @@ public class ArticleDao extends Dao<Article> {
 	public void remove(Long articleId) {
 		entityManager.createQuery("UPDATE Article a SET a.removed = true  WHERE a.id :articleId").setParameter("articleId", articleId).executeUpdate();
 	}
+
+	public List<Article> getArticlesFinalEvaluate(MapStudy mapStudy, EvaluationStatusEnum evaluation) {
+		List<Article> articles = entityManager
+				.createQuery("select a from Article a where a.classification is null and a.finalEvaluation = :finalEvaluation and a.mapStudy = :mapStudy AND a.removed = false order by a.id asc", Article.class)
+					.setParameter("mapStudy", mapStudy).setParameter("finalEvaluation", evaluation)
+					.getResultList();
+			return articles;
+	}
+	
 }

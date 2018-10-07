@@ -56,7 +56,6 @@
 					</dd>
 					<!-- 					<dt class="mydt"> -->
 					
-					<div style="float: left !important;">
 					<div class="row">
 						<div class="col-md-12" style="margin-bottom: 1%;">
 							<strong><fmt:message key="mapstudy.evaluations.export" />:</strong>
@@ -69,8 +68,8 @@
 						<input type="hidden" name="mapStudyId" value="${mapStudy.id}">
 						<div class="row">
 							<div class="col-md-4">
-								<select class="form-control" name="acceptanceType">
-									<c:forEach var=typeOfDown" items="${typesDownload}">
+								<select class="form-control" name="typeOfDown">
+									<c:forEach var="typeOfDown" items="${typesDownload}">
 										<option value="${typeOfDown}">${typeOfDown.description}</option>
 									</c:forEach>
 								</select>
@@ -89,7 +88,6 @@
 							</div>
 						</div>
 					</form>
-					</div>
 					<!-- 						</div> -->
 <!-- 					</dd> -->
 				</dl>

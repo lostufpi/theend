@@ -1093,25 +1093,28 @@ public class MapStudyController {
 		result.include("fileTypes", asList(TypeOfFile.values()));
 	}
 
-	public Download fileDownloader(Long mapStudyId, DownloadArticleType acceptanceType, TypeOfFile typeOfFile) {
+	public Download fileDownloader(Long mapStudyId, DownloadArticleType typeOfDown, TypeOfFile typeOfFile) {
 		MapStudy mapStudy = mapStudyDao.find(mapStudyId);
 		if (mapStudy == null) {
 			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
 			result.redirectTo(this).showEvaluates(mapStudyId);
 			return null;
 		} else {
-			String fileName = "Evaluations_" + mapStudyId + "_" + acceptanceType + Calendar.getInstance().getTimeInMillis();
-			FileGenerator fileGenerator = new FileGenerator(fileName, acceptanceType, typeOfFile, mapStudy, articleDao,
+			String fileName = "Evaluations_" + mapStudyId + "_" + typeOfDown + Calendar.getInstance().getTimeInMillis();
+			FileGenerator fileGenerator = new FileGenerator(fileName, typeOfDown, typeOfFile, mapStudy, articleDao,
 					userInfo.getUser(), logger);
 
 			FileDownload download;
 			File file = fileGenerator.getFinalFile();
+			
 			try {
 				if (file==null) {
 					result.redirectTo(this).showEvaluates(mapStudyId);
 					return null;
 				}
+				
 				download = DownloadBuilder.of(file).withFileName(fileName + typeOfFile.getDescription()).withContentType("application/excel").downloadable().build();
+				
 				return download;
 			} catch (FileNotFoundException e) {
 				logger.error(e.getMessage());

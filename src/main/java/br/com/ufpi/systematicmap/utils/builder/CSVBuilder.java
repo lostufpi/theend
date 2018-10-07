@@ -7,10 +7,11 @@ import java.util.List;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 
 import br.com.ufpi.systematicmap.model.Article;
+import br.com.ufpi.systematicmap.model.User;
 
 public class CSVBuilder {
 
-	public static File generateFile(List<Article> articles, String fileName) throws IOException {
+	public static File generateFile(List<Article> articles, String fileName, User user) throws IOException {
 
 		String temp = System.getProperty("java.io.tmpdir");
 
@@ -28,17 +29,19 @@ public class CSVBuilder {
 		writer.append("Doi" + delimiter);
 		writer.append("DocType" + delimiter);
 		writer.append("Source" + delimiter);
+		writer.append("Classification" + delimiter);
+		writer.append("Evaluation" + delimiter);
 		writer.append('\n');
 
 		for (Article a : articles) {
-			lineGeneratorCsv(writer, delimiter, a);
+			lineGeneratorCsv(writer, delimiter, a, user);
 		}
 		writer.flush();
 		writer.close();
 		return file;
 	}
 
-	private static void lineGeneratorCsv(FileWriterWithEncoding writer, String delimiter, Article a)
+	private static void lineGeneratorCsv(FileWriterWithEncoding writer, String delimiter, Article a, User user)
 			throws IOException {
 		writer.append(a.getId() + delimiter);
 		String title = a.getTitle().replace('\n', ' ').replace(';', ' ');
@@ -51,6 +54,16 @@ public class CSVBuilder {
 		writer.append((a.getDoi() != null ? a.getDoi() : "") + delimiter);
 		writer.append((a.getDocType() != null ? a.getDocType() : "") + delimiter);
 		writer.append(a.sourceView(a.getSource()) + delimiter);
+		
+		writer.append((a.getClassification() != null ? a.getClassification().getDescription() : "") + delimiter);
+		
+		if(user != null){
+			String evaluationClassification = a.getEvaluationClassification(user);
+			writer.append(evaluationClassification != null ? evaluationClassification : ""+ delimiter);
+		}else{
+			writer.append(a.getFinalEvaluation() != null ? a.getFinalEvaluation().getDescription() : "" + delimiter);
+		}
+		
 		writer.append('\n');
 	}
 
