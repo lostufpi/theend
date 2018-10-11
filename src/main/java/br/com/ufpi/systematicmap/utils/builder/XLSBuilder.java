@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 
 import br.com.ufpi.systematicmap.model.Article;
 import br.com.ufpi.systematicmap.model.User;
-import br.com.ufpi.systematicmap.model.enums.ClassificationEnum;
 import br.com.ufpi.systematicmap.model.enums.EvaluationStatusEnum;
 
 public class XLSBuilder {
@@ -56,7 +55,7 @@ public class XLSBuilder {
 	}
 
 	private static void resizeColumns(HSSFSheet table) {
-		for (int counter = 0; counter < 7; counter++) {
+		for (int counter = 0; counter < 9; counter++) {
 			table.autoSizeColumn(counter);
 		}
 	}
