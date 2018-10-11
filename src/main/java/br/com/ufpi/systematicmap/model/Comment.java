@@ -3,12 +3,16 @@
  */
 package br.com.ufpi.systematicmap.model;
 
+import java.io.Serializable;
+
 /**
  * @author Gleison Andrade
  *
  */
 //@Entity
-public class Comment {
+public class Comment implements Serializable{
+
+	private static final long serialVersionUID = 1;
 	private User user;
 	private String value;
 	
