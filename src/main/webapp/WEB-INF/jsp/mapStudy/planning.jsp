@@ -630,6 +630,12 @@
 
 	        $BOX_PANEL.remove();
 	    });
+
+		// Captura seleção de tipo
+		$(document).on('change', '.selection-algorithm', function() {
+			isLogado();
+
+		});
 	    
 // 	    $("#form-add-subquestion-extraction").validate({ 
 //             rules: {
@@ -681,6 +687,7 @@
   <li role="presentation" class="mynav" id="string"><a href="#" ><fmt:message key="mapstudy.search.string" /></a></li>
   <li role="presentation" class="mynav" id="criterias"><a href="#" ><fmt:message key="mapstudy.inclusion.and.exclusion.criterias" /></a></li>
   <li role="presentation" class="mynav" id="extraction"><a href="#" ><fmt:message key="mapstudy.form" /></a></li>
+  <li role="presentation" class="mynav" id="automaticselection"><a href="#" ><fmt:message key="mapstudy.automaticselection" /></a></li>
 </ul>
 
 <p>
@@ -1027,4 +1034,121 @@
 				</div>
 			</div>
 		</div>
+</div>
+
+<!-- Configuração de Seleção Semiautomática -->
+<div id="divautomaticselection" class="hide">
+	<form action="#" method="post" id="form-add-algorithm">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<b><fmt:message key="mapstudy.automaticselection" /></b>
+			</div>
+			<!-- /.panel-heading -->
+			<div class="panel-body">
+				<input type="hidden" name="mapid" id="mapid" value="${map.id}" />
+				<div class="form-group">
+					<div class="row">
+						<div class="col-sm-12">
+							<label for="algorith-type" class=""><fmt:message
+									key="mapstudy.learningConfiguration.algorithm" /></label> <select
+								class="form-control selection-algorithm" name="type"
+								id="algorith-type">
+								<c:forEach var="algorithm" items="${algorithms}">
+									<option value="${algorithm}">${algorithm.name}</option>
+								</c:forEach>
+							</select>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-12">
+							<label for="numberArtclesValidation" class=""><fmt:message
+									key="mapstudy.learningConfiguration.numberArtclesValidation" /></label><br />
+							<input type="number" name="numberArtclesValidation"
+								id="numberArtclesValidation"
+								value="${learningConfiguration.numberArtclesValidation}" />
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-12">
+									<input
+								type="checkbox" name="useResearcher"
+								value="${learningConfiguration.useResearcher}" />
+							<label for="useResearcher" class=""><fmt:message
+									key="mapstudy.learningConfiguration.useResearcher" /></label> 
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-12">
+									<input
+								type="checkbox" name="showSelection"
+								value="${learningConfiguration.showSelection}" />
+							<label for="showSelection" class=""><fmt:message
+									key="mapstudy.learningConfiguration.showSelection" /></label> 
+						</div>
+					</div>
+					<div class="row">
+						<button type="submit" id="button-save-algorithm" class="btn btn-large btn-primary" style="margin-left: 2% !impoartant;">
+							<fmt:message key="add" />
+						</button>
+					</div>
+					<div class="clear-both"></div>
+				</div>
+			</div>
+			</div>
+
+		
+<!-- 		Painel de informações do algoritmo selecionado -->
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<b><fmt:message key="mapstudy.learningStats" /> - ${learningStats.algorithm} </b>
+			</div>
+			<!-- /.panel-heading -->
+			<div class="panel-body">
+<!-- 				<div class="row"> -->
+<!-- 					<div class="col-sm-12"> -->
+						<p>
+							<strong><fmt:message key="mapstudy.learningStats.numberarticles" />:</strong> ${learningStats.numberarticles}
+						<p>
+						
+						<p>
+							<strong><fmt:message key="mapstudy.learningStats.numberArticlesAccepted" />:</strong> ${learningStats.numberArticlesAccepted}
+						<p>
+						
+						<p>
+							<strong><fmt:message key="mapstudy.learningStats.numberArticlesRejected" />:</strong> ${learningStats.numberArticlesRejected}
+						<p>
+						
+						<p>
+							<strong><fmt:message key="mapstudy.learningStats.wss" />:</strong> ${learningStats.wss}
+						<p>
+						
+						<p>
+							<strong><fmt:message key="mapstudy.learningStats.recall" />:</strong> ${learningStats.recall}
+						<p>
+						
+						<p>
+							<strong><fmt:message key="mapstudy.learningStats.accuracy" />:</strong> ${learningStats.accuracy}
+						<p>
+						
+						<p>
+							<strong><fmt:message key="mapstudy.learningStats.error" />:</strong> ${learningStats.error}
+						<p>
+						
+						<p>
+							<strong><fmt:message key="mapstudy.learningStats.rocArea" />:</strong> ${learningStats.rocArea}
+						<p>
+						
+						<p>
+							<strong><fmt:message key="mapstudy.learningStats.fMeasure" />:</strong> ${learningStats.fMeasure}
+						<p>
+						
+						<p>
+							<strong><fmt:message key="mapstudy.learningStats.numberArticlesTraining" />:</strong> ${learningStats.numberArticlesTraining}
+						<p>
+<!-- 					</div> -->
+<!-- 				</div> -->
+			</div>
+		</div>
+
+	</form>
 </div>

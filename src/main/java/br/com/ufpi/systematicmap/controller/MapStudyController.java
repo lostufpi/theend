@@ -6,6 +6,7 @@ import static java.util.Arrays.asList;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -51,6 +52,9 @@ import br.com.ufpi.systematicmap.dao.SearchStringDao;
 import br.com.ufpi.systematicmap.dao.UserDao;
 import br.com.ufpi.systematicmap.files.FilesUtils;
 import br.com.ufpi.systematicmap.interceptor.UserInfo;
+import br.com.ufpi.systematicmap.learn.model.LearningAlgorithms;
+import br.com.ufpi.systematicmap.learn.model.LearningConfiguration;
+import br.com.ufpi.systematicmap.learn.model.LearningStats;
 import br.com.ufpi.systematicmap.model.Article;
 import br.com.ufpi.systematicmap.model.Evaluation;
 import br.com.ufpi.systematicmap.model.ExclusionCriteria;
@@ -62,9 +66,9 @@ import br.com.ufpi.systematicmap.model.RefinementParameters;
 import br.com.ufpi.systematicmap.model.ResearchQuestion;
 import br.com.ufpi.systematicmap.model.SearchString;
 import br.com.ufpi.systematicmap.model.User;
-import br.com.ufpi.systematicmap.model.enums.DownloadArticleType;
 import br.com.ufpi.systematicmap.model.enums.ArticleSourceEnum;
 import br.com.ufpi.systematicmap.model.enums.ClassificationEnum;
+import br.com.ufpi.systematicmap.model.enums.DownloadArticleType;
 import br.com.ufpi.systematicmap.model.enums.EvaluationStatusEnum;
 import br.com.ufpi.systematicmap.model.enums.QuestionType;
 import br.com.ufpi.systematicmap.model.enums.Roles;
@@ -81,7 +85,12 @@ import br.com.ufpi.systematicmap.utils.builder.FileGenerator;
 import br.com.ufpi.systematicmap.utils.service.TaskService;
 
 @Controller
-public class MapStudyController {
+public class MapStudyController implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private static final int MINIMUM_REFINED_ARTICLES_TASK = 1000;
 	private static final String MAPSTUDY_IS_NOT_EXIST = "mapstudy.is.not.exist";
@@ -586,6 +595,7 @@ public class MapStudyController {
 			result.redirectTo(this).show(id);
 		}else {
 			FilterArticles filter = new FilterArticles(mapStudy, articles);
+			filter.setArticleDao(articleDao);
 			boolean filterStatus = filter.filter();
 			
 			if(filterStatus) {
@@ -1118,7 +1128,6 @@ public class MapStudyController {
 				return download;
 			} catch (FileNotFoundException e) {
 				logger.error(e.getMessage());
-				e.printStackTrace();
 			}
 			return null;
 		}
@@ -1391,12 +1400,27 @@ public class MapStudyController {
 		if (mapStudy.getForm() != null) {
 			questions = mapStudy.getForm().getQuestions();
 		}
+		
+		LearningStats learningStats = mapStudyDao.findLearningStats(mapStudy.getId());
+		
+		if(learningStats == null){
+			learningStats = new LearningStats();
+		}
+		
+		LearningConfiguration learningConfiguration = mapStudyDao.findLearningConfiguration(mapStudy.getId());
+		
+		if (learningConfiguration == null){
+			learningConfiguration = new LearningConfiguration();
+		}
 
 		result.include("questionTypes", QuestionType.values());
 		result.include("questions", questions);
 		result.include("mydiv", mydiv);
 		result.include("map", mapStudy);
 		result.include("sources", sources);
+		result.include("algorithms", LearningAlgorithms.values());
+		result.include("learningStats", learningStats);
+		result.include("learningConfiguration", learningConfiguration);		
 	}
 
 	@Get
