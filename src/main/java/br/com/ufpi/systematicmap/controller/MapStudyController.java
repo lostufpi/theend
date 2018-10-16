@@ -52,6 +52,8 @@ import br.com.ufpi.systematicmap.dao.SearchStringDao;
 import br.com.ufpi.systematicmap.dao.UserDao;
 import br.com.ufpi.systematicmap.files.FilesUtils;
 import br.com.ufpi.systematicmap.interceptor.UserInfo;
+import br.com.ufpi.systematicmap.learn.dao.LearningConfigurationDao;
+import br.com.ufpi.systematicmap.learn.dao.LearningStatsDao;
 import br.com.ufpi.systematicmap.learn.model.LearningAlgorithms;
 import br.com.ufpi.systematicmap.learn.model.LearningConfiguration;
 import br.com.ufpi.systematicmap.learn.model.LearningStats;
@@ -112,21 +114,24 @@ public class MapStudyController implements Serializable {
 	private EvaluationDao evaluationDao;
 	private ResearchQuestionDao questionDao;
 	private SearchStringDao stringDao;
+	private LearningStatsDao learningStatsDao;
+	private LearningConfigurationDao learningConfigurationDao;
 
 	private MailUtils mailUtils;
 
 	private final Logger logger;
 
+
 	@Deprecated
 	protected MapStudyController() {
-		this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 	}
 
 	@Inject
 	public MapStudyController(MapStudyDao musicDao, UserInfo userInfo, Result result, Validator validator,
 			FilesUtils files, UserDao userDao, ArticleDao articleDao, InclusionCriteriaDao inclusionDao,
 			ExclusionCriteriaDao exclusionDao, EvaluationDao evaluationDao, MailUtils mailUtils, Linker linker,
-			ResearchQuestionDao questionDao, SearchStringDao stringDao, TaskService taskService, Logger logger) {
+			ResearchQuestionDao questionDao, SearchStringDao stringDao, TaskService taskService, Logger logger, LearningStatsDao learningStatsDao, LearningConfigurationDao learningConfigurationDao) {
 		this.mapStudyDao = musicDao;
 		this.result = result;
 		this.validator = validator;
@@ -143,6 +148,8 @@ public class MapStudyController implements Serializable {
 		this.stringDao = stringDao;
 		this.taskService = taskService;
 		this.logger = logger;
+		this.learningStatsDao = learningStatsDao;
+		this.learningConfigurationDao = learningConfigurationDao;
 	}
 
 	@Get("/maps")
@@ -1401,13 +1408,13 @@ public class MapStudyController implements Serializable {
 			questions = mapStudy.getForm().getQuestions();
 		}
 		
-		LearningStats learningStats = mapStudyDao.findLearningStats(mapStudy.getId());
+		LearningStats learningStats = learningStatsDao.findLearningStats(mapStudy.getId());
 		
 		if(learningStats == null){
 			learningStats = new LearningStats();
 		}
 		
-		LearningConfiguration learningConfiguration = mapStudyDao.findLearningConfiguration(mapStudy.getId());
+		LearningConfiguration learningConfiguration = learningConfigurationDao.findLearningConfiguration(mapStudy.getId());
 		
 		if (learningConfiguration == null){
 			learningConfiguration = new LearningConfiguration();

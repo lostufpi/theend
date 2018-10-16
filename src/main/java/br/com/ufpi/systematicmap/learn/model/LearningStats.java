@@ -37,7 +37,7 @@ public class LearningStats implements Serializable{
 	@Enumerated(EnumType.STRING)
 	private LearningAlgorithms algorithm;
 	
-	private Integer numberarticles;
+	private Integer numberArticles;
 	private Integer numberArticlesAccepted;
 	private Integer numberArticlesRejected;
 	
@@ -56,12 +56,13 @@ public class LearningStats implements Serializable{
 	 * @param algorithm
 	 */
 	public LearningStats(MapStudy mapStudy, LearningAlgorithms algorithm) {
-		super();
+		resetInfos(algorithm);
 		this.mapStudy = mapStudy;
-		this.algorithm = algorithm;
 	}
-	
-	public LearningStats(){}
+
+	public LearningStats(){
+		resetInfos(null);
+	}
 
 	/**
 	 * @return the mapStudy
@@ -80,8 +81,8 @@ public class LearningStats implements Serializable{
 	/**
 	 * @return the numberarticles
 	 */
-	public Integer getNumberarticles() {
-		return numberarticles;
+	public Integer getNumberArticles() {
+		return numberArticles;
 	}
 
 	/**
@@ -164,8 +165,8 @@ public class LearningStats implements Serializable{
 	/**
 	 * @param numberarticles the numberarticles to set
 	 */
-	public void setNumberarticles(Integer numberarticles) {
-		this.numberarticles = numberarticles;
+	public void setNumberArticles(Integer numberarticles) {
+		this.numberArticles = numberarticles;
 	}
 
 	/**
@@ -278,7 +279,21 @@ public class LearningStats implements Serializable{
 	public String toString() {
 		return String.format(
 				"LearningStats [mapStudy=%s, algorithm=%s, numberarticles=%s, numberArticlesAccepted=%s, numberArticlesRejected=%s, wss=%s, recall=%s, accuracy=%s, error=%s, rocArea=%s, fMeasure=%s, numberArticlesTraining=%s]",
-				mapStudy, algorithm, numberarticles, numberArticlesAccepted, numberArticlesRejected, wss, recall,
+				mapStudy, algorithm, numberArticles, numberArticlesAccepted, numberArticlesRejected, wss, recall,
 				accuracy, error, rocArea, fMeasure, numberArticlesTraining);
+	}
+
+	public void resetInfos(LearningAlgorithms algorithm) {
+		this.algorithm = algorithm;
+		this.numberArticles = 0;
+		this.numberArticlesAccepted = 0;
+		this.numberArticlesRejected = 0;
+		this.wss = 0.0;
+		this.recall = 0.0;
+		this.accuracy = 0.0;
+		this.error = 0.0;
+		this.rocArea = 0.0;
+		this.fMeasure = 0.0;
+		this.numberArticlesTraining = 0;
 	}
 }

@@ -58,27 +58,4 @@ public class MapStudyDao extends Dao<MapStudy> {
 		
 		return mapStudy;
 	}
-	
-	public LearningConfiguration findLearningConfiguration(Long id){
-		LearningConfiguration learningConfiguration = null;
-		
-		try {
-			learningConfiguration = entityManager.createQuery("select lc from LearningConfiguration lc where lc.mapStudy.id =:id", LearningConfiguration.class).setParameter("id", id).getSingleResult();
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
-		
-		return learningConfiguration;
-	}
-	
-	public LearningStats findLearningStats(Long id){
-		LearningStats learningStats = null;
-		try {
-			learningStats = entityManager.createQuery("select ls from LearningStats ls where ls.mapStudy.id =:id", LearningStats.class).setParameter("id", id).getSingleResult();
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
-		
-		return learningStats;
-	}
 }

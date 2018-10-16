@@ -634,8 +634,107 @@
 		// Captura seleção de tipo
 		$(document).on('change', '.selection-algorithm', function() {
 			isLogado();
+			selectedValue = $("#algorith-type option:selected").val();
+			selectedName = $("#algorith-type option:selected").html(); 
+			console.log('selectedValue', selectedValue);
+			console.log('selectedName', selectedName);
+
+			if(selectedValue != -1){
+				searchLearningStats($("#mapid").val(), selectedValue, selectedName);
+			}else{
+				messages('danger', 'Algoritmo', 'Selecione um algoritmo.');
+				hidePanelStats();
+			}
+		});
+
+		function searchLearningStats(mapid, algorithm, selectedName) {
+			$.ajax({
+				url : '${linkTo[AutomaticSelectionController].calculateStats}',
+				dataType : 'json',
+				contentType : 'application/json; charset=utf-8',
+				type : 'POST',
+				traditional : true,
+				data : JSON.stringify({
+					"mapid" : mapid,
+					"algorithm" : algorithm
+				}),
+				success : function(data) {
+					setStats(data, algorithm, selectedName);
+					showPanelStats();
+				},
+				error : function(e) {
+					hidePreloader();
+// 					alert('Ops, ocorreu um problema ao remover a questão. Tente novamente');
+					messages('danger', 'Estatísticas', 'Ops, ocorreu um problema ao calcular as estatísticas do algoritmo. Tente novamente.');
+					console.error(mapid, e);
+				}
+			});
+		};
+
+		function showPanelStats() {
+			$('#panel-stats-algorithm').removeClass('hide');
+		};
+
+		function hidePanelStats() {
+			$('#panel-stats-algorithm').addClass('hide');
+		};
+
+		
+		function setStats(data, algorithm, selectedName) {
+			console.log(algorithm);
+			$('#algorithmSelected').val(algorithm);
+			$('#algorithmName').html(selectedName);
+			$('#numberarticles').html(data.learningStats['numberArticles']);
+			$('#numberArticlesAccepted').html(data.learningStats['numberArticlesAccepted']);
+			$('#numberArticlesRejected').html(data.learningStats['numberArticlesRejected']);
+			$('#wss').html(data.learningStats['wss']);
+			$('#recall').html(data.learningStats['recall']);
+			$('#accuracy').html(data.learningStats['accuracy']);
+			$('#error').html(data.learningStats['error']);
+			$('#rocArea').html(data.learningStats['rocArea']);
+			$('#fMeasure').html(data.learningStats['fMeasure']);
+			$('#numberArticlesTraining').html(data.learningStats['numberArticlesTraining']);
+		};
+				
+		$(document).on('click', '#button-save-algorithm', function(e){
+			e.preventDefault();
+			var mapid = Number($('#mapid').val());
+			var algorithm = $('#algorithmSelected').val();
+			
+			var learningConfiguration = {};
+			learningConfiguration.numberArtclesValidation = Number($('#numberArtclesValidation').val());
+			learningConfiguration.useResearcher = $('#useResearcher').prop('checked');
+			learningConfiguration.showSelection = $('#showSelection').prop('checked');
+
+			//params = JSON.stringify({"mapid" : mapid, "algorithm" : algorithm, "learningConfiguration" : learningConfiguration});
+			params = {"mapid" : mapid, "algorithm" : algorithm, "learningConfiguration" : learningConfiguration};
+			address = "${linkTo[AutomaticSelectionController].addconfiguration}";
+
+		 	console.log('JSON: ', JSON.stringify(params));
+		 	console.log("NORMAL", params);
+		 	console.log('JQ', jQuery.parseJSON(JSON.stringify(params)));
+			console.log("address", address );
+
+			$.ajax({ 
+				url : address,
+				dataType : 'json',
+				contentType : 'application/json; charset=utf-8',
+				type : 'POST',
+				traditional : true,
+				data : JSON.stringify(params),
+				success : function(data) {
+					console.log("success!");
+					messages('info', 'Configurações', 'Configurações salvas com sucesso\!');
+// 					window.location.reload();
+				},
+				error : function(e) {
+					messages('danger', 'Configurações', 'Ops, ocorreu um problema ao salvar configurações. Tente novamente.');
+					console.error(e);
+				}
+			});
 
 		});
+		
 	    
 // 	    $("#form-add-subquestion-extraction").validate({ 
 //             rules: {
@@ -1050,12 +1149,27 @@
 					<div class="row">
 						<div class="col-sm-12">
 							<label for="algorith-type" class=""><fmt:message
-									key="mapstudy.learningConfiguration.algorithm" /></label> <select
-								class="form-control selection-algorithm" name="type"
-								id="algorith-type">
-								<c:forEach var="algorithm" items="${algorithms}">
-									<option value="${algorithm}">${algorithm.name}</option>
-								</c:forEach>
+									key="mapstudy.learningConfiguration.algorithm" /></label> 
+							<select	class="form-control selection-algorithm" name="algorithm" id="algorith-type">
+							<c:choose>
+								<c:when test="${learningConfiguration.algorithm != null}">
+								<option value="-1">Selecione um algoritmo</option>
+<%-- 									<option selected value="${learningConfiguration.algorithm}">${learningConfiguration.algorithm.name}</option> --%>
+								</c:when>
+								<c:otherwise>
+									<option selected value="-1">Selecione um algoritmo</option>
+								</c:otherwise>
+							</c:choose>
+							<c:forEach var="a" items="${algorithms}">
+								<c:choose>
+									<c:when test="${learningConfiguration.algorithm eq a}">
+										<option selected value="${a}">${a.name}</option>
+									</c:when>
+									<c:otherwise>
+										<option value="${a}">${a.name}</option>
+									</c:otherwise>
+								</c:choose>
+							</c:forEach>
 							</select>
 						</div>
 					</div>
@@ -1063,31 +1177,23 @@
 						<div class="col-sm-12">
 							<label for="numberArtclesValidation" class=""><fmt:message
 									key="mapstudy.learningConfiguration.numberArtclesValidation" /></label><br />
-							<input type="number" name="numberArtclesValidation"
+							<input type="number" name="learningConfiguration.numberArtclesValidation"
 								id="numberArtclesValidation"
 								value="${learningConfiguration.numberArtclesValidation}" />
 						</div>
 					</div>
 					<div class="row">
 						<div class="col-sm-12">
-									<input
-								type="checkbox" name="useResearcher"
-								value="${learningConfiguration.useResearcher}" />
-							<label for="useResearcher" class=""><fmt:message
-									key="mapstudy.learningConfiguration.useResearcher" /></label> 
+							<input	type="checkbox" id="useResearcher" name="learningConfiguration.useResearcher"	value="${learningConfiguration.useResearcher}" ${learningConfiguration.useResearcher ? 'checked="checked"' : '' }/> <fmt:message	key="mapstudy.learningConfiguration.useResearcher" />
 						</div>
 					</div>
 					<div class="row">
 						<div class="col-sm-12">
-									<input
-								type="checkbox" name="showSelection"
-								value="${learningConfiguration.showSelection}" />
-							<label for="showSelection" class=""><fmt:message
-									key="mapstudy.learningConfiguration.showSelection" /></label> 
+							<input type="checkbox" id="showSelection" name="learningConfiguration.showSelection" value="${learningConfiguration.showSelection}" ${learningConfiguration.showSelection ? 'checked="checked"' : '' } /> <fmt:message key="mapstudy.learningConfiguration.showSelection" />
 						</div>
 					</div>
 					<div class="row">
-						<button type="submit" id="button-save-algorithm" class="btn btn-large btn-primary" style="margin-left: 2% !impoartant;">
+						<button type="submit" id="button-save-algorithm" class="btn btn-large btn-primary" style="margin-left: 2%;">
 							<fmt:message key="add" />
 						</button>
 					</div>
@@ -1098,55 +1204,66 @@
 
 		
 <!-- 		Painel de informações do algoritmo selecionado -->
-		<div class="panel panel-default">
+		<div class="panel panel-default ${learningConfiguration.algorithm != null ? '' : 'hide'}" id="panel-stats-algorithm">
 			<div class="panel-heading">
-				<b><fmt:message key="mapstudy.learningStats" /> - ${learningStats.algorithm} </b>
+				<b><fmt:message key="mapstudy.learningStats" /></b>
 			</div>
 			<!-- /.panel-heading -->
 			<div class="panel-body">
-<!-- 				<div class="row"> -->
-<!-- 					<div class="col-sm-12"> -->
-						<p>
-							<strong><fmt:message key="mapstudy.learningStats.numberarticles" />:</strong> ${learningStats.numberarticles}
-						<p>
-						
-						<p>
-							<strong><fmt:message key="mapstudy.learningStats.numberArticlesAccepted" />:</strong> ${learningStats.numberArticlesAccepted}
-						<p>
-						
-						<p>
-							<strong><fmt:message key="mapstudy.learningStats.numberArticlesRejected" />:</strong> ${learningStats.numberArticlesRejected}
-						<p>
-						
-						<p>
-							<strong><fmt:message key="mapstudy.learningStats.wss" />:</strong> ${learningStats.wss}
-						<p>
-						
-						<p>
-							<strong><fmt:message key="mapstudy.learningStats.recall" />:</strong> ${learningStats.recall}
-						<p>
-						
-						<p>
-							<strong><fmt:message key="mapstudy.learningStats.accuracy" />:</strong> ${learningStats.accuracy}
-						<p>
-						
-						<p>
-							<strong><fmt:message key="mapstudy.learningStats.error" />:</strong> ${learningStats.error}
-						<p>
-						
-						<p>
-							<strong><fmt:message key="mapstudy.learningStats.rocArea" />:</strong> ${learningStats.rocArea}
-						<p>
-						
-						<p>
-							<strong><fmt:message key="mapstudy.learningStats.fMeasure" />:</strong> ${learningStats.fMeasure}
-						<p>
-						
-						<p>
-							<strong><fmt:message key="mapstudy.learningStats.numberArticlesTraining" />:</strong> ${learningStats.numberArticlesTraining}
-						<p>
-<!-- 					</div> -->
-<!-- 				</div> -->
+			<input type="hidden" name="algorithmSelected" id="algorithmSelected" value="${learningStats.algorithm}" />
+				<p>
+					<strong><fmt:message key="mapstudy.learningConfiguration.algorithm" />:</strong> 
+					<span id="algorithmName">${learningStats.algorithm.name}</span>
+				<p>
+				<p>
+					<strong><fmt:message key="mapstudy.learningStats.numberarticles" />:</strong> 
+					<span id="numberarticles">${learningStats.numberArticles}</span>
+				<p>
+				
+				<p>
+					<strong><fmt:message key="mapstudy.learningStats.numberArticlesAccepted" />:</strong> 
+					<span id="numberArticlesAccepted">${learningStats.numberArticlesAccepted}</span>
+				<p>
+				
+				<p>
+					<strong><fmt:message key="mapstudy.learningStats.numberArticlesRejected" />:</strong> 
+					<span id="numberArticlesRejected">${learningStats.numberArticlesRejected}</span>
+				<p>
+				
+				<p>
+					<strong><fmt:message key="mapstudy.learningStats.wss" />:</strong> 
+					<span id="wss">${learningStats.wss}</span>
+				<p>
+				
+				<p>
+					<strong><fmt:message key="mapstudy.learningStats.recall" />:</strong> 
+					<span id="recall">${learningStats.recall}</span>
+				<p>
+				
+				<p>
+					<strong><fmt:message key="mapstudy.learningStats.accuracy" />:</strong> 
+					<span id="accuracy">${learningStats.accuracy}</span>
+				<p>
+				
+				<p>
+					<strong><fmt:message key="mapstudy.learningStats.error" />:</strong> 
+					<span id="error">${learningStats.error}</span>
+				<p>
+				
+				<p>
+					<strong><fmt:message key="mapstudy.learningStats.rocArea" />:</strong> 
+					<span id="rocArea">${learningStats.rocArea}</span>
+				<p>
+				
+				<p>
+					<strong><fmt:message key="mapstudy.learningStats.fMeasure" />:</strong> 
+					<span id="fMeasure">${learningStats.fMeasure}</span>
+				<p>
+				
+				<p>
+					<strong><fmt:message key="mapstudy.learningStats.numberArticlesTraining" />:</strong> 
+					<span id="numberArticlesTraining">${learningStats.numberArticlesTraining}</span>
+				<p>
 			</div>
 		</div>
 
