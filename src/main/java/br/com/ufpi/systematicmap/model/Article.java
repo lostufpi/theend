@@ -26,6 +26,7 @@ import javax.validation.constraints.Size;
 
 import br.com.caelum.vraptor.serialization.SkipSerialization;
 import br.com.ufpi.systematicmap.dao.EvaluationExtractionFinalDao;
+import br.com.ufpi.systematicmap.learn.model.ArticleStatusSelection;
 import br.com.ufpi.systematicmap.learn.model.EvaluationArticleAlgorithm;
 import br.com.ufpi.systematicmap.learn.model.LearningAlgorithms;
 import br.com.ufpi.systematicmap.model.enums.ArticleSourceEnum;
@@ -134,6 +135,9 @@ public class Article implements Serializable {
 	@OneToMany(mappedBy="article", cascade= {CascadeType.REMOVE})
 	@SkipSerialization
 	private List<EvaluationArticleAlgorithm> evaluationsAlgorithms = new ArrayList<>();
+	
+	@Enumerated(EnumType.STRING)
+	private ArticleStatusSelection statusSelection = ArticleStatusSelection.NOT_USED;
 	
 	public void addEvaluationAlgorith(LearningAlgorithms algorithm, EvaluationStatusEnum evaluation){
 		EvaluationArticleAlgorithm evaluationArticleAlgorithm = new EvaluationArticleAlgorithm(this, algorithm, evaluation);
