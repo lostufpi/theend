@@ -54,6 +54,26 @@ public class Evaluation implements Serializable {
 	@JoinTable(name="evaluations_exclusions", joinColumns={@JoinColumn(name="evaluation_id")}, inverseJoinColumns={@JoinColumn(name="exclusion_id")})
 	private Set<ExclusionCriteria> exclusionCriterias = new HashSet<>();
 	
+	/**
+	 * 
+	 */
+	public Evaluation() {
+	}
+	
+	/**
+	 * @param comment
+	 * @param user
+	 * @param mapStudy
+	 * @param article
+	 */
+	public Evaluation(String comment, User user, MapStudy mapStudy, Article article) {
+		super();
+		this.comment = comment;
+		this.user = user;
+		this.mapStudy = mapStudy;
+		this.article = article;
+	}
+
 	public Long getId() {
 		return id;
 	}

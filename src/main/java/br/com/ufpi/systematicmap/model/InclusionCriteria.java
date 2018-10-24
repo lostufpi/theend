@@ -39,6 +39,20 @@ public class InclusionCriteria implements Serializable {
 	@SkipSerialization
 	@ManyToMany(mappedBy = "inclusionCriterias")
 	private Set<Evaluation> evaluations = new HashSet<>();
+	
+	/**
+	 * 
+	 */
+	public InclusionCriteria() {
+	}
+
+	/**
+	 * @param description
+	 */
+	public InclusionCriteria(String description) {
+		super();
+		this.description = description;
+	}
 
 	public Long getId() {
 		return id;

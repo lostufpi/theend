@@ -63,6 +63,21 @@ public class User implements Serializable {
 	@OneToMany(mappedBy="user")
 	@SkipSerialization
 	private Set<Evaluation> evaluations = new HashSet<>();
+	
+	/**
+	 * 
+	 */
+	public User() {
+	}
+
+	/**
+	 * @param name
+	 */
+	public User(String name, String login) {
+		super();
+		this.name = name;
+		this.login = login;
+	}
 
 	public String getLogin() {
 		return login;

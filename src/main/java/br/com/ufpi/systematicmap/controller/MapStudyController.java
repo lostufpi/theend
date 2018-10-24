@@ -57,6 +57,7 @@ import br.com.ufpi.systematicmap.learn.dao.LearningStatsDao;
 import br.com.ufpi.systematicmap.learn.model.LearningAlgorithms;
 import br.com.ufpi.systematicmap.learn.model.LearningConfiguration;
 import br.com.ufpi.systematicmap.learn.model.LearningStats;
+import br.com.ufpi.systematicmap.learn.util.EvaluationArticleAlgorithmUtil;
 import br.com.ufpi.systematicmap.model.Article;
 import br.com.ufpi.systematicmap.model.Evaluation;
 import br.com.ufpi.systematicmap.model.ExclusionCriteria;
@@ -116,6 +117,7 @@ public class MapStudyController implements Serializable {
 	private SearchStringDao stringDao;
 	private LearningStatsDao learningStatsDao;
 	private LearningConfigurationDao learningConfigurationDao;
+	private EvaluationArticleAlgorithmUtil evaluationArticleAlgorithmUtil;
 
 	private MailUtils mailUtils;
 
@@ -124,14 +126,15 @@ public class MapStudyController implements Serializable {
 
 	@Deprecated
 	protected MapStudyController() {
-		this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 	}
 
 	@Inject
 	public MapStudyController(MapStudyDao musicDao, UserInfo userInfo, Result result, Validator validator,
 			FilesUtils files, UserDao userDao, ArticleDao articleDao, InclusionCriteriaDao inclusionDao,
 			ExclusionCriteriaDao exclusionDao, EvaluationDao evaluationDao, MailUtils mailUtils, Linker linker,
-			ResearchQuestionDao questionDao, SearchStringDao stringDao, TaskService taskService, Logger logger, LearningStatsDao learningStatsDao, LearningConfigurationDao learningConfigurationDao) {
+			ResearchQuestionDao questionDao, SearchStringDao stringDao, TaskService taskService, Logger logger, 
+			LearningStatsDao learningStatsDao, LearningConfigurationDao learningConfigurationDao, EvaluationArticleAlgorithmUtil evaluationArticleAlgorithmUtil) {
 		this.mapStudyDao = musicDao;
 		this.result = result;
 		this.validator = validator;
@@ -150,6 +153,7 @@ public class MapStudyController implements Serializable {
 		this.logger = logger;
 		this.learningStatsDao = learningStatsDao;
 		this.learningConfigurationDao = learningConfigurationDao;
+		this.evaluationArticleAlgorithmUtil = evaluationArticleAlgorithmUtil;
 	}
 
 	@Get("/maps")
@@ -1193,16 +1197,20 @@ public class MapStudyController implements Serializable {
 				return u1.getName().compareTo(u2.getName());
 			}
 		});
+		
+		members.addAll(evaluationArticleAlgorithmUtil.algorithmToMembers(mapStudy));
 
 		List<ArticleCompareVO> articlesCompare = new ArrayList<ArticleCompareVO>();
 		List<ArticleCompareVO> articlesAcceptedCompare = new ArrayList<ArticleCompareVO>();
 
-		for (Article a : articles) {
+		for (Article a : articles) { 
 			HashMap<User, Evaluation> evaluations = new HashMap<User, Evaluation>();
 			boolean hasAccepted = false, all = true, allEvaluated = true;
+			
 			for (User u : members) {
-				Evaluation evaluation = a.getEvaluation(u);
+				Evaluation evaluation = putEvaluation(a, u);
 				evaluations.put(u, evaluation);
+				
 				if (evaluation != null) {
 					if (evaluation.getEvaluationStatus().equals(EvaluationStatusEnum.ACCEPTED)) {
 						hasAccepted = true;
@@ -1213,6 +1221,7 @@ public class MapStudyController implements Serializable {
 					allEvaluated = false;
 				}
 			}
+			
 			// TODO Seta se aceito ou recusado se todas as avaliações forem iguais
 			if (equalSelections && (a.getFinalEvaluation() == null
 					|| a.getFinalEvaluation().equals(EvaluationStatusEnum.NOT_EVALUATED)) && allEvaluated) {
@@ -1250,6 +1259,21 @@ public class MapStudyController implements Serializable {
 		}
 	}
 
+	/**
+	 * @param a
+	 * @param u
+	 * @return
+	 */
+	private Evaluation putEvaluation(Article a, User u) {
+		Evaluation evaluation = null;
+		if(u.getId() == null){
+			evaluation = evaluationArticleAlgorithmUtil.putLearningEvaluation(a, u);
+		}else{
+			evaluation = a.getEvaluation(u);
+		}
+		return evaluation;
+	}
+
 	@Path("/maps/finalEvaluate")
 	@Post
 	public void finalEvaluate(Long mapStudyId, Long articleId, EvaluationStatusEnum evaluation) {
@@ -1280,7 +1304,7 @@ public class MapStudyController implements Serializable {
 			HashMap<User, Evaluation> evaluations = new HashMap<User, Evaluation>();
 
 			for (User u : users) {
-				Evaluation evaluation = a.getEvaluation(u);
+				Evaluation evaluation = putEvaluation(a, u);
 				evaluations.put(u, evaluation);
 			}
 

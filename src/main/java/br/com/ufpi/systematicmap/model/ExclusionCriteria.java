@@ -37,6 +37,20 @@ public class ExclusionCriteria  implements Serializable {
 	@SkipSerialization
 	@ManyToMany(mappedBy = "exclusionCriterias")
 	private Set<Evaluation> evaluations = new HashSet<>();
+	
+	/**
+	 * 
+	 */
+	public ExclusionCriteria() {
+	}
+
+	/**
+	 * @param description
+	 */
+	public ExclusionCriteria(String description) {
+		super();
+		this.description = description;
+	}
 
 	public Long getId() {
 		return id;

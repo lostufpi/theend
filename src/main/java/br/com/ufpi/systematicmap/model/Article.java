@@ -740,5 +740,15 @@ public class Article implements Serializable {
 	public List<EvaluationArticleAlgorithm> getEvaluationsAlgorithms() {
 		return evaluationsAlgorithms;
 	}
+
+	public EvaluationArticleAlgorithm getEvaluationsAlgorithms(LearningAlgorithms valueOf) {
+		for(EvaluationArticleAlgorithm eaa : evaluationsAlgorithms){
+			if(eaa.getAlgorithm().equals(valueOf)){
+				return eaa;
+			}
+		}
+		
+		return null;
+	}
 	
 }
