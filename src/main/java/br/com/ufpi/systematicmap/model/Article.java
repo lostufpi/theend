@@ -141,6 +141,7 @@ public class Article implements Serializable {
 	
 	public void addEvaluationAlgorith(LearningAlgorithms algorithm, EvaluationStatusEnum evaluation){
 		EvaluationArticleAlgorithm evaluationArticleAlgorithm = new EvaluationArticleAlgorithm(this, algorithm, evaluation);
+//		setStatusSelection(ArticleStatusSelection.TRANING);
 		evaluationsAlgorithms.add(evaluationArticleAlgorithm);
 	}
 	
@@ -717,6 +718,27 @@ public class Article implements Serializable {
 	 */
 	public void setRemoved(boolean removed) {
 		this.removed = removed;
-	}	
+	}
+
+	/**
+	 * @return the statusSelection
+	 */
+	public ArticleStatusSelection getStatusSelection() {
+		return statusSelection;
+	}
+
+	/**
+	 * @param statusSelection the statusSelection to set
+	 */
+	public void setStatusSelection(ArticleStatusSelection statusSelection) {
+		this.statusSelection = statusSelection;
+	}
+
+	/**
+	 * @return the evaluationsAlgorithms
+	 */
+	public List<EvaluationArticleAlgorithm> getEvaluationsAlgorithms() {
+		return evaluationsAlgorithms;
+	}
 	
 }

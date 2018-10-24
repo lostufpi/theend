@@ -315,6 +315,11 @@ $(document).ready(function(){
 				${percentEvaluated}%
 			</div>
 		</div>
+		
+		<div class="progress">
+			<div class="progress-bar progress-bar-success" role="progressbar" style="min-width: 3em; width: ${percentEvaluatedAccepted}%">${percentEvaluatedAccepted}%</div>
+			<div class="progress-bar progress-bar-danger" role="progressbar" style="min-width: 3em; width: ${percentEvaluatedRejected}%">${percentEvaluatedRejected}%</div>
+		</div>
 	</div>
 </div>	
 
@@ -355,6 +360,17 @@ $(document).ready(function(){
 		<p><strong><fmt:message key="mapstudy.article.source"/>:</strong> <span id="articleReadSource">${article.sourceView(article.source)}</span></p>
 		<p><strong><fmt:message key="mapstudy.article.year"/>:</strong> <span id="articleReadYear">${article.year}</span></p>
 		<p><strong><fmt:message key="mapstudy.article.doctype"/>:</strong> <span id="articleReadDocType">${article.docType}</span></p>
+		
+		<div class="evaluation-algorithm">
+			<p><strong><fmt:message key="mapstudy.article.evaluationAlgorithm.algorithm"/>:</strong> <span id="evaluationAlgorithm-algorithm">Random Florest</span></p>
+			<p><strong><fmt:message key="mapstudy.article.evaluationAlgorithm.evaluation"/>:</strong> <span id="evaluationAlgorithm-evaluation">Rejeitado</span></p>
+		</div>
+		
+		<div class="evaluation-algorithm hide">
+			<p><strong><fmt:message key="mapstudy.article.evaluationAlgorithm.algorithm"/>:</strong> <span id="evaluationAlgorithm-algorithm">Random Florest</span></p>
+			<p><strong><fmt:message key="mapstudy.article.evaluationAlgorithm.evaluation"/>:</strong> <span id="evaluationAlgorithm-evaluation">Rejeitado</span></p>
+		</div>
+		
 		<hr/>
 		
 		<div class="row">
@@ -366,6 +382,7 @@ $(document).ready(function(){
 					<input type="hidden" id="articlescore" name="articlescore" value="${article.score}" />
 					
 					<p><strong><fmt:message key="mapstudy.inclusion.criterias"/>:</strong></p>
+					
 					<c:forEach items="${inclusionOrdered}" var="criteria" varStatus="c">
 						<c:set var="containsExc" value="false" />
 						<c:forEach var="done" items="${evaluationDone.inclusionCriterias}">

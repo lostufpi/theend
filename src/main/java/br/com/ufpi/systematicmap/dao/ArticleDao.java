@@ -100,6 +100,27 @@ public class ArticleDao extends Dao<Article> {
 		return articlesEvaluations;
 	}
 	
+	public Long countArticlesEvaluated(User user, MapStudy mapStudy, EvaluationStatusEnum evaluation){
+		Long count = 0l;
+		List<Article> articles = entityManager
+			.createQuery("select a from Article a where a.classification = null and a.mapStudy = :mapStudy AND a.removed = false and a.id in (select e.article.id from Evaluation e where e.user = :user and e.mapStudy = :mapStudy) order by a.id asc", Article.class)
+				.setParameter("user", user)
+				.setParameter("mapStudy", mapStudy)
+				.getResultList();
+		
+		for (Article a : articles){
+			if(evaluation.equals(EvaluationStatusEnum.ACCEPTED) && a.getEvaluationClassification(user).equals(EvaluationStatusEnum.ACCEPTED.getDescription())){
+				count++;
+			}else if(evaluation.equals(EvaluationStatusEnum.REJECTED) && a.getEvaluationClassification(user).equals(EvaluationStatusEnum.REJECTED.getDescription())){
+				count++;
+			}else if(evaluation.equals(EvaluationStatusEnum.NOT_EVALUATED) && a.getEvaluationClassification(user).equals(EvaluationStatusEnum.NOT_EVALUATED.getDescription())){
+				count++;
+			}		
+		}
+		
+		return count;
+	}
+	
 	public List<Article> getArticlesFinalAccepted(MapStudy mapStudy){
 		List<Article> articles = entityManager
 			.createQuery("select a from Article a where a.classification = null and a.finalEvaluation = :finalEvaluation and a.mapStudy = :mapStudy AND a.removed = false order by a.id asc", Article.class)

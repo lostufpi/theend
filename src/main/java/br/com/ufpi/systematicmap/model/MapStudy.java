@@ -24,6 +24,7 @@ import javax.validation.constraints.Size;
 
 import br.com.caelum.vraptor.serialization.SkipSerialization;
 import br.com.ufpi.systematicmap.dao.ArticleDao;
+import br.com.ufpi.systematicmap.model.enums.EvaluationStatusEnum;
 import br.com.ufpi.systematicmap.model.enums.Roles;
 
 
@@ -170,10 +171,15 @@ public class MapStudy implements Serializable{
 	
 	public Double percentEvaluatedDouble(ArticleDao articleDao, User user){
 		int total = articleDao.countArticleNotRefined(this).intValue(),
-		    toEvaluate = articleDao.countArticleToEvaluate(user, this).intValue();
+			accepted = articleDao.countArticlesEvaluated(user, this, EvaluationStatusEnum.ACCEPTED).intValue(),
+					rejected = articleDao.countArticlesEvaluated(user, this, EvaluationStatusEnum.ACCEPTED).intValue();
+				
+//		    toEvaluate = articleDao.countArticleToEvaluate(user, this).intValue();
 		
 		BigDecimal tot = new BigDecimal(total);
-		BigDecimal dontEval = new BigDecimal(toEvaluate);
+//		BigDecimal acceptedEval = new BigDecimal(accepted);
+//		BigDecimal rejectedEval = new BigDecimal(rejected);
+		BigDecimal dontEval = new BigDecimal(total - (accepted+rejected));
 		BigDecimal bigdecimal;
 		
 		if(tot.equals(BigDecimal.ZERO)){
