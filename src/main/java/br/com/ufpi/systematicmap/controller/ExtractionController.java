@@ -211,7 +211,6 @@ public class ExtractionController {
 							for (Alternative newAlt : question.getAlternatives()) {
 								if (altActual.getValue().equals(newAlt.getValue())
 										|| altActual.getId().equals(newAlt.getId())) {
-									System.out.println("Alterntives edit: A1: " + altActual + " A2: " + newAlt);
 									newAlt.setId(altActual.getId());
 									// a2.setQuestion(a.getQuestion());
 									remove = false;
