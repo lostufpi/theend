@@ -268,9 +268,9 @@ public class MapStudyController {
 		result.include("mapStudyUsers", mapStudyUsers);
 		result.include("mapStudyArentUsers", mapStudyArentUsers);
 
-		List<Roles> roles = new ArrayList<Roles>();// asList(Roles.values());
-		roles.add(Roles.PARTICIPANT);
-		roles.add(Roles.SUPERVISOR);
+		List<Roles> roles = asList(Roles.values());//new ArrayList<Roles>();// 
+//		roles.add(Roles.PARTICIPANT);
+//		roles.add(Roles.SUPERVISOR);
 
 		result.include("roles", roles);
 	}
