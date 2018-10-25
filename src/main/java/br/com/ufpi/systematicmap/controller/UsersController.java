@@ -156,7 +156,7 @@ public class UsersController {
 
 		if (!(mapStudy.isCreator(userInfo.getUser()) || mapStudy.isSupervisor(userInfo.getUser()))) {
 			MessagesController.addMessage(new Mensagem("user", "user.is.not.creator", TypeMessage.INFORMATION));
-			result.redirectTo(this).list();
+			result.redirectTo(MapStudyController.class).show(mapid);
 			return;
 		}
 		
