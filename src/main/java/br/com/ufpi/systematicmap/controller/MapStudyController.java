@@ -1183,26 +1183,32 @@ public class MapStudyController {
 
 		for (Article a : articles) {
 			HashMap<User, Evaluation> evaluations = new HashMap<User, Evaluation>();
-			boolean hasAccepted = false, all = true, allEvaluated = true;
+			//boolean hasAccepted = false, all = true;//, allEvaluated = true;
+			int countAccepeted = 0, countRejected = 0;
+			
 			for (User u : members) {
 				Evaluation evaluation = a.getEvaluation(u);
 				evaluations.put(u, evaluation);
+				
 				if (evaluation != null) {
 					if (evaluation.getEvaluationStatus().equals(EvaluationStatusEnum.ACCEPTED)) {
-						hasAccepted = true;
+//						hasAccepted = true;
+						countAccepeted++;
 					} else {
-						all = false;
+//						all = false;
+						countRejected++;
 					}
-				} else {
-					allEvaluated = false;
-				}
+				} 
+//				else {
+//					allEvaluated = false;
+//				}
 			}
+			
 			// TODO Seta se aceito ou recusado se todas as avaliações forem iguais
-			if (equalSelections && (a.getFinalEvaluation() == null
-					|| a.getFinalEvaluation().equals(EvaluationStatusEnum.NOT_EVALUATED)) && allEvaluated) {
-				if (!hasAccepted) {
+			if (equalSelections && (a.getFinalEvaluation() == null	|| a.getFinalEvaluation().equals(EvaluationStatusEnum.NOT_EVALUATED))) {//&& allEvaluated) {
+				if (countAccepeted == 0 && countRejected > 0) {
 					a.setFinalEvaluation(EvaluationStatusEnum.REJECTED);
-				} else if (all) {
+				} else if (countRejected == 0 && countAccepeted > 0) {
 					a.setFinalEvaluation(EvaluationStatusEnum.ACCEPTED);
 				} else {
 					a.setFinalEvaluation(EvaluationStatusEnum.NOT_EVALUATED);
@@ -1216,7 +1222,7 @@ public class MapStudyController {
 			ArticleCompareVO acvo = new ArticleCompareVO(a, members, evaluations);
 			articlesCompare.add(acvo);
 
-			if (hasAccepted) {
+			if (countAccepeted > 0) {
 				articlesAcceptedCompare.add(acvo);
 			}
 		}
