@@ -680,14 +680,14 @@ public class Article implements Serializable {
 	}
 	
 	public List<Comment> getComments() {
-		List<Comment> comments = new ArrayList<>();
+		HashMap<Long, Comment> comments = new HashMap<>();
 
 		for (EvaluationExtraction ev : evaluationExtractions) {
 			if(ev.getComment() != null && !ev.getComment().isEmpty())
-				comments.add(new Comment(ev.getUser(), ev.getComment()));
+				comments.put(ev.getUser().getId(), new Comment(ev.getUser(), ev.getComment()));
 		}
 		
-		return comments;
+		return  new ArrayList<Comment>(comments.values());
 	}
 
 	/**
