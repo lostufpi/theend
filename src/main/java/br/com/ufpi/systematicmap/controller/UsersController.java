@@ -199,7 +199,8 @@ public class UsersController {
 			}
 		}		
 		
-		result.redirectTo(HomeController.class).login();
+		MessagesController.addMessage(new Mensagem("user", "user.transfer.success", TypeMessage.SUCCESS));
+		result.redirectTo(this).transfer(mapid);
 	}
 	
 }
