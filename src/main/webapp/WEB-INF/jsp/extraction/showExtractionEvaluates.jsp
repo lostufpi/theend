@@ -175,6 +175,15 @@ $(document).ready(function(){
 <%-- 							<fmt:message key="mapstudy.extractions.compare.undone"/> --%>
 <%-- 						</c:if> --%>
 					</dd>
+					<dt class="mydt"><strong>Análise de concordância:</strong></dt>
+					<dd class="mydd" style="margin-bottom: 10px;">
+					<form action="${linkTo[ExtractionController].concordance}" method="post">
+					<input type="hidden" name="mapid" value="${map.id}" />
+						<button type="submit" id="concordance-extraction" class="btn btn-large btn-primary btn-xs" style="width: 170px;">
+							Aplicar
+						</button>
+					</form>
+					</dd>
 				  	<dt class="mydt"><strong><fmt:message key="mapstudy.extractions.export"/>:</strong></dt>
 				  	<dd class="mydd">
 				  		<a class="btn btn-default btn-xs" style="width: 170px;" href="${linkTo[ExtractionController].downloadMine(map.id)}"><fmt:message key="mapstudy.extractions.export.csv.mine"/></a>

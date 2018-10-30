@@ -17,6 +17,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 import br.com.ufpi.systematicmap.model.Article;
 import br.com.ufpi.systematicmap.model.EvaluationExtractionFinal;
@@ -44,5 +45,20 @@ public class EvaluationExtractionFinalDao extends Dao<EvaluationExtractionFinal>
         		.setParameter("q1", q1).setParameter("q2", q2).getResultList();
         return extractions;
     }
+
+	public void removeAllExtractionsFinal(MapStudy mapStudy) {
+		try {
+			this.entityManager.getTransaction().begin();
+			Query query = this.entityManager.createQuery("DELETE FROM EvaluationExtractionFinal eaf where eaf.mapStudy = :mapStudy");
+			query.setParameter("mapStudy", mapStudy);
+			int result = query.executeUpdate();
+			this.entityManager.getTransaction().commit();
+			
+			System.out.println("MapStudy_id = " + mapStudy.getId() + ", Total = " + result);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		
+	}
 }
 

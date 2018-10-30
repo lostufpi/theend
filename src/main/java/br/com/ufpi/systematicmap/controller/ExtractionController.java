@@ -47,14 +47,17 @@ import br.com.ufpi.systematicmap.model.MapStudy;
 import br.com.ufpi.systematicmap.model.Mensagem;
 import br.com.ufpi.systematicmap.model.Question;
 import br.com.ufpi.systematicmap.model.User;
+import br.com.ufpi.systematicmap.model.enums.EvaluationStatusEnum;
 import br.com.ufpi.systematicmap.model.enums.QuestionType;
 import br.com.ufpi.systematicmap.model.enums.ReturnStatusEnum;
+import br.com.ufpi.systematicmap.model.enums.Roles;
 import br.com.ufpi.systematicmap.model.enums.TypeMessage;
 import br.com.ufpi.systematicmap.model.vo.ExtractionCompareVO;
 import br.com.ufpi.systematicmap.model.vo.ExtractionFinalVO;
 import br.com.ufpi.systematicmap.model.vo.QuestionAndAlternativeCSV;
 import br.com.ufpi.systematicmap.model.vo.QuestionVO;
 import br.com.ufpi.systematicmap.model.vo.ReturnVO;
+import br.com.ufpi.systematicmap.utils.UserUtil;
 
 /**
  * @author Gleison Andrade
@@ -572,7 +575,8 @@ public class ExtractionController {
 
 			percentEvaluatedDouble = mapStudy.percentExtractedDouble(this.articleDao, user);
 			this.result.include("article", extractions.get(0));
-		} else {
+		} 
+		else {
 			percentEvaluatedDouble = 100d;
 		}
 
@@ -590,6 +594,56 @@ public class ExtractionController {
 		}
 		return null;
 	}
+	
+	//TODO FASE TESTE
+	@Post("/maps/extraction/concordance")
+	public void concordance(Long mapid){
+		MapStudy mapStudy = mapStudyDao.find(mapid);
+		User user = userInfo.getUser();
+
+		if (mapStudy == null) {
+			MessagesController.addMessage(new Mensagem("mapstudy", "mapstudy.is.not.exist", TypeMessage.ERROR));
+			result.redirectTo(MapStudyController.class).list();
+			return;
+		}
+		if (!mapStudy.members().contains(user)) {
+			MessagesController.addMessage(new Mensagem("user", "user.does.not.have.access", TypeMessage.INFORMATION));
+			result.redirectTo(MapStudyController.class).list();
+			return;
+		}	
+		
+		evaluationExtractionFinalDao.removeAllExtractionsFinal(mapStudy);
+		List<Article> articles = articleDao.getArticlesFinalEvaluate(mapStudy, EvaluationStatusEnum.ACCEPTED);
+
+		List<User> members = UserUtil.removeUserRole(mapStudy, Roles.SUPERVISOR);
+
+		Collections.sort(members, new Comparator<User>() {
+			@Override
+			public int compare(User u1, User u2) {
+				return u1.getName().compareTo(u2.getName());
+			}
+		});
+		
+
+		for (Article article : articles){
+			/**
+			 * Obter as extrações feitas por cada usuário
+			 */
+			for (User u : members) {
+				List<EvaluationExtraction> extractionsList = article.getEvaluationExtraction(u); // Extrações feitas pelo usuário u
+				// Para cada extração obter os dados dela
+				if(!extractionsList.isEmpty()){
+					for (EvaluationExtraction evaluationExtraction : extractionsList) {
+						article.addExtractionFinal(evaluationExtraction);
+					}
+				}
+			}
+		}
+		
+		MessagesController.addMessage(new Mensagem("mapstudy.article", "mapstudy.article.concordance.success", TypeMessage.SUCCESS));
+		result.redirectTo(this).compare(mapid);
+	}
+	
 
 	@Get("/maps/{mapid}/compareExtractions")
 	public void compare(Long mapid) {
@@ -651,11 +705,12 @@ public class ExtractionController {
 			return;
 		}
 
-		List<User> members = userDao.mapStudyUsers(mapStudy);
+//		List<User> members = userDao.mapStudyUsers(mapStudy);
+		List<User> members = UserUtil.removeUserRole(mapStudy, Roles.SUPERVISOR);
 
-		if (mapStudy.isSupervisor(user)) {
-			members.remove(user);
-		}
+//		if (mapStudy.isSupervisor(user)) {
+//			members.remove(user);
+//		}
 
 		Collections.sort(members, new Comparator<User>() {
 			@Override
