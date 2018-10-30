@@ -1,6 +1,8 @@
 package br.com.ufpi.systematicmap.utils;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.text.Normalizer;
 import java.util.Map;
 
 import org.jbibtex.BibTeXDatabase;
@@ -26,11 +28,16 @@ public class BibtexToArticleUtils {
 	 * @return string sem { e } caso exista.
 	 */
 	static public String remove(String field){
-		field = field.trim();
-		field = field.replaceAll("[\\r|\\n|\\t]", ""); 
-		
-		if (field.length() > 2 && field.charAt(0) == '{'){
-			field = field.substring(1, (field.length()-1));
+		try {
+			field = new String(field.getBytes(), "UTF-8");
+			field = field.trim();
+			field = field.replaceAll("[\\r|\\n|\\t]", ""); 
+			
+			if (field.length() > 2 && field.charAt(0) == '{'){
+				field = field.substring(1, (field.length()-1));
+			}
+		} catch (UnsupportedEncodingException e) {
+			logger.error(e.getMessage());
 		}
 		return field;
 	}
@@ -42,6 +49,7 @@ public class BibtexToArticleUtils {
 		article.setSource(sourceEnum.toString());
 		
 		String author = getAttr(fields, BibTeXEntry.KEY_AUTHOR);
+		author = Normalizer.normalize(author, Normalizer.Form.NFD).replaceAll("[^\\p{ASCII}]", "");
 		
 		author = remove(author);
 		

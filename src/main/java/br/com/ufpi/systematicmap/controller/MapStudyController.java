@@ -77,6 +77,7 @@ import br.com.ufpi.systematicmap.utils.BibtexUtils;
 import br.com.ufpi.systematicmap.utils.FleissKappa;
 import br.com.ufpi.systematicmap.utils.Linker;
 import br.com.ufpi.systematicmap.utils.MailUtils;
+import br.com.ufpi.systematicmap.utils.UserUtil;
 import br.com.ufpi.systematicmap.utils.builder.FileGenerator;
 import br.com.ufpi.systematicmap.utils.service.TaskService;
 
@@ -581,11 +582,11 @@ public class MapStudyController {
 		
 		if (articles.size() > MINIMUM_REFINED_ARTICLES_TASK) {
 			MessagesController.changeRunner(true);
-			taskService.addTask(new FilterArticles(mapStudy, articles));
+			taskService.addTask(new FilterArticles(mapStudy, articles, articleDao));
 			MessagesController.addMessage(new Mensagem("mapstudy.filter.start.tittle", "mapstudy.filter.start.message", TypeMessage.INFORMATION));
 			result.redirectTo(this).show(id);
 		}else {
-			FilterArticles filter = new FilterArticles(mapStudy, articles);
+			FilterArticles filter = new FilterArticles(mapStudy, articles, articleDao);
 			boolean filterStatus = filter.filter();
 			
 			if(filterStatus) {
@@ -1152,13 +1153,13 @@ public class MapStudyController {
 		}
 
 //		Double percentEvaluatedDouble = mapStudy.percentEvaluatedDouble(articleDao, user);
-		List<User> members = userDao.mapStudyUsers(mapStudy);
-
-		for (int i = 0; i < members.size(); i++) {
-			if (mapStudy.isSupervisor(members.get(i))) {
-				members.remove(i);
-			}
-		}
+		List<User> members = UserUtil.removeUserRole(mapStudy, Roles.SUPERVISOR);//userDao.mapStudyUsers(mapStudy);
+//
+//		for (int i = 0; i < members.size(); i++) {
+//			if (mapStudy.isSupervisor(members.get(i))) {
+//				members.remove(i);
+//			}
+//		}
 
 //		if (!mapStudy.isSupervisor(user)) {
 //			if (percentEvaluatedDouble < 100) {

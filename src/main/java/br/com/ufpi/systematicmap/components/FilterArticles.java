@@ -22,10 +22,11 @@ public class FilterArticles {
 	private MapStudy mapStudy;
 	private ArticleDao articleDao;
 
-	public FilterArticles(MapStudy mapStudy, List<Article> articles) {
+	public FilterArticles(MapStudy mapStudy, List<Article> articles, ArticleDao articleDao) {
 		super();
 		this.mapStudy = mapStudy;
 		this.papers = articles;
+		this.articleDao = articleDao;
 	}
 
 	private void generateListRegex() {
