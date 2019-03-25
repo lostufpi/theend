@@ -1114,13 +1114,15 @@ public class MapStudyController {
 					return null;
 				}
 				
-				download = DownloadBuilder.of(file).withFileName(fileName + typeOfFile.getDescription()).withContentType("application/excel").downloadable().build();
+				download = DownloadBuilder.of(file).withFileName(fileName + typeOfFile.getDescription()).withContentType(typeOfFile.getContentType()).downloadable().build();
 				
 				return download;
 			} catch (FileNotFoundException e) {
 				logger.error(e.getMessage());
 				e.printStackTrace();
 			}
+			
+			
 			return null;
 		}
 	}

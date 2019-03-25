@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 
 import br.com.ufpi.systematicmap.model.Article;
 import br.com.ufpi.systematicmap.model.User;
-import br.com.ufpi.systematicmap.model.enums.ClassificationEnum;
 import br.com.ufpi.systematicmap.model.enums.EvaluationStatusEnum;
 
 public class XLSBuilder {
@@ -25,7 +24,9 @@ public class XLSBuilder {
 	}
 
 	public static File generateFile(List<Article> articles, String fileName, Logger logger, User user) throws IOException {
-		File file = new File(fileName);
+		String temp = System.getProperty("java.io.tmpdir");
+		File file = new File(temp + fileName);
+		
 		try (HSSFWorkbook workbook = new HSSFWorkbook();) {
 			HSSFSheet table = workbook.createSheet();
 			return finalGenerate(table, workbook, file, articles, logger, user);

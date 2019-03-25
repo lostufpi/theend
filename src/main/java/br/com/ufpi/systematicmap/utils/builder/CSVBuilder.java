@@ -16,7 +16,7 @@ public class CSVBuilder {
 		String temp = System.getProperty("java.io.tmpdir");
 
 		File file = new File(temp + fileName);
-		String encoding = "ISO-8859-1";
+		String encoding = "UTF-8";//"ISO-8859-1";
 		FileWriterWithEncoding writer = new FileWriterWithEncoding(file, encoding, false);
 
 		String delimiter = ";";
