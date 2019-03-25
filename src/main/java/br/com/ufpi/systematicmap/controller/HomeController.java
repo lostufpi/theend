@@ -20,7 +20,7 @@ public class HomeController {
 	private final Result result;
 	private final UserInfo userInfo;
 	private final UserDao dao;
-	
+
 	/**
 	 * @deprecated CDI eyes only
 	 */
@@ -30,18 +30,17 @@ public class HomeController {
 
 	@Inject
 	public HomeController(UserDao dao, UserInfo userInfo, Result result) {
-	    this.dao = dao;
+		this.dao = dao;
 		this.result = result;
-	    this.userInfo = userInfo;
+		this.userInfo = userInfo;
 	}
-	
+
 	@Public
 	@Get("/")
 	public void home() {
-		if(userInfo != null && userInfo.getUser() != null){
+		if (userInfo != null && userInfo.getUser() != null) {
 			result.redirectTo(MapStudyController.class).home();
-		}
-		else{
+		} else {
 			result.redirectTo(this).login();
 		}
 	}
@@ -50,39 +49,45 @@ public class HomeController {
 	@Public
 	public void login(String login, String password) {
 		GenerateHashPasswordUtil generateHashPasswordUtil = new GenerateHashPasswordUtil();
-		final User currentUser = dao.find(login, generateHashPasswordUtil.generateHash(password));
-		if (currentUser == null) {
+		User currentUser = dao.find(login);
+
+		if (currentUser != null && generateHashPasswordUtil.isPasswordValid(password, currentUser.getPassword())) {
+			if (!generateHashPasswordUtil.isDefaultEncoder(currentUser.getPassword())) {
+				currentUser.setPassword(generateHashPasswordUtil.generateCodeRecovery(password));
+				currentUser = dao.update(currentUser);
+			}
+
+			userInfo.login(currentUser);
+
+			MessagesController.addMessage(new Mensagem("user.login", "mapstudy.login.success", TypeMessage.SUCCESS));
+			result.redirectTo(MapStudyController.class).home();
+		} else {
 			MessagesController.addMessage(new Mensagem("login", "invalid_login_or_password", TypeMessage.ERROR));
 			result.redirectTo(this).login();
 			return;
 		}
-		
-		userInfo.login(currentUser);
-		
-		MessagesController.addMessage(new Mensagem("user.login", "mapstudy.login.success", TypeMessage.SUCCESS));
-		result.redirectTo(MapStudyController.class).home();
 	}
 
 	public void logout() {
-	    userInfo.logout();
-	    result.redirectTo(this).home();
+		userInfo.logout();
+		result.redirectTo(this).home();
 	}
 
 	@Public
 	@Get
 	public void login() {
 	}
-	
+
 	@Public
 	@Get
 	public void create() {
 	}
-	
+
 	@Public
 	@Get
 	public void recovery() {
 	}
-	
+
 	@Public
 	@Get
 	public void contact() {

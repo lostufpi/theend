@@ -46,7 +46,7 @@ public class UserDao extends Dao<User> {
 		User user = null;
 		
 		try{
-			user = entityManager.createQuery("select u from User u where u.login = :login", User.class)
+			user = entityManager.createQuery("select u from User u where (u.login = :login or u.email = :login)", User.class)
 					.setParameter("login", login)
 					.getSingleResult();			
 		}catch(Exception e){
