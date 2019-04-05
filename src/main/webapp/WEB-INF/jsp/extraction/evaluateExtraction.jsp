@@ -107,36 +107,37 @@ $(document).ready(function(){
 				var test = $('#select2-alternative_id_' + index + '-container');
 				test.attr('title', alternative.value);
 				test.html(alternative.value);
-// 			    console.log('LIST', alternative.id + " | " + alternative.value);
-			  }else if (question.type == 'MULT'){
+			    console.log('LIST', alternative.id + " | " + alternative.value);
+			}else if (question.type == 'MULT'){
 			  	  // setar check box
 				  $('.questionMult').each(function() {
 					if ($(this).val() == alternative.id) {
 						$(this).prop('checked', true);
 					}
-// 						console.log('MULT',$(this).val());
+						console.log('MULT', alternative.name,$(this).val());
 				  });
 			  }else{
 				$('#alternative_value_' + index).val(alternative.value);
-// 				console.log('SIMPLES',alternative.id + " | " + alternative.value);
+				console.log('SIMPLES',alternative.id + " | " + alternative.value);
 			  }
-// 			  console.log('alternativa selecionada: ' + alternative.value);
-// 			  console.log('-------');
+			  console.log('alternativa selecionada: ' + alternative.value);
+			  console.log('-------');
 		};
 
 		var setQuestions = function (extraction){
+			console.log(extraction)
 			if (extraction.length > 0){
 				$('.group_question').each(function(idx, elem){
 					var $elem = $(elem);
 					var id = $elem.find('.group_question_id').val();
 					var question_id = (id == undefined ? null : id);
 
-// 					console.log('index : ' + idx + ' question_id:' + question_id);
+					console.log('index : ' + idx + ' question_id:' + question_id);
 					
 					$.each(extraction, function( index, elemento ) {
-// 						console.log('QUestion: ' + elemento.question.id);
+						console.log('QUestion: ' + elemento.question.id);
 						if (elemento.question.id == question_id){
-// 							console.log('alternative: ' + elemento.alternative);
+							console.log('alternative: ' + elemento.alternative);
 							updateQuestions(elemento.question, elemento.alternative, idx);
 							if (elemento.question.type != 'MULT')
 								return false;

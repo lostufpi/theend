@@ -23,7 +23,7 @@ import br.com.ufpi.systematicmap.model.enums.QuestionType;
  */
 @Entity
 @Table(name="evaluation_extraction")
-public class EvaluationExtraction implements Serializable{
+public class EvaluationExtraction implements Serializable, Comparable<EvaluationExtraction>{
 	/**
 	 * 
 	 */
@@ -204,6 +204,11 @@ public class EvaluationExtraction implements Serializable{
 		return "EvaluationExtraction [id=" + id + ", user=" + user.getId()
 				+ ", article=" + article.getId() + ", alternative=" + alternative.getValue()
 				+ ", question=" + question.getName() + "]";
+	}
+
+	@Override
+	public int compareTo(EvaluationExtraction o) {
+		return this.getQuestion().getName().compareToIgnoreCase(o.getQuestion().getName());
 	}
 	
 	

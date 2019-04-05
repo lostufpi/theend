@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.inject.Inject;
 
@@ -504,14 +503,12 @@ public class ExtractionController {
 
 		extraction = article.getEvaluationExtraction(userInfo.getUser());
 		
-		TreeSet<EvaluationExtraction> extractionOrdered = new TreeSet<EvaluationExtraction>(
-				new Comparator<EvaluationExtraction>() {
-					public int compare(EvaluationExtraction a, EvaluationExtraction b) {
-						return a.getQuestion().getName().compareTo(b.getQuestion().getName());
-					}
-				});
-		extractionOrdered.addAll(extraction);
-		returns.put("extraction", extractionOrdered);
+//		List<EvaluationExtraction> extractionOrdered = new ArrayList<EvaluationExtraction>();
+//		extractionOrdered.addAll(extraction);
+		
+		Collections.sort(extraction);
+		
+		returns.put("extraction", extraction);
 		returns.put("article", article);
 		returns.put("comment", article.getCommentsUser(userInfo.getUser().getId()));
 
