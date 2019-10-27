@@ -215,40 +215,5 @@
 	<!-- Custom Theme JavaScript -->
 	<script src="<c:url value="/js/sb-admin-2.js" />"></script>
 </body>
-<script type="text/javascript"
-	src="<c:url value="/js/capt.mining.useskill.4-oracle.js"/>"></script>
-<script type="text/javascript">
-	//caso utilize JQuery no sistema, utilize o Jquery.ready() e o paramatro "waitdomready" = false 
-	jQuery(document).ready(function() {
-		try {
-			useskill_capt_onthefly({
-				client : "THEEND", //nome abreviado do sistema monitorado
-				version : 1, //versao do script de captura
-
-				url : "http://easii.ufpi.br/oracle-test/backend/actions",
-				// 					url: "http://10.94.15.204:8080/oracle-test/backend/actions",
-				waitdomready : false, //se for verdadeiro, aguarda o evento DOMContentLoaded ser disparado, caso contrario ja executa a captura
-				sendactions : true, //enviar acoes para o servidor
-				debug : false, //apresentar dados no console
-
-				onthefly : true, //para scripts inseridos via onthefly
-				plugin : false, //apenas para script via plugin do chrome
-
-				captureback : false, //captura de eventos de voltar -> con
-				capturehashchange : false, //capturar eventos de mudanca de hash
-				jheat : false, //para sistemas baseados no jheat
-				timetosubmit : 120, //periodicidade em segundos para envio de eventos
-
-				//dados do usuario logado:
-				username : "usuarioTeste", //pode ser retornado por funcao ou uma string
-				role : "user", //pode ser retornado por funcao ou uma string,
-
-				oracleElements : [ "#teste1", "#teste2", "#teste3", ".abc" ]
-			});
-		} catch (e) {
-			console.log('usability analytics stopped!');
-		}
-	});
-</script>
 
 </html>
