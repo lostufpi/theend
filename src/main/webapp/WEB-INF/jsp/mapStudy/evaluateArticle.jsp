@@ -135,7 +135,7 @@ $(document).ready(function(){
 			success: function(data){
 				var article = data['article'];
 				var evaluation = data['evaluation'];
-// 				console.log('article read: ', article);
+ 				console.log('article read: ', article);
 // 				console.log('eval: ', evaluation);
 				actualizeArticle(article, evaluation);
 				messages('info', 'Artigo '+article.id, 'Artigo carregado com sucesso');
@@ -232,7 +232,7 @@ $(document).ready(function(){
 				        var article = data['article'];
 				        var percent = data['percent'];
 				        var evaluation = data['evaluation'];
-						//console.log('article: ', article);
+						console.log('article: ', article);
 // 						console.log('eval: ', evaluation);
 
 						messages('info', 'Artigo '+articleid, 'Avalia&ccedil;&atilde;o do artigo realizada com sucesso.');
@@ -492,6 +492,7 @@ $(document).ready(function(){
 									<td>${eval.article.score}</td>
 <%-- 									<td><a class="btnEvaluate" href="${linkTo[MapStudyController].evaluateArticle(map.id, eval.article.id)}">${eval.article.title}</a></td> --%>
 									<td><a class="readArticle" actualid="${eval.article.id}" href="${linkTo[MapStudyController].loadArticle(map.id, eval.article.id)}">${eval.article.title}</a></td>
+									<%-- <td><a class="readArticle" actualid="${article.id}" nextid="${article.id }" href="${linkTo[MapStudyController].loadArticle(map.id, article.id)}">${article.title}</a></td>--%>
 									<td>${eval.article.sourceView(article.source)}</td>
 									<td>${eval.classification}</td>
 								</tr>

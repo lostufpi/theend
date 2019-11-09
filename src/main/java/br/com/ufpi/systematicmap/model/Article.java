@@ -46,7 +46,7 @@ public class Article implements Serializable {
 	
 	private int score;
 
-	@SkipSerialization
+	
 //	@GeneratedValue(strategy= GenerationType.SEQUENCE, generator="MySequenceGenerator")
 //	@SequenceGenerator(allocationSize=1, schema="myschema",  name="MySequenceGenerator", sequenceName = "mysequence")
 	private Long number;
@@ -70,27 +70,27 @@ public class Article implements Serializable {
 	@Size(max=2000, message="article.title.maxlength")
 	private String title;
 	
-	@SkipSerialization
+	
 	@Size(max=2000, message="article.journal.maxlength")
 	private String journal;
-	@SkipSerialization
+	
 	private Integer year;
-	@SkipSerialization
+	
 	private String volume;
-	@SkipSerialization
+	
 	@Size(max=500)
 	private String pages;
-	@SkipSerialization
+	
 	private String doi;
-	@SkipSerialization
+	
 	@Lob
 	private String note;
-	@SkipSerialization
+	
 	private String url;
-	@SkipSerialization
+	
 	private String docType;//
 	private String source;
-	@SkipSerialization
+	
 	private String language;//
 	
 	@Lob
@@ -99,21 +99,21 @@ public class Article implements Serializable {
 	@Size(max=2000, message="article.keywords.maxlength")
 	private String keywords;
 	
-	@SkipSerialization
+	
 	@Enumerated(EnumType.STRING)
 	private ClassificationEnum classification;
-	@SkipSerialization
+	
 	private Integer regexTitle = 0;
-	@SkipSerialization
+	
 	private Integer regexAbs = 0;
-	@SkipSerialization
+	
 	private Integer regexKeys = 0;
 	
 	@OneToOne
     @JoinColumn(name="same_article_id")
 	@SkipSerialization
 	private Article paperMinLevenshteinDistance;
-	@SkipSerialization
+	
 	private Integer minLevenshteinDistance;
 	
 	@OneToMany(mappedBy="article", cascade=CascadeType.ALL)
