@@ -43,5 +43,51 @@ UPDATE article SET abstrct=TRIM(abstrct), title=TRIM(title), author=TRIM(author)
 DELETE FROM evaluations_inclusions WHERE evaluation_id in (SELECT id FROM evaluation WHERE article_id in (SELECT id FROM article WHERE removed = true));
 DELETE FROM evaluations_exclusions WHERE evaluation_id in (SELECT id FROM evaluation WHERE article_id in (SELECT id FROM article WHERE removed = true));
 DELETE FROM evaluation WHERE article_id in (SELECT id FROM article WHERE removed = true);
+
 UPDATE article SET same_article_id = null WHERE removed = true;
 DELETE FROM article WHERE removed = true;
+
+-- Limpando banco com mapeamentos removidos
+
+DELETE FROM users_mapStudys WHERE mapStudy_id in (SELECT id FROM mapstudy WHERE removed = 1);
+
+DELETE FROM evaluations_inclusions WHERE evaluation_id in (SELECT id FROM evaluation WHERE article_id in 
+	(SELECT id FROM article WHERE mapStudy_id in (SELECT id FROM mapstudy WHERE removed = 1)));
+DELETE FROM evaluations_exclusions WHERE evaluation_id in (SELECT id FROM evaluation WHERE article_id in 
+	(SELECT id FROM article WHERE  mapStudy_id in (SELECT id FROM mapstudy WHERE removed = 1)));
+
+DELETE FROM evaluation WHERE article_id in (SELECT id FROM article WHERE  mapStudy_id in (SELECT id FROM mapstudy WHERE removed = 1));
+
+UPDATE article SET same_article_id = null WHERE mapStudy_id in (SELECT id FROM mapstudy WHERE removed = 1);
+
+-- DELETE FROM refinementparameters WHERE  id in (SELECT refinement_id FROM mapstudy WHERE removed = 1);
+
+-- Remover extrações
+
+DELETE FROM evaluation_extraction WHERE article_id in (SELECT id FROM article WHERE  mapStudy_id in (SELECT id FROM mapstudy WHERE removed = 1));
+DELETE FROM evaluation_extraction_final WHERE article_id in (SELECT id FROM article WHERE  mapStudy_id in (SELECT id FROM mapstudy WHERE removed = 1));
+
+-- remover form
+DELETE FROM Form_Question WHERE Form_id in (SELECT form_id FROM mapstudy WHERE removed = 1)
+SELECT * FROM Form_Question WHERE Form_id not in (SELECT form_id FROM mapstudy WHERE removed = 0 AND form_id is not null);
+
+UPDATE mapstudy SET form_id = null WHERE removed = 1;
+
+DELETE FROM Form WHERE  id not in (SELECT form_id FROM mapstudy WHERE removed = 0 AND form_id is not null);
+
+-- remover alternativas
+DELETE FROM Alternative WHERE question_id in (SELECT questions_id FROM Form_Question WHERE Form_id in (SELECT form_id FROM mapstudy WHERE removed = 1));
+
+-- remover questões
+DELETE FROM Question WHERE id in (SELECT questions_id FROM Form_Question WHERE Form_id in (SELECT form_id FROM mapstudy WHERE removed = 1));
+
+
+DELETE FROM article WHERE  mapStudy_id in (SELECT id FROM mapstudy WHERE removed = 1);
+
+
+DELETE FROM mapstudy WHERE removed = true;
+
+-- Inserção manual de supervisor em um mapeamento
+
+INSERT INTO users_mapStudys (removed, role, mapStudy_id, user_id) 
+	VALUES (0, 'SUPERVISOR', mapStudy_id, user_id);
